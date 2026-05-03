@@ -22,6 +22,27 @@ import { useState } from "react";
 const warrantyMapSrc =
   "https://www.google.com/maps?q=Saint%20Raphael%20Hospital%20Baghdad&output=embed";
 
+type WarrantyLanguage = "english" | "arabic";
+
+const warrantyLanguageCopy = {
+  english: {
+    providerLabel: "Warranty Provider (English):",
+    providerPlaceholder: "Enter warranty provider in English",
+    urlLabel: "Warranty Details URL (English):",
+    urlPlaceholder: "Enter warranty details URL in English",
+    descriptionLabel: "Description (English):",
+    descriptionPlaceholder: "Enter the warranty description in English",
+  },
+  arabic: {
+    providerLabel: "Warranty Provider (Arabic):",
+    providerPlaceholder: "Enter warranty provider in Arabic",
+    urlLabel: "Warranty Details URL (Arabic):",
+    urlPlaceholder: "Enter warranty details URL in Arabic",
+    descriptionLabel: "Description (Arabic):",
+    descriptionPlaceholder: "Enter the warranty description in Arabic",
+  },
+} satisfies Record<WarrantyLanguage, Record<string, string>>;
+
 function WarrantyField({
   label,
   placeholder,
@@ -49,6 +70,10 @@ function WarrantyField({
 }
 
 function WarrantyForm({ onCancel }: { onCancel: () => void }) {
+  const [activeLanguage, setActiveLanguage] =
+    useState<WarrantyLanguage>("english");
+  const languageCopy = warrantyLanguageCopy[activeLanguage];
+
   return (
     <section className="warranty-form-card" aria-label="Add new warranty">
       <div className="warranty-form-header">
@@ -69,10 +94,22 @@ function WarrantyForm({ onCancel }: { onCancel: () => void }) {
 
       <div className="warranty-language-panel">
         <div className="warranty-tabs" role="tablist" aria-label="Warranty language">
-          <button className="is-active" type="button" role="tab" aria-selected="true">
+          <button
+            className={activeLanguage === "english" ? "is-active" : undefined}
+            type="button"
+            role="tab"
+            aria-selected={activeLanguage === "english"}
+            onClick={() => setActiveLanguage("english")}
+          >
             English
           </button>
-          <button type="button" role="tab" aria-selected="false">
+          <button
+            className={activeLanguage === "arabic" ? "is-active" : undefined}
+            type="button"
+            role="tab"
+            aria-selected={activeLanguage === "arabic"}
+            onClick={() => setActiveLanguage("arabic")}
+          >
             العربية
           </button>
         </div>
@@ -81,20 +118,20 @@ function WarrantyForm({ onCancel }: { onCancel: () => void }) {
           <div className="warranty-field-stack">
             <WarrantyField
               icon={User}
-              label="Warranty Provider (English):"
-              placeholder="Enter warranty provider in English"
+              label={languageCopy.providerLabel}
+              placeholder={languageCopy.providerPlaceholder}
             />
             <WarrantyField
               icon={LinkIcon}
-              label="Warranty Details URL (English):"
-              placeholder="Enter warranty details URL in English"
+              label={languageCopy.urlLabel}
+              placeholder={languageCopy.urlPlaceholder}
             />
           </div>
           <WarrantyField
             as="textarea"
             icon={Tag}
-            label="Description (English):"
-            placeholder="Enter the warranty description in English"
+            label={languageCopy.descriptionLabel}
+            placeholder={languageCopy.descriptionPlaceholder}
           />
         </div>
       </div>
