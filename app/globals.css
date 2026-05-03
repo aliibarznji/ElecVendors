@@ -2607,6 +2607,146 @@ a {
   outline-offset: 3px;
 }
 
+.edit-mode-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 10px 22px;
+  background: #ffffff;
+  border-radius: 5px;
+  box-shadow: 0 1px 0 rgba(19, 28, 54, 0.06);
+}
+
+.edit-mode-bar-left {
+  display: flex;
+  align-items: center;
+}
+
+.edit-mode-bar-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.edit-mode-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  padding: 0;
+  color: #596577;
+  font: inherit;
+  font-size: 13px;
+}
+
+.edit-cancel-button,
+.edit-save-button {
+  display: inline-flex;
+  min-height: 34px;
+  align-items: center;
+  justify-content: center;
+  padding: 0 18px;
+  border-radius: 5px;
+  cursor: pointer;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.edit-cancel-button {
+  border: 1px solid #cfd6e4;
+  background: #ffffff;
+  color: #31405c;
+}
+
+.edit-save-button {
+  border: 1px solid #3d5fb6;
+  background: #3d5fb6;
+  color: #ffffff;
+}
+
+.edit-cancel-button:hover { background: #f7faff; }
+.edit-save-button:hover { background: #294c9f; }
+
+.edit-table-input {
+  width: 100%;
+  min-width: 80px;
+  height: 32px;
+  border: 0;
+  border-bottom: 1px solid #b0b8c8;
+  background: transparent;
+  color: #030712;
+  font: inherit;
+  font-size: 13px;
+  outline: 0;
+  padding: 0 2px;
+}
+
+.edit-table-input:focus { border-bottom-color: #3d60ae; }
+
+.cost-margin-cell {
+  display: grid;
+  gap: 3px;
+  white-space: nowrap;
+}
+
+.cost-line {
+  color: #030712;
+  font-size: 12px;
+}
+
+.margin-line {
+  color: #526178;
+  font-size: 11px;
+}
+
+.edit-date-stack {
+  display: grid;
+  gap: 6px;
+}
+
+.edit-date-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border-bottom: 1px solid #b0b8c8;
+  padding-bottom: 3px;
+}
+
+.edit-table-date {
+  width: 110px;
+  border: 0;
+  background: transparent;
+  color: #8a94a3;
+  font: inherit;
+  font-size: 12px;
+  outline: 0;
+}
+
+.edit-table-date:focus { color: #030712; }
+
+.edit-table-select-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border-bottom: 1px solid #b0b8c8;
+  padding-bottom: 3px;
+}
+
+.edit-table-select {
+  border: 0;
+  background: transparent;
+  color: #030712;
+  font: inherit;
+  font-size: 13px;
+  outline: 0;
+  cursor: pointer;
+  appearance: none;
+}
+
 .product-list-content {
   display: grid;
   gap: 24px;
