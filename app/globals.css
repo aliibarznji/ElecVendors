@@ -4668,6 +4668,167 @@ a {
   outline-offset: 3px;
 }
 
+.logistics-request-card {
+  display: grid;
+  gap: 48px;
+  min-height: 597px;
+  padding: 35px 43px 36px;
+  border: 0;
+  border-radius: 4px;
+  background: #ffffff;
+  box-shadow: 0 1px 0 rgba(19, 28, 54, 0.04);
+}
+
+.logistics-form-field {
+  display: grid;
+  gap: 12px;
+  color: #39506d;
+  font-size: 12px;
+  line-height: 1.2;
+}
+
+.logistics-input-wrap,
+.logistics-phone-wrap,
+.logistics-select-wrap {
+  display: flex;
+  width: 100%;
+  min-height: 42px;
+  align-items: center;
+  border: 1px solid #d3d7de;
+  border-radius: 3px;
+  background: #ffffff;
+}
+
+.logistics-input-wrap input,
+.logistics-phone-wrap input,
+.logistics-select-wrap select {
+  min-width: 0;
+  flex: 1;
+  height: 100%;
+  border: 0;
+  background: transparent;
+  color: #526178;
+  font: inherit;
+  font-size: 12px;
+  outline: 0;
+  padding: 0 10px;
+}
+
+.logistics-input-wrap input::placeholder,
+.logistics-select-wrap select,
+.logistics-select-wrap select:invalid {
+  color: #87919f;
+  opacity: 1;
+}
+
+.logistics-input-wrap svg {
+  flex: 0 0 auto;
+  margin-right: 12px;
+  color: #66717d;
+}
+
+.logistics-phone-wrap {
+  padding-left: 21px;
+}
+
+.logistics-country-code {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  color: #111827;
+  font-size: 12px;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.iraq-flag {
+  position: relative;
+  display: inline-block;
+  width: 20px;
+  height: 12px;
+  border: 1px solid #c5cbd4;
+  background: linear-gradient(
+    to bottom,
+    #ce1126 0 33.33%,
+    #ffffff 33.33% 66.66%,
+    #000000 66.66% 100%
+  );
+}
+
+.iraq-flag::after {
+  position: absolute;
+  top: 4px;
+  left: 6px;
+  width: 7px;
+  height: 2px;
+  background: #007a3d;
+  content: "";
+}
+
+.logistics-form-field small {
+  margin-top: -4px;
+  color: #7a8494;
+  font-size: 10px;
+  line-height: 1.2;
+}
+
+.logistics-select-wrap select {
+  appearance: none;
+  padding-right: 12px;
+}
+
+.logistics-select-wrap svg {
+  flex: 0 0 auto;
+  color: #66717d;
+}
+
+.logistics-select-wrap svg:first-of-type {
+  margin-right: 8px;
+}
+
+.logistics-select-wrap svg:last-of-type {
+  margin-right: 12px;
+}
+
+.logistics-submit-button {
+  display: inline-flex;
+  width: 236px;
+  height: 33px;
+  align-items: center;
+  justify-content: center;
+  justify-self: center;
+  border: 0;
+  border-radius: 999px;
+  background: #3d60ae;
+  color: #ffffff;
+  cursor: pointer;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+  margin-top: 2px;
+}
+
+.logistics-request-card::after {
+  display: block;
+  height: 1px;
+  background: #eef0f4;
+  content: "";
+}
+
+.logistics-submit-button:hover,
+.logistics-submit-button:focus-visible {
+  background: #2d4f9f;
+}
+
+.logistics-input-wrap:focus-within,
+.logistics-phone-wrap:focus-within,
+.logistics-select-wrap:focus-within,
+.logistics-submit-button:focus-visible {
+  outline: 2px solid #8293ff;
+  outline-offset: 2px;
+}
+
 @media (max-width: 760px) {
   .top-nav {
     min-height: auto;
@@ -5253,6 +5414,21 @@ a {
   .logistics-start-button {
     width: 100%;
     max-width: 246px;
+  }
+
+  .logistics-request-card {
+    gap: 28px;
+    min-height: 520px;
+    padding: 24px 14px 28px;
+  }
+
+  .logistics-phone-wrap {
+    padding-left: 12px;
+  }
+
+  .logistics-submit-button {
+    width: 100%;
+    max-width: 236px;
   }
 }
 

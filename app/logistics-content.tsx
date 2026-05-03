@@ -1,3 +1,9 @@
+"use client";
+
+import { ChevronDown, Mail, Maximize2, User } from "lucide-react";
+import type { FormEvent } from "react";
+import { useState } from "react";
+
 const logisticsBullets = [
   "Finding a good distributor is difficult. Go direct to retail with Iraq's biggest e-commerce store, and manage your own sales with our tools that allow you to manage your product selection, merchandising, pricing, and promotions.",
   "Need help importing goods into Iraq? We can assist you with shipping, customs & clearance.",
@@ -85,37 +91,107 @@ function LogisticsIllustration() {
   );
 }
 
+function LogisticsRequestForm() {
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+  }
+
+  return (
+    <form className="logistics-request-card" onSubmit={handleSubmit}>
+      <label className="logistics-form-field">
+        <span>Name</span>
+        <span className="logistics-input-wrap">
+          <input placeholder="Enter your full name here" />
+          <User aria-hidden="true" size={17} strokeWidth={2.3} />
+        </span>
+      </label>
+
+      <label className="logistics-form-field">
+        <span>Email Address:</span>
+        <span className="logistics-input-wrap">
+          <input type="email" placeholder="Enter email address" />
+          <Mail aria-hidden="true" size={17} strokeWidth={2.3} />
+        </span>
+      </label>
+
+      <label className="logistics-form-field">
+        <span>Enter Mobile number</span>
+        <span className="logistics-phone-wrap">
+          <span className="logistics-country-code" aria-label="Iraq country code">
+            <span className="iraq-flag" aria-hidden="true" />
+            <span>+964</span>
+            <ChevronDown aria-hidden="true" size={12} strokeWidth={2.3} />
+          </span>
+          <input type="tel" aria-label="Mobile number" />
+        </span>
+        <small>eg : +9647912345678</small>
+      </label>
+
+      <label className="logistics-form-field">
+        <span>Services required</span>
+        <span className="logistics-select-wrap">
+          <select defaultValue="" aria-label="Services required">
+            <option value="" disabled>
+              Services required
+            </option>
+            <option>Importing and clearance</option>
+            <option>Warehousing</option>
+            <option>Last-mile delivery</option>
+            <option>Payment handling</option>
+          </select>
+          <ChevronDown aria-hidden="true" size={15} strokeWidth={2.3} />
+          <Maximize2 aria-hidden="true" size={15} strokeWidth={2.2} />
+        </span>
+      </label>
+
+      <button className="logistics-submit-button" type="submit">
+        Submit
+      </button>
+    </form>
+  );
+}
+
 export function LogisticsContent() {
+  const [showRequestForm, setShowRequestForm] = useState(false);
+
   return (
     <div className="logistics-content">
       <h1>Logistics</h1>
 
-      <section className="logistics-panel" aria-label="Logistics turnkey solution">
-        <div className="logistics-visual-wrap">
-          <LogisticsIllustration />
-        </div>
+      {showRequestForm ? (
+        <LogisticsRequestForm />
+      ) : (
+        <section className="logistics-panel" aria-label="Logistics turnkey solution">
+          <div className="logistics-visual-wrap">
+            <LogisticsIllustration />
+          </div>
 
-        <div className="logistics-copy">
-          <h2>Looking for a turnkey solution?</h2>
-          <p>
-            If you&apos;re looking to sell your products in Iraq but don&apos;t
-            want to make the required investment in building local
-            infrastructure, we can help.
-          </p>
+          <div className="logistics-copy">
+            <h2>Looking for a turnkey solution?</h2>
+            <p>
+              If you&apos;re looking to sell your products in Iraq but don&apos;t
+              want to make the required investment in building local
+              infrastructure, we can help.
+            </p>
 
-          <ul>
-            {logisticsBullets.map((bullet) => (
-              <li key={bullet}>{bullet}</li>
-            ))}
-          </ul>
+            <ul>
+              {logisticsBullets.map((bullet) => (
+                <li key={bullet}>{bullet}</li>
+              ))}
+            </ul>
 
-          <p>Get started now with just a few clicks.</p>
-        </div>
+            <p>Get started now with just a few clicks.</p>
+          </div>
 
-        <button className="logistics-start-button" type="button">
-          START
-        </button>
-      </section>
+          <button
+            className="logistics-start-button"
+            type="button"
+            onClick={() => setShowRequestForm(true)}
+          >
+            START
+          </button>
+        </section>
+      )}
     </div>
   );
 }
