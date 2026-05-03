@@ -1,0 +1,156 @@
+"use client";
+
+import {
+  Box,
+  ChevronLeft,
+  ChevronRight,
+  ClipboardList,
+  CreditCard,
+  FileClock,
+  FileText,
+  Home,
+  Layers,
+  List,
+  MapPin,
+  Megaphone,
+  PackageCheck,
+  Percent,
+  PlusSquare,
+  RotateCcw,
+  Send,
+  ShieldCheck,
+  Truck,
+  User,
+} from "lucide-react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useState } from "react";
+
+const sidebarSections = [
+  {
+    title: "MY ACCOUNT",
+    links: [
+      { label: "Dashboard", href: "/", icon: Home },
+      { label: "Profile", href: "/profile", icon: User },
+      { label: "Warranty", href: "/warranty", icon: ShieldCheck },
+      { label: "Commissions", href: "/commissions", icon: Percent },
+    ],
+  },
+  {
+    title: "PRODUCTS",
+    links: [
+      { label: "Add Product", href: "/products/add", icon: PlusSquare },
+      { label: "Product List", href: "/products", icon: List },
+      { label: "Bulk Operations", href: "/products/bulk", icon: Layers },
+    ],
+  },
+  {
+    title: "TRANSACTIONS",
+    links: [
+      { label: "Purchase Orders", href: "/purchase-orders", icon: Box },
+      {
+        label: "Purchase Requisitions",
+        href: "/purchase-requisitions",
+        icon: ClipboardList,
+      },
+      { label: "Returns", href: "/returns", icon: RotateCcw },
+      { label: "Payments", href: "/payments", icon: CreditCard },
+      { label: "Account Statement", href: "/account-statement", icon: FileText },
+    ],
+  },
+  {
+    title: "PAID SERVICES",
+    links: [
+      { label: "Logistics", href: "/services/logistics", icon: Truck },
+      {
+        label: "New Marketing Campaign",
+        href: "/marketing/new",
+        icon: Megaphone,
+      },
+      {
+        label: "Existing Marketing Campaigns",
+        href: "/marketing/campaigns",
+        icon: PackageCheck,
+      },
+    ],
+  },
+  {
+    title: "DELIVERY SERVICES",
+    links: [
+      { label: "Track My Shipment", href: "/shipments/track", icon: MapPin },
+      { label: "Create a Shipment", href: "/shipments/create", icon: Send },
+    ],
+  },
+  {
+    title: "SYSTEM LOGS",
+    links: [
+      { label: "Product Logs", href: "/logs/products", icon: FileClock },
+      {
+        label: "Purchase Order Logs",
+        href: "/logs/purchase-orders",
+        icon: FileText,
+      },
+      {
+        label: "Purchase Requisition Logs",
+        href: "/logs/purchase-requisitions",
+        icon: ClipboardList,
+      },
+    ],
+  },
+];
+
+export function Sidebar() {
+  const [isCollapsed, setIsCollapsed] = useState(false);
+  const pathname = usePathname();
+
+  return (
+    <aside
+      className={`sidebar${isCollapsed ? " sidebar-collapsed" : ""}`}
+      aria-label="Dashboard sidebar"
+    >
+      <button
+        className="sidebar-toggle"
+        type="button"
+        aria-label={isCollapsed ? "Open sidebar" : "Collapse sidebar"}
+        aria-expanded={!isCollapsed}
+        onClick={() => setIsCollapsed((current) => !current)}
+      >
+        {isCollapsed ? (
+          <ChevronRight aria-hidden="true" size={20} strokeWidth={2.2} />
+        ) : (
+          <ChevronLeft aria-hidden="true" size={20} strokeWidth={2.2} />
+        )}
+      </button>
+
+      <nav className="sidebar-scroll" aria-label="Primary dashboard navigation">
+        {sidebarSections.map((section) => (
+          <div className="sidebar-section" key={section.title}>
+            <p className="sidebar-section-title">{section.title}</p>
+            <div className="sidebar-links">
+              {section.links.map((link) => {
+                const Icon = link.icon;
+                const isActive =
+                  link.href === "/"
+                    ? pathname === "/"
+                    : pathname.startsWith(link.href);
+
+                return (
+                  <Link
+                    aria-current={isActive ? "page" : undefined}
+                    className={`sidebar-link${isActive ? " is-active" : ""}`}
+                    href={link.href}
+                    key={link.label}
+                    title={isCollapsed ? link.label : undefined}
+                  >
+                    <Icon aria-hidden="true" size={21} strokeWidth={1.9} />
+                    <span className="sidebar-link-label">{link.label}</span>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        ))}
+      </nav>
+    </aside>
+  );
+}

@@ -1,0 +1,389 @@
+import type { LucideIcon } from "lucide-react";
+import type { ReactNode } from "react";
+import {
+  Badge,
+  Building2,
+  CalendarDays,
+  Camera,
+  CheckCircle2,
+  Contact,
+  CreditCard,
+  FileText,
+  Globe2,
+  Image as ImageIcon,
+  Info,
+  Mail,
+  MapPin,
+  MessageSquareText,
+  Phone,
+  Save,
+  Tags,
+  Timer,
+  Truck,
+  User,
+  Users,
+  WalletCards,
+  Warehouse,
+} from "lucide-react";
+
+const mapSrc =
+  "https://www.google.com/maps?q=52R4%2B8H2%2C%20Erbil%2C%20Erbil%20Governorate%2C%20Iraq&output=embed";
+
+function SectionHeading({
+  title,
+  icon: Icon,
+}: {
+  title: string;
+  icon: LucideIcon;
+}) {
+  return (
+    <header className="profile-section-heading">
+      <Icon aria-hidden="true" size={24} strokeWidth={2.3} />
+      <h2>{title}</h2>
+    </header>
+  );
+}
+
+function Field({
+  label,
+  value,
+  placeholder,
+  icon: Icon,
+  helper,
+}: {
+  label: string;
+  value?: ReactNode;
+  placeholder?: string;
+  icon?: LucideIcon;
+  helper?: string;
+}) {
+  return (
+    <div className="profile-field">
+      <span className="profile-label">{label}</span>
+      <div className="profile-field-box">
+        <span className={value ? "profile-value" : "profile-placeholder"}>
+          {value || placeholder}
+        </span>
+        {Icon ? (
+          <Icon
+            aria-hidden="true"
+            className="profile-field-icon"
+            size={22}
+            strokeWidth={2.1}
+          />
+        ) : null}
+      </div>
+      {helper ? <span className="field-helper">{helper}</span> : null}
+    </div>
+  );
+}
+
+function PhoneValue({ number }: { number: string }) {
+  return (
+    <span className="phone-value">
+      <span className="country-flag" aria-hidden="true" />
+      <strong>+964</strong>
+      <span className="phone-caret" aria-hidden="true" />
+      <span>{number}</span>
+    </span>
+  );
+}
+
+function ChoiceGroup({
+  label,
+  options,
+  selected,
+}: {
+  label: string;
+  options: string[];
+  selected: string;
+}) {
+  return (
+    <div className="profile-field">
+      <span className="profile-label">{label}</span>
+      <div className="profile-choice-group" role="radiogroup" aria-label={label}>
+        {options.map((option) => (
+          <span
+            aria-checked={option === selected}
+            className={`profile-choice${option === selected ? " is-selected" : ""}`}
+            key={option}
+            role="radio"
+            tabIndex={0}
+          >
+            <span className="choice-dot" aria-hidden="true" />
+            {option}
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function ToggleLine({
+  label,
+  enabled,
+}: {
+  label: string;
+  enabled: boolean;
+}) {
+  return (
+    <div className="toggle-line">
+      <span>{label}</span>
+      <span className={`toggle-switch${enabled ? " is-enabled" : ""}`} />
+      <strong>{enabled ? "Enabled" : "Disabled"}</strong>
+    </div>
+  );
+}
+
+function LocationStatus() {
+  return (
+    <p className="location-status">
+      <CheckCircle2 aria-hidden="true" size={17} strokeWidth={2.5} />
+      <span>Location validated - Erbil Governorate</span>
+    </p>
+  );
+}
+
+function MapFrame({ title }: { title: string }) {
+  return (
+    <div className="map-frame">
+      <iframe
+        loading="lazy"
+        referrerPolicy="no-referrer-when-downgrade"
+        src={mapSrc}
+        title={title}
+      />
+    </div>
+  );
+}
+
+export function ProfileContent() {
+  return (
+    <div className="profile-content">
+      <h1>Profile Details</h1>
+
+      <div className="profile-card">
+        <section className="profile-section">
+          <SectionHeading icon={Info} title="Primary Information" />
+          <div className="profile-grid">
+            <ChoiceGroup
+              label="Account Type:"
+              options={["Individual", "Company"]}
+              selected="Company"
+            />
+            <Field
+              icon={Building2}
+              label="Web Address/Facebook Page:"
+              placeholder="Web Address"
+            />
+            <Field
+              icon={Badge}
+              label="Vendor ID:"
+              value="68c7c5e47bd93a0041cfb75b"
+            />
+            <Field
+              icon={Tags}
+              label="Category of your products:"
+              value="beauty"
+            />
+            <Field
+              icon={Users}
+              label="Individual/Company Name:"
+              value="Sheglam Iraq"
+            />
+            <Field
+              icon={MessageSquareText}
+              label="Comments:"
+              placeholder="Enter your comments"
+            />
+            <Field
+              icon={Tags}
+              label="Category:"
+              value="Brand Distributor/Owner"
+            />
+          </div>
+        </section>
+
+        <section className="profile-section">
+          <SectionHeading icon={Contact} title="Contact Details" />
+          <div className="profile-grid profile-contact-grid">
+            <div className="profile-column">
+              <Field
+                icon={User}
+                label="Contact Person:"
+                value="Mr Ahmed sales manager"
+              />
+              <Field
+                icon={Mail}
+                label="Email Address:"
+                value="beautifulgril2294@gmail.com"
+              />
+              <Field
+                helper="eg : +9647912345678"
+                icon={Phone}
+                label="Mobile Number:"
+                value={<PhoneValue number="7504930644" />}
+              />
+              <ToggleLine label="WhatsApp notification:" enabled={false} />
+            </div>
+            <div className="profile-column">
+              <Field
+                helper="eg : +9647912345678"
+                icon={Phone}
+                label="Alternate Number:"
+                value={<PhoneValue number="7504930644" />}
+              />
+              <Field icon={Globe2} label="Country:" value="Iraq" />
+              <Field
+                icon={MapPin}
+                label="Enter Address:"
+                value="52R4+8H2, Erbil, Erbil Governorate, Iraq"
+              />
+              <LocationStatus />
+              <MapFrame title="Contact address map" />
+            </div>
+          </div>
+        </section>
+
+        <section className="profile-section">
+          <SectionHeading icon={Truck} title="Shipping Details" />
+          <div className="profile-grid profile-contact-grid">
+            <div className="profile-column">
+              <Field icon={Globe2} label="Country:" value="Iraq" />
+              <Field
+                icon={Warehouse}
+                label="Warehouse name:"
+                value="Warehouse 1"
+              />
+              <Field
+                icon={CalendarDays}
+                label="Opening Days:"
+                value="Saturday, Sunday, Monday, Tuesday, Wednesday, Thursday"
+              />
+              <Field icon={Timer} label="Opening Time:" value="10:00" />
+              <Field icon={Timer} label="Closing Time:" value="17:00" />
+              <ToggleLine label="Shipping Status:" enabled />
+            </div>
+            <div className="profile-column">
+              <Field
+                helper="eg : +9647912345678"
+                icon={Phone}
+                label="Mobile Number:"
+                value={<PhoneValue number="7504930644" />}
+              />
+              <Field
+                icon={MapPin}
+                label="Warehouse Address:"
+                value="52R4+8H2, Erbil, Erbil Governorate, Iraq"
+              />
+              <LocationStatus />
+              <MapFrame title="Warehouse address map" />
+            </div>
+          </div>
+          <div className="warehouse-action-row">
+            <button className="warehouse-button" type="button">
+              <MapPin aria-hidden="true" size={17} strokeWidth={2.4} />
+              <span>Add warehouse</span>
+            </button>
+          </div>
+        </section>
+
+        <section className="profile-section">
+          <SectionHeading icon={CreditCard} title="Payment Details" />
+          <div className="payment-stack">
+            <ChoiceGroup
+              label="Currency"
+              options={["Iraqi Dinar", "US Dollar"]}
+              selected="Iraqi Dinar"
+            />
+            <p className="payment-note">
+              You will receive payment in Iraqi Dinars.
+            </p>
+            <Field label="Commission:" value="8.0%" />
+            <Field icon={WalletCards} label="Payment Method:" value="Cash" />
+          </div>
+        </section>
+
+        <section className="profile-section">
+          <SectionHeading icon={FileText} title="Documents" />
+          <div className="documents-area">
+            <div className="documents-copy">
+              <h3>Identification</h3>
+              <p>
+                Please attach a copy of your identification (if you selected
+                individual, this should be a copy of your passport or ID, if you
+                selected company this should be a copy of your company
+                registration certificate)
+              </p>
+            </div>
+
+            <div className="document-status-box">
+              <div className="document-status-top">
+                <span>
+                  <strong>Documents Status:</strong> 1 / 10 documents uploaded
+                </span>
+                <strong className="slots-badge">9 slots remaining</strong>
+              </div>
+              <div className="document-progress">
+                <span />
+              </div>
+            </div>
+
+            <div className="uploaded-documents">
+              <h3>Uploaded Documents</h3>
+              <p>Your identification documents and certificates</p>
+              <article className="document-card">
+                <div className="document-card-top">
+                  <span className="document-number">1</span>
+                  <span className="image-badge">
+                    <ImageIcon aria-hidden="true" size={14} strokeWidth={2.4} />
+                    IMAGE
+                  </span>
+                </div>
+                <div className="document-preview">
+                  <span className="document-brand-mark">EM</span>
+                  <span className="document-brand-text">electromall</span>
+                </div>
+                <div className="document-meta">
+                  <strong>68c7c5e47bd93a0041...</strong>
+                  <span>Image Document</span>
+                </div>
+              </article>
+            </div>
+
+            <div className="upload-dropzone">
+              <div className="upload-target">
+                <Camera aria-hidden="true" size={38} strokeWidth={2.2} />
+                <strong>Browse to find or drag files here</strong>
+                <span>You can add 9 more file(s)</span>
+              </div>
+            </div>
+
+            <div className="upload-instructions">
+              <strong>
+                <Info aria-hidden="true" size={15} strokeWidth={2.5} />
+                Upload Instructions:
+              </strong>
+              <ul>
+                <li>Maximum 10 documents total</li>
+                <li>Supported formats: PNG, JPEG, PDF</li>
+                <li>Maximum file size: 5MB per file</li>
+                <li>
+                  You can upload multiple files at once or come back to add more
+                  later
+                </li>
+              </ul>
+            </div>
+
+            <div className="submit-row">
+              <button className="submit-all-button" type="button">
+                <Save aria-hidden="true" size={20} strokeWidth={2.3} />
+                <span>Submit All</span>
+              </button>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+  );
+}
