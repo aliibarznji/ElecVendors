@@ -52,7 +52,7 @@ const marketingPackages = [
   },
 ];
 
-function MarketingCampaignIllustration() {
+export function MarketingCampaignIllustration() {
   return (
     <svg
       className="marketing-campaign-illustration"
