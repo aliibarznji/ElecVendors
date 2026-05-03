@@ -5142,6 +5142,276 @@ a {
   outline-offset: 3px;
 }
 
+/* Bulk Operations inspired section polish. Design-only overrides. */
+.dashboard-content,
+.profile-content,
+.warranty-content,
+.commissions-content,
+.add-product-content,
+.product-list-content,
+.bulk-content,
+.purchase-orders-content,
+.purchase-requisitions-content,
+.returns-content,
+.payments-content,
+.account-statement-content,
+.logistics-content,
+.marketing-campaign-content,
+.existing-marketing-content {
+  gap: 24px;
+  padding: 22px 24px 40px;
+}
+
+.dashboard-content h1,
+.profile-content h1,
+.warranty-content h1,
+.commissions-content h1,
+.add-product-content h1,
+.product-list-content h1,
+.bulk-content h1,
+.purchase-orders-content h1,
+.purchase-requisitions-content h1,
+.returns-content h1,
+.payments-content h1,
+.account-statement-content h1,
+.logistics-content h1,
+.marketing-campaign-content h1,
+.existing-marketing-content h1 {
+  color: #1e2a45;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.2px;
+}
+
+.dashboard-panel,
+.profile-card,
+.warranty-card,
+.warranty-form-card,
+.commissions-card,
+.add-product-card,
+.product-list-card,
+.bulk-card,
+.purchase-orders-card,
+.purchase-requisitions-card,
+.returns-card,
+.payments-card,
+.account-statement-card,
+.logistics-request-card,
+.marketing-package-card,
+.statement-summary-card {
+  border: 1px solid #e5eaf3;
+  border-radius: 12px;
+  background: #ffffff;
+  box-shadow:
+    0 1px 3px rgba(19, 28, 54, 0.07),
+    0 4px 16px rgba(19, 28, 54, 0.06);
+}
+
+.bulk-card,
+.product-list-card,
+.purchase-orders-card,
+.purchase-requisitions-card,
+.returns-card,
+.payments-card,
+.account-statement-card,
+.logistics-request-card,
+.marketing-package-card {
+  overflow: hidden;
+}
+
+.purchase-orders-card,
+.purchase-requisitions-card,
+.returns-card,
+.payments-card,
+.account-statement-card {
+  gap: 24px;
+  padding: 24px 28px 30px;
+}
+
+.purchase-orders-copy,
+.purchase-requisitions-topline p,
+.returns-copy,
+.payments-topline p,
+.statement-topline p {
+  color: #4a5a73;
+  font-size: 13px;
+}
+
+.purchase-order-filters,
+.purchase-requisition-filters,
+.statement-filter-row {
+  padding: 0;
+}
+
+.purchase-order-filter input,
+.purchase-order-select,
+.purchase-requisition-filter input,
+.purchase-requisition-brand-select,
+.returns-filter input,
+.payments-date-filter,
+.statement-date-filter,
+.statement-search input,
+.logistics-input-wrap,
+.logistics-phone-wrap,
+.logistics-select-wrap {
+  border-radius: 6px;
+  background: #ffffff;
+}
+
+.purchase-order-table-wrap,
+.purchase-requisition-table-wrap,
+.returns-table-wrap,
+.payments-table-wrap,
+.statement-table-wrap,
+.product-list-table-wrap {
+  border-radius: 8px;
+  overflow: auto;
+}
+
+.purchase-order-table th,
+.purchase-requisition-table th,
+.returns-table th,
+.payments-table th,
+.statement-table th,
+.product-list-table th {
+  background: #3d60ae;
+}
+
+.purchase-order-table th:first-child,
+.purchase-requisition-table th:first-child,
+.returns-table th:first-child,
+.payments-table th:first-child,
+.statement-table th:first-child,
+.product-list-table th:first-child {
+  border-top-left-radius: 8px;
+}
+
+.purchase-order-table th:last-child,
+.purchase-requisition-table th:last-child,
+.returns-table th:last-child,
+.payments-table th:last-child,
+.statement-table th:last-child,
+.product-list-table th:last-child {
+  border-top-right-radius: 8px;
+}
+
+.purchase-order-empty-row td,
+.purchase-requisition-empty-row td,
+.returns-empty-row td,
+.payments-empty-row td,
+.statement-empty-row td {
+  background: linear-gradient(#ffffff, #fbfcff);
+}
+
+.purchase-order-pagination,
+.purchase-requisition-pagination,
+.returns-pagination,
+.payments-pagination,
+.statement-pagination {
+  min-height: 38px;
+  border-top: 1px solid #eef0f6;
+  color: #59657a;
+  padding-top: 10px;
+}
+
+.logistics-panel,
+.marketing-campaign-panel,
+.existing-marketing-panel {
+  border: 1px solid #e5eaf3;
+  border-radius: 12px;
+  background: #ffffff;
+  box-shadow:
+    0 1px 3px rgba(19, 28, 54, 0.07),
+    0 4px 16px rgba(19, 28, 54, 0.06);
+  padding: 34px 40px 28px;
+}
+
+.logistics-panel,
+.marketing-campaign-panel,
+.existing-marketing-panel {
+  position: relative;
+}
+
+.logistics-panel::after,
+.marketing-campaign-panel::after,
+.existing-marketing-panel::after {
+  display: block;
+  height: 1px;
+  margin-top: 8px;
+  background: #eef0f6;
+  content: "";
+}
+
+.logistics-copy h2,
+.marketing-campaign-copy h2,
+.existing-marketing-copy h2,
+.bulk-section h2 {
+  color: #1e2a45;
+  font-weight: 700;
+}
+
+.logistics-start-button,
+.logistics-submit-button,
+.marketing-campaign-start-button,
+.existing-marketing-start-button,
+.marketing-package-buy-button,
+.bulk-export-button {
+  border-radius: 8px;
+  background: linear-gradient(135deg, #4d6fcd 0%, #3558b4 100%);
+  box-shadow:
+    0 2px 6px rgba(53, 88, 180, 0.35),
+    0 1px 2px rgba(53, 88, 180, 0.2);
+}
+
+.logistics-start-button:hover,
+.logistics-submit-button:hover,
+.marketing-campaign-start-button:hover,
+.existing-marketing-start-button:hover,
+.marketing-package-buy-button:hover,
+.bulk-export-button:hover {
+  background: linear-gradient(135deg, #3d60be 0%, #2a4da6 100%);
+  box-shadow:
+    0 4px 12px rgba(53, 88, 180, 0.4),
+    0 1px 3px rgba(53, 88, 180, 0.2);
+}
+
+.marketing-package-section {
+  padding-top: 0;
+}
+
+.marketing-package-card {
+  border-radius: 12px;
+}
+
+.marketing-package-heading {
+  background: #fafbfd;
+}
+
+.statement-summary-grid {
+  gap: 14px;
+}
+
+.statement-summary-card {
+  min-height: 106px;
+}
+
+.commissions-card,
+.product-list-card {
+  padding: 24px 28px 30px;
+}
+
+.bulk-tabs {
+  background: #fafbfd;
+}
+
+.bulk-tab {
+  color: #6b768d;
+}
+
+.bulk-tab.is-active {
+  color: #1e2a45;
+}
+
 /* Modern visual polish only: shared surfaces, controls, and motion. */
 :root {
   --background: #f5f7fb;
@@ -5480,6 +5750,120 @@ button:not(:disabled):active {
 
 .marketing-package-section::before {
   background: #4164bd;
+}
+
+/* Final Bulk Operations style sync. Design-only; placed after polish layer. */
+.dashboard-content,
+.profile-content,
+.warranty-content,
+.commissions-content,
+.add-product-content,
+.product-list-content,
+.bulk-content,
+.purchase-orders-content,
+.purchase-requisitions-content,
+.returns-content,
+.payments-content,
+.account-statement-content,
+.logistics-content,
+.marketing-campaign-content,
+.existing-marketing-content {
+  gap: 24px;
+  padding: 22px 24px 40px;
+}
+
+.dashboard-content h1,
+.profile-content h1,
+.warranty-content h1,
+.commissions-content h1,
+.add-product-content h1,
+.product-list-content h1,
+.bulk-content h1,
+.purchase-orders-content h1,
+.purchase-requisitions-content h1,
+.returns-content h1,
+.payments-content h1,
+.account-statement-content h1,
+.logistics-content h1,
+.marketing-campaign-content h1,
+.existing-marketing-content h1 {
+  color: #1e2a45;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.2px;
+}
+
+.dashboard-panel,
+.profile-card,
+.warranty-card,
+.warranty-form-card,
+.commissions-card,
+.add-product-card,
+.product-list-card,
+.bulk-card,
+.purchase-orders-card,
+.purchase-requisitions-card,
+.returns-card,
+.payments-card,
+.account-statement-card,
+.logistics-request-card,
+.statement-summary-card,
+.marketing-package-card {
+  border: 1px solid #e5eaf3;
+  border-radius: 12px;
+  background: #ffffff;
+  box-shadow:
+    0 1px 3px rgba(19, 28, 54, 0.07),
+    0 4px 16px rgba(19, 28, 54, 0.06);
+}
+
+.purchase-orders-card,
+.purchase-requisitions-card,
+.returns-card,
+.payments-card,
+.account-statement-card,
+.commissions-card,
+.product-list-card {
+  padding: 24px 28px 30px;
+}
+
+.logistics-panel,
+.marketing-campaign-panel,
+.existing-marketing-panel {
+  border: 1px solid #e5eaf3;
+  border-radius: 12px;
+  background: #ffffff;
+  box-shadow:
+    0 1px 3px rgba(19, 28, 54, 0.07),
+    0 4px 16px rgba(19, 28, 54, 0.06);
+  padding: 34px 40px 28px;
+}
+
+.purchase-order-pagination,
+.purchase-requisition-pagination,
+.returns-pagination,
+.payments-pagination,
+.statement-pagination {
+  border-top: 1px solid #eef0f6;
+  padding-top: 10px;
+}
+
+.logistics-start-button,
+.logistics-submit-button,
+.marketing-campaign-start-button,
+.existing-marketing-start-button,
+.marketing-package-buy-button,
+.bulk-export-button {
+  border-radius: 8px;
+  background: linear-gradient(135deg, #4d6fcd 0%, #3558b4 100%);
+}
+
+.marketing-package-card {
+  border-radius: 12px;
+}
+
+.marketing-package-heading {
+  background: #fafbfd;
 }
 
 @media (max-width: 760px) {
