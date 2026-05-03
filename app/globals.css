@@ -5142,6 +5142,346 @@ a {
   outline-offset: 3px;
 }
 
+/* Modern visual polish only: shared surfaces, controls, and motion. */
+:root {
+  --background: #f5f7fb;
+  --surface: #ffffff;
+  --border: #e5eaf3;
+  --brand: #4164bd;
+  --brand-dark: #2f51aa;
+  --text: #17233c;
+  --muted: #53617a;
+  --subtle: #93a0b4;
+  --radius: 8px;
+  --radius-sm: 6px;
+  --shadow-sm: 0 1px 2px rgba(18, 28, 53, 0.06), 0 6px 18px rgba(18, 28, 53, 0.04);
+  --shadow: 0 2px 4px rgba(18, 28, 53, 0.06), 0 14px 32px rgba(18, 28, 53, 0.08);
+  --shadow-lg: 0 10px 22px rgba(18, 28, 53, 0.10), 0 28px 64px rgba(18, 28, 53, 0.12);
+}
+
+html {
+  text-rendering: geometricPrecision;
+}
+
+body {
+  background: var(--background);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button {
+  transition:
+    background-color 160ms ease,
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    color 160ms ease,
+    transform 160ms ease;
+}
+
+button:not(:disabled):active {
+  transform: translateY(1px);
+}
+
+.top-nav {
+  background: rgba(255, 255, 255, 0.94);
+  border-bottom-color: rgba(216, 223, 236, 0.9);
+  box-shadow: 0 1px 0 rgba(18, 28, 53, 0.05), 0 8px 24px rgba(18, 28, 53, 0.04);
+}
+
+.brand-text {
+  color: #12203a;
+  letter-spacing: 0;
+}
+
+.user-name {
+  color: #18305f;
+  background: #edf3ff;
+  box-shadow: inset 0 0 0 1px rgba(65, 100, 189, 0.06);
+}
+
+.nav-action {
+  color: #4f5f78;
+}
+
+.nav-action:hover,
+.nav-action:focus-visible {
+  background: #f3f6fb;
+  color: #17233c;
+}
+
+.sidebar {
+  border-right-color: rgba(216, 223, 236, 0.9);
+  box-shadow: 10px 0 30px rgba(18, 28, 53, 0.04);
+}
+
+.sidebar-scroll {
+  scrollbar-color: #c4ccdb transparent;
+}
+
+.sidebar-toggle {
+  border-color: #d9e0eb;
+  box-shadow: 0 6px 18px rgba(18, 28, 53, 0.12);
+}
+
+.sidebar-link {
+  position: relative;
+  min-height: 44px;
+  border-radius: 8px;
+}
+
+.sidebar-link::before {
+  position: absolute;
+  top: 10px;
+  bottom: 10px;
+  left: 0;
+  width: 3px;
+  border-radius: 999px;
+  background: transparent;
+  content: "";
+}
+
+.sidebar-link:hover,
+.sidebar-link:focus-visible {
+  background: #f4f7ff;
+}
+
+.sidebar-link.is-active {
+  background: #eef4ff;
+  color: #3154b0;
+  box-shadow: inset 0 0 0 1px rgba(65, 100, 189, 0.08);
+}
+
+.sidebar-link.is-active::before {
+  background: #4164bd;
+}
+
+.dashboard-stage {
+  background: var(--background);
+}
+
+.dashboard-content h1,
+.profile-content h1,
+.warranty-content h1,
+.commissions-content h1,
+.add-product-content h1,
+.product-list-content h1,
+.bulk-content h1,
+.purchase-orders-content h1,
+.purchase-requisitions-content h1,
+.returns-content h1,
+.payments-content h1,
+.account-statement-content h1,
+.logistics-content h1,
+.marketing-campaign-content h1,
+.existing-marketing-content h1 {
+  color: #17233c;
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: 0;
+}
+
+.dashboard-panel,
+.profile-card,
+.warranty-card,
+.warranty-form-card,
+.commissions-card,
+.add-product-card,
+.product-list-card,
+.bulk-card,
+.purchase-orders-card,
+.purchase-requisitions-card,
+.returns-card,
+.payments-card,
+.account-statement-card,
+.logistics-request-card,
+.statement-summary-card,
+.marketing-package-card {
+  border: 1px solid rgba(223, 229, 240, 0.95);
+  border-radius: 8px;
+  box-shadow: var(--shadow-sm);
+}
+
+.purchase-orders-card,
+.purchase-requisitions-card,
+.returns-card,
+.payments-card,
+.account-statement-card,
+.logistics-request-card {
+  background: rgba(255, 255, 255, 0.98);
+}
+
+.marketing-package-card {
+  box-shadow: 0 1px 2px rgba(18, 28, 53, 0.05), 0 14px 36px rgba(18, 28, 53, 0.08);
+  transition: border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
+}
+
+.marketing-package-card:hover {
+  border-color: rgba(65, 100, 189, 0.24);
+  box-shadow: var(--shadow);
+  transform: translateY(-2px);
+}
+
+.statement-summary-card {
+  box-shadow: var(--shadow-sm);
+}
+
+.purchase-order-table th,
+.purchase-requisition-table th,
+.returns-table th,
+.payments-table th,
+.statement-table th,
+.product-list-table th {
+  background: #3f62b6;
+  color: #ffffff;
+  font-weight: 700;
+}
+
+.purchase-order-table,
+.purchase-requisition-table,
+.returns-table,
+.payments-table,
+.statement-table,
+.product-list-table,
+.dashboard-table {
+  overflow: hidden;
+  border-radius: 6px;
+}
+
+.purchase-order-filter input,
+.purchase-order-select,
+.purchase-requisition-filter input,
+.purchase-requisition-brand-select,
+.returns-filter input,
+.payments-date-filter,
+.statement-date-filter,
+.statement-search input,
+.logistics-input-wrap,
+.logistics-phone-wrap,
+.logistics-select-wrap,
+.product-list-select,
+.product-list-search,
+.commission-search input {
+  border-color: #d4dae5;
+  box-shadow: inset 0 1px 0 rgba(18, 28, 53, 0.02);
+  transition: border-color 160ms ease, box-shadow 160ms ease, background-color 160ms ease;
+}
+
+.purchase-order-filter input:hover,
+.purchase-order-select:hover,
+.purchase-requisition-filter input:hover,
+.purchase-requisition-brand-select:hover,
+.returns-filter input:hover,
+.payments-date-filter:hover,
+.statement-date-filter:hover,
+.statement-search input:hover,
+.logistics-input-wrap:hover,
+.logistics-phone-wrap:hover,
+.logistics-select-wrap:hover,
+.product-list-select:hover,
+.product-list-search:hover,
+.commission-search input:hover {
+  border-color: #bfc8d8;
+}
+
+.purchase-order-filter input:focus,
+.purchase-order-select:focus-within,
+.purchase-requisition-filter input:focus,
+.purchase-requisition-brand-select:focus-within,
+.returns-filter input:focus,
+.payments-date-filter:focus,
+.statement-date-filter:focus,
+.statement-search input:focus,
+.logistics-input-wrap:focus-within,
+.logistics-phone-wrap:focus-within,
+.logistics-select-wrap:focus-within,
+.product-list-select:focus-within,
+.product-list-search:focus,
+.commission-search input:focus {
+  border-color: #4164bd;
+  box-shadow: 0 0 0 3px rgba(65, 100, 189, 0.13);
+  outline: 0;
+}
+
+.warehouse-button,
+.submit-all-button,
+.apply-filter-button,
+.edit-save-button,
+.purchase-requisition-reset,
+.logistics-start-button,
+.logistics-submit-button,
+.marketing-campaign-start-button,
+.marketing-package-buy-button,
+.existing-marketing-start-button,
+.bulk-export-button,
+.view-product-button,
+.edit-product-button {
+  box-shadow: 0 8px 18px rgba(47, 81, 170, 0.18);
+}
+
+.logistics-start-button:hover,
+.logistics-submit-button:hover,
+.marketing-campaign-start-button:hover,
+.marketing-package-buy-button:hover,
+.existing-marketing-start-button:hover,
+.apply-filter-button:hover,
+.edit-save-button:hover {
+  box-shadow: 0 10px 24px rgba(47, 81, 170, 0.24);
+  transform: translateY(-1px);
+}
+
+.reset-filter-button,
+.purchase-order-reset,
+.purchase-requisition-reset,
+.returns-reset,
+.payments-reset,
+.statement-reset {
+  box-shadow: 0 6px 14px rgba(255, 79, 111, 0.13);
+}
+
+.payments-reset,
+.statement-reset {
+  background: #ff526d;
+}
+
+.payments-reset:hover,
+.payments-reset:focus-visible,
+.statement-reset:hover,
+.statement-reset:focus-visible {
+  background: #f04462;
+}
+
+.logistics-illustration,
+.marketing-campaign-illustration {
+  filter: drop-shadow(0 18px 24px rgba(18, 28, 53, 0.08));
+}
+
+.logistics-copy,
+.marketing-campaign-copy,
+.existing-marketing-copy {
+  color: #40506a;
+}
+
+.logistics-copy h2,
+.marketing-campaign-copy h2,
+.existing-marketing-copy h2 {
+  color: #17233c;
+}
+
+.marketing-package-section::after {
+  background: #eef2f8;
+}
+
+.marketing-package-section::before {
+  background: #4164bd;
+}
+
 @media (max-width: 760px) {
   .top-nav {
     min-height: auto;
