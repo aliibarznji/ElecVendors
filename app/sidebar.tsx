@@ -132,7 +132,9 @@ export function Sidebar() {
                 const isActive =
                   link.href === "/"
                     ? pathname === "/"
-                    : pathname.startsWith(link.href);
+                    : pathname === link.href ||
+                      (link.href !== "/products" &&
+                        pathname.startsWith(`${link.href}/`));
 
                 return (
                   <Link
