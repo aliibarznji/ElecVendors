@@ -723,43 +723,47 @@ a {
 
 .profile-content {
   display: grid;
-  gap: 28px;
-  padding: 22px 29px 34px;
+  gap: 24px;
+  padding: 22px 26px 34px;
 }
 
 .profile-content h1 {
   margin: 0;
-  color: #29324f;
-  font-size: 26px;
-  font-weight: 600;
-  letter-spacing: 0;
+  color: var(--text);
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.3px;
   line-height: 1.2;
 }
 
 .profile-card {
   display: grid;
   gap: 0;
-  border-radius: 5px;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border);
+  overflow: hidden;
   background: #ffffff;
 }
 
 .profile-section {
   display: grid;
-  gap: 28px;
-  padding: 18px 26px 36px;
+  gap: 24px;
+  padding: 20px 24px 30px;
 }
 
 .profile-section + .profile-section {
-  padding-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
 }
 
 .profile-section-heading {
   display: flex;
   align-items: center;
-  gap: 11px;
-  padding-bottom: 20px;
-  border-bottom: 1px solid #d9dce3;
-  color: #5164ff;
+  gap: 10px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+  color: var(--brand);
 }
 
 .profile-section-heading h2 {
