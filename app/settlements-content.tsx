@@ -31,27 +31,27 @@ export function SettlementsContent() {
     <div className="settlements-content account-statement-content">
       <header className="page-title-row">
         <div>
-          <h1>التسويات</h1>
+          <h1>Settlements</h1>
           <p className="dashboard-sub">
-            متابعة المبيعات المدفوعة والمتبقية مع تفاصيل الفاتورة للطباعة أو العرض.
+            Track paid and remaining sales with invoice details for printing or viewing.
           </p>
         </div>
       </header>
 
-      <section className="statement-summary-grid" aria-label="ملخص التسويات">
+      <section className="statement-summary-grid" aria-label="Settlements Summary">
         <article className="statement-summary-card statement-summary-green">
-          <p>إجمالي المبيعات المدفوعة</p>
+          <p>Total Paid Sales</p>
           <strong>{formatIqd(paid)}</strong>
         </article>
         <article className="statement-summary-card statement-summary-blue">
-          <p>إجمالي المبيعات المتبقية</p>
+          <p>Total Remaining Sales</p>
           <strong>{formatIqd(remaining)}</strong>
         </article>
       </section>
 
       <section className="account-statement-card">
         <div className="statement-topline">
-          <p>فلاتر التسوية حسب التاريخ وطريقة الدفع.</p>
+          <p>Settlement filters by date and payment method.</p>
           <button
             className="statement-reset"
             type="button"
@@ -62,19 +62,19 @@ export function SettlementsContent() {
             }}
           >
             <RotateCcw aria-hidden="true" size={15} strokeWidth={2.2} />
-            إعادة ضبط
+            Reset
           </button>
         </div>
 
         <div className="statement-filter-row">
           <label className="order-items-date">
-            <span>تاريخ التسوية</span>
+            <span>Settlement Date</span>
             <input type="date" value={date} onChange={(event) => setDate(event.target.value)} />
           </label>
           <label className="order-items-date">
-            <span>طريقة الدفع</span>
+            <span>Payment Method</span>
             <select value={paymentMethod} onChange={(event) => setPaymentMethod(event.target.value)}>
-              <option value="all">كل الطرق</option>
+              <option value="all">All Methods</option>
               {[...new Set(settlements.map((settlement) => settlement.paymentMethod))].map((method) => (
                 <option key={method}>{method}</option>
               ))}
@@ -86,21 +86,21 @@ export function SettlementsContent() {
           <table className="statement-table purchase-order-table">
             <thead>
               <tr>
-                <th>تاريخ التسوية</th>
-                <th>رقم الفاتورة</th>
-                <th>عدد المنتجات</th>
-                <th>مبلغ التسوية</th>
-                <th>طريقة الدفع</th>
-                <th>الحالة</th>
-                <th>عرض</th>
-                <th>طباعة</th>
+                <th>Settlement Date</th>
+                <th>Invoice Number</th>
+                <th>Number of Products</th>
+                <th>Settlement Amount</th>
+                <th>Payment Method</th>
+                <th>Status</th>
+                <th>View</th>
+                <th>Print</th>
               </tr>
             </thead>
             <tbody>
               {visible.length === 0 ? (
                 <tr>
                   <td colSpan={8} className="empty-cell">
-                    لا توجد تسويات مطابقة.
+                    No matching settlements.
                   </td>
                 </tr>
               ) : (
@@ -118,7 +118,7 @@ export function SettlementsContent() {
                             settlement.status === "paid" ? "is-active" : "is-pending"
                           }`}
                         >
-                          {settlement.status === "paid" ? "مدفوعة" : "متبقية"}
+                          {settlement.status === "paid" ? "Paid" : "Remaining"}
                         </span>
                       </td>
                       <td>
@@ -132,13 +132,13 @@ export function SettlementsContent() {
                           }
                         >
                           <Eye aria-hidden="true" size={14} strokeWidth={2.4} />
-                          عرض
+                          View
                         </button>
                       </td>
                       <td>
                         <button className="row-action-btn" type="button">
                           <Printer aria-hidden="true" size={14} strokeWidth={2.4} />
-                          طباعة
+                          Print
                         </button>
                       </td>
                     </tr>
@@ -149,15 +149,15 @@ export function SettlementsContent() {
                             <table className="purchase-order-table inner-table">
                               <thead>
                                 <tr>
-                                  <th>الصورة</th>
-                                  <th>المنتج</th>
-                                  <th>كود المنتج</th>
-                                  <th>رقم الطلب</th>
-                                  <th>الحالة</th>
-                                  <th>التاريخ</th>
-                                  <th>سعر البيع</th>
-                                  <th>الكلفة</th>
-                                  <th>تعويض/خصم</th>
+                                  <th>Image</th>
+                                  <th>Product</th>
+                                  <th>SKU</th>
+                                  <th>Order Number</th>
+                                  <th>Status</th>
+                                  <th>Date</th>
+                                  <th>Selling Price</th>
+                                  <th>Cost</th>
+                                  <th>Compensation/Discount</th>
                                 </tr>
                               </thead>
                               <tbody>
@@ -172,7 +172,7 @@ export function SettlementsContent() {
                                           <span>{product.brand.slice(0, 2).toUpperCase()}</span>
                                         </div>
                                       </td>
-                                      <td>{product.nameAr}</td>
+                                      <td>{product.nameEn}</td>
                                       <td>{product.sku}</td>
                                       <td>{order.orderNumber}</td>
                                       <td>{order.deliveryStatus}</td>

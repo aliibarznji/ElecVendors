@@ -34,9 +34,9 @@ export function MarketingCampaignContent() {
     <div className="marketing-campaign-content dashboard-content">
       <header className="page-title-row">
         <div>
-          <h1>شراء حملة تسويقية</h1>
+          <h1>Purchase Marketing Campaign</h1>
           <p className="dashboard-sub">
-            اختر باقة تسويقية من المنصة. بعد الشراء تظهر عند مدير الحساب بحالة بانتظار الموافقة.
+            Choose a marketing package from the platform. After purchase, it appears in account manager pending approval.
           </p>
         </div>
       </header>
@@ -46,23 +46,23 @@ export function MarketingCampaignContent() {
           <div className="confirmation-icon">
             <Megaphone aria-hidden="true" size={28} strokeWidth={2.4} />
           </div>
-          <h2>تم إرسال طلب الحملة</h2>
+          <h2>Campaign request submitted</h2>
           <p className="confirmation-package">{purchased.code}</p>
-          <span className="approved-status-badge is-pending">بانتظار الموافقة</span>
+          <span className="approved-status-badge is-pending">Pending approval</span>
           <p className="confirmation-helper">
-            سيظهر الطلب في لوحة مدير الحساب، وعند الموافقة تصبح الحملة نشطة ويتم إرسال الكود
-            للمورد ومدير الحساب.
+            The request will appear in the account manager panel, and upon approval, the campaign will become active and the code will be sent
+            to the vendor and account manager.
           </p>
           <button
             className="marketing-package-buy-button"
             type="button"
             onClick={() => setPurchased(null)}
           >
-            شراء باقة أخرى
+            Buy another package
           </button>
         </section>
       ) : (
-        <section className="marketing-package-section" aria-label="باقات التسويق">
+        <section className="marketing-package-section" aria-label="Marketing Packages">
           <div className="marketing-package-grid">
             {marketingPackages.map((pkg) => (
               <article className="marketing-package-card" key={pkg.id}>
@@ -70,14 +70,14 @@ export function MarketingCampaignContent() {
                   <div>
                     <h2>{pkg.name}</h2>
                     <strong>${pkg.price.toLocaleString("en-US")}</strong>
-                    <span>{pkg.durationDays} يوم</span>
+                    <span>{pkg.durationDays} days</span>
                   </div>
                   <Megaphone aria-hidden="true" size={29} strokeWidth={2.1} />
                 </div>
                 <ul>
                   <li>
                     <Check aria-hidden="true" size={14} strokeWidth={2.4} />
-                    <span>القنوات: {pkg.channels.join("، ")}</span>
+                    <span>Channels: {pkg.channels.join(", ")}</span>
                   </li>
                   {pkg.details.map((detail) => (
                     <li key={detail}>
@@ -107,7 +107,7 @@ export function MarketingCampaignContent() {
                   }}
                 >
                   <ShoppingCart aria-hidden="true" size={16} strokeWidth={2.4} />
-                  شراء من اللوحة
+                  Buy from panel
                 </button>
               </article>
             ))}

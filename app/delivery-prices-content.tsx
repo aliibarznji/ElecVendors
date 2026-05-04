@@ -33,26 +33,26 @@ export function DeliveryPricesContent() {
     <div className="delivery-prices-content dashboard-content">
       <header className="page-title-row">
         <div>
-          <h1>أسعار توصيل البائع</h1>
+          <h1>Vendor Delivery Prices</h1>
           <p className="dashboard-sub">
-            تحديد أسعار التوصيل لكل محافظة للمنتجات الصغيرة والكبيرة وحالات التوصيل المجاني.
+            Set delivery prices for each province for small and large products and free delivery rules.
           </p>
         </div>
         <button
           className="discount-create-button"
           type="button"
           disabled={hasInvalid}
-          onClick={() => setMessage("تم حفظ أسعار التوصيل.")}
+          onClick={() => setMessage("Delivery prices have been saved.")}
         >
           <Save aria-hidden="true" size={16} strokeWidth={2.4} />
-          <span>حفظ الأسعار</span>
+          <span>Save Prices</span>
         </button>
       </header>
 
       {message ? <div className="success-banner">{message}</div> : null}
       {hasInvalid ? (
         <div className="warning-banner">
-          تأكد أن الأسعار ليست سالبة وأن سعر المنتج الكبير لا يقل عن سعر المنتج الصغير.
+          Ensure prices are not negative and the large product price is not lower than the small product price.
         </div>
       ) : null}
 
@@ -61,7 +61,7 @@ export function DeliveryPricesContent() {
           <label className="order-items-search">
             <Search aria-hidden="true" size={16} strokeWidth={2.2} />
             <input
-              placeholder="بحث بالمحافظة"
+              placeholder="Search by province"
               value={query}
               onChange={(event) => setQuery(event.target.value)}
             />
@@ -75,7 +75,7 @@ export function DeliveryPricesContent() {
             }}
           >
             <RotateCcw aria-hidden="true" size={15} strokeWidth={2.2} />
-            <span>إعادة ضبط</span>
+            <span>Reset</span>
           </button>
           <button
             className="discount-create-button"
@@ -83,12 +83,12 @@ export function DeliveryPricesContent() {
             onClick={() =>
               setRows((current) => [
                 ...current,
-                { province: "محافظة جديدة", small: 0, large: 0, freeRule: "" },
+                { province: "New Province", small: 0, large: 0, freeRule: "" },
               ])
             }
           >
             <Plus aria-hidden="true" size={16} strokeWidth={2.4} />
-            <span>إضافة محافظة</span>
+            <span>Add Province</span>
           </button>
         </div>
 
@@ -96,12 +96,12 @@ export function DeliveryPricesContent() {
           <table className="purchase-order-table">
             <thead>
               <tr>
-                <th>المحافظة</th>
-                <th>منتجات صغيرة</th>
-                <th>منتجات كبيرة</th>
-                <th>قاعدة التوصيل المجاني</th>
-                <th>الحالة</th>
-                <th>الإجراءات</th>
+                <th>Province</th>
+                <th>Small Products</th>
+                <th>Large Products</th>
+                <th>Free Delivery Rule</th>
+                <th>Status</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -144,13 +144,13 @@ export function DeliveryPricesContent() {
                         className="edit-table-input delivery-rule-input"
                         value={row.freeRule}
                         disabled={!isEditing}
-                        placeholder="مثال: مجاني فوق 150,000 د.ع"
+                        placeholder="e.g., Free over 150,000 IQD"
                         onChange={(event) => update(row.province, { freeRule: event.target.value })}
                       />
                     </td>
                     <td>
                       <span className={`approved-status-badge ${invalid ? "is-rejected" : "is-active"}`}>
-                        {invalid ? "يحتاج تصحيح" : row.freeRule ? "يتضمن مجاني" : "مدفوع"}
+                        {invalid ? "Needs correction" : row.freeRule ? "Includes free" : "Paid"}
                       </span>
                     </td>
                     <td>
@@ -161,7 +161,7 @@ export function DeliveryPricesContent() {
                           onClick={() => setEditing(isEditing ? null : row.province)}
                         >
                           <Pencil aria-hidden="true" size={14} strokeWidth={2.4} />
-                          {isEditing ? "إنهاء" : "تعديل"}
+                          {isEditing ? "Finish" : "Edit"}
                         </button>
                         <button
                           className="row-action-btn reject-btn"
@@ -169,7 +169,7 @@ export function DeliveryPricesContent() {
                           onClick={() => setRows((current) => current.filter((item) => item.province !== row.province))}
                         >
                           <Trash2 aria-hidden="true" size={14} strokeWidth={2.4} />
-                          حذف
+                          Delete
                         </button>
                       </div>
                     </td>

@@ -421,18 +421,18 @@ export function AccountManagerOrdersContent() {
 
       <section className="account-manager-card campaign-approval-card">
         <div className="panel-heading">
-          <h2>موافقات الحملات التسويقية</h2>
+          <h2>Marketing Campaign Approvals</h2>
         </div>
         <div className="purchase-order-table-wrap">
           <table className="purchase-order-table">
             <thead>
               <tr>
-                <th>الكود</th>
-                <th>الباقة</th>
-                <th>المورد</th>
-                <th>تاريخ الشراء</th>
-                <th>الحالة</th>
-                <th>اعتماد</th>
+                <th>Code</th>
+                <th>Package</th>
+                <th>Vendor</th>
+                <th>Purchase Date</th>
+                <th>Status</th>
+                <th>Approval</th>
               </tr>
             </thead>
             <tbody>

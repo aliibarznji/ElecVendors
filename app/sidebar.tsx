@@ -28,64 +28,64 @@ import { useEffect, useRef, useState } from "react";
 
 const sidebarSections = [
   {
-    title: "لوحة التحكم",
+    title: "Dashboard",
     links: [
-      { label: "الرئيسية", href: "/", icon: Home },
+      { label: "Home", href: "/", icon: Home },
     ],
   },
   {
-    title: "إدارة المنتجات",
+    title: "Product Management",
     links: [
-      { label: "إضافة منتج", href: "/products/add", icon: PlusSquare },
-      { label: "قائمة المنتجات", href: "/products", icon: List },
-      { label: "التسعير السريع", href: "/pricing", icon: CreditCard },
-      { label: "إدارة المخزون", href: "/inventory", icon: Package },
-      { label: "تحديثات المنتجات", href: "/products/bulk", icon: Layers },
-      { label: "خطط الخصم", href: "/products/discounts", icon: Tag },
+      { label: "Add Product", href: "/products/add", icon: PlusSquare },
+      { label: "Product List", href: "/products", icon: List },
+      { label: "Quick Pricing", href: "/pricing", icon: CreditCard },
+      { label: "Inventory Management", href: "/inventory", icon: Package },
+      { label: "Bulk Updates", href: "/products/bulk", icon: Layers },
+      { label: "Discount Plans", href: "/products/discounts", icon: Tag },
     ],
   },
   {
-    title: "الطلبات",
+    title: "Orders",
     links: [
-      { label: "عناصر الطلبات", href: "/orders", icon: ShoppingBag },
+      { label: "Order Items", href: "/orders", icon: ShoppingBag },
     ],
   },
   {
-    title: "معلومات البائع",
+    title: "Vendor Information",
     links: [
-      { label: "ملف المورد", href: "/profile", icon: User },
-      { label: "الضمان", href: "/warranty", icon: ShieldCheck },
-      { label: "تقرير المبيعات", href: "/seller-report", icon: BarChart3 },
-      { label: "أسعار التوصيل", href: "/delivery-prices", icon: Truck },
+      { label: "Vendor Profile", href: "/profile", icon: User },
+      { label: "Warranty", href: "/warranty", icon: ShieldCheck },
+      { label: "Sales Report", href: "/seller-report", icon: BarChart3 },
+      { label: "Delivery Prices", href: "/delivery-prices", icon: Truck },
     ],
   },
   {
-    title: "مدير الحساب",
+    title: "Account Manager",
     links: [
-      { label: "طلبات الموردين", href: "/account-manager/orders", icon: Users },
+      { label: "Vendor Orders", href: "/account-manager/orders", icon: Users },
       {
-        label: "منتجات قيد المراجعة",
+        label: "Pending Products",
         href: "/account-manager/pending-products",
         icon: ClipboardCheck,
       },
-      { label: "سجل العمليات", href: "/account-manager/log", icon: History },
+      { label: "Operations Log", href: "/account-manager/log", icon: History },
     ],
   },
   {
-    title: "التسويات",
+    title: "Settlements",
     links: [
-      { label: "التسويات", href: "/settlements", icon: Receipt },
+      { label: "Settlements", href: "/settlements", icon: Receipt },
     ],
   },
   {
-    title: "الحملات التسويقية",
+    title: "Marketing Campaigns",
     links: [
-      { label: "حملة جديدة",
+      { label: "New Campaign",
         href: "/marketing/new",
         icon: Megaphone,
       },
       {
-        label: "الحملات الحالية",
+        label: "Active Campaigns",
         href: "/marketing/campaigns",
         icon: PackageCheck,
       },
@@ -124,7 +124,7 @@ export function Sidebar() {
       <button
         className="sidebar-toggle"
         type="button"
-        aria-label={isCollapsed ? "فتح القائمة الجانبية" : "طي القائمة الجانبية"}
+        aria-label={isCollapsed ? "Expand menu" : "Collapse menu"}
         aria-expanded={!isCollapsed}
         onClick={() => setIsCollapsed((current) => !current)}
       >

@@ -25,14 +25,14 @@ import {
   salesByProvince,
 } from "./vendor-dashboard-data";
 
-const quickRanges = ["آخر 7 أيام", "آخر 30 يوم", "هذا الشهر", "الشهر السابق"];
+const quickRanges = ["Last 7 Days", "Last 30 Days", "This Month", "Last Month"];
 
 const statusLabel = {
-  new: "طلب جديد",
-  ready: "جاهز للشحن",
-  shipped: "تم الشحن",
-  delivered: "تم التسليم",
-  cancelled: "ملغي",
+  new: "New Order",
+  ready: "Ready to Ship",
+  shipped: "Shipped",
+  delivered: "Delivered",
+  cancelled: "Cancelled",
 };
 
 const statusClass = {
@@ -62,7 +62,7 @@ function KpiCard({
         <span className="dashboard-kpi-icon">
           <Icon aria-hidden="true" size={19} strokeWidth={2.25} />
         </span>
-        <span className="dashboard-kpi-change">تحديث مباشر</span>
+        <span className="dashboard-kpi-change">Live Update</span>
       </div>
       <div>
         <p>{label}</p>
@@ -82,7 +82,7 @@ function BarChart({
 }) {
   const max = Math.max(...data.map((item) => item.value), 1);
   return (
-    <div className="revenue-trend-chart dashboard-bars" aria-label="مخطط شهري">
+    <div className="revenue-trend-chart dashboard-bars" aria-label="Monthly chart">
       {data.map((item) => {
         const height = Math.max((item.value / max) * 100, item.value ? 8 : 3);
         return (
@@ -124,30 +124,30 @@ export function DashboardContent() {
 
   const kpis = [
     {
-      label: "إجمالي طلبات الشهر",
+      label: "Monthly Orders Total",
       value: String(monthlyOrders),
-      detail: "كل الطلبات المسجلة خلال أيار",
+      detail: "All orders recorded during May",
       tone: "green",
       icon: ShoppingCart,
     },
     {
-      label: "إجمالي مبيعات الشهر",
+      label: "Monthly Sales Total",
       value: formatIqd(monthlySales),
-      detail: "بعد احتساب العمولة على الطلب",
+      detail: "After calculating order commission",
       tone: "blue",
       icon: TrendingUp,
     },
     {
-      label: "الطلبات المعلقة",
+      label: "Pending Orders",
       value: String(pendingOrders),
-      detail: "تحتاج تأكيد المورد أو العميل",
+      detail: "Need vendor or customer confirmation",
       tone: "orange",
       icon: AlertTriangle,
     },
     {
-      label: "صافي المبيعات",
+      label: "Net Sales",
       value: formatIqd(netSales),
-      detail: "قبل عمولة المنصة",
+      detail: "Before platform commission",
       tone: "cyan",
       icon: Wallet,
     },
@@ -157,23 +157,23 @@ export function DashboardContent() {
     <div className="dashboard-content">
       <header className="dashboard-header">
         <div>
-          <h1>لوحة التحكم الرئيسية</h1>
+          <h1>Main Dashboard</h1>
           <p className="dashboard-sub">
-            متابعة شهرية للطلبات، المبيعات، المدن، وأفضل المنتجات مبيعا.
+            Monthly tracking of orders, sales, cities, and best selling products.
           </p>
         </div>
         <div className="dashboard-controls">
           <div className="primary-controls">
             <button className="export-button" type="button">
               <Download aria-hidden="true" size={20} strokeWidth={2.2} />
-              <span>تصدير بيانات اللوحة</span>
+              <span>Export Dashboard Data</span>
             </button>
             <button className="date-range" type="button">
               <span>2026/05/01 - 2026/05/04</span>
               <CalendarDays aria-hidden="true" size={22} strokeWidth={2.1} />
             </button>
           </div>
-          <div className="quick-ranges" aria-label="نطاقات التاريخ السريعة">
+          <div className="quick-ranges" aria-label="Quick date ranges">
             {quickRanges.map((range) => (
               <button className="range-button" key={range} type="button">
                 {range}
@@ -183,18 +183,18 @@ export function DashboardContent() {
         </div>
       </header>
 
-      <section className="dashboard-kpi-grid" aria-label="مؤشرات شهرية">
+      <section className="dashboard-kpi-grid" aria-label="Monthly indicators">
         {kpis.map((kpi) => (
           <KpiCard key={kpi.label} {...kpi} />
         ))}
       </section>
 
-      <section className="dashboard-analytics-grid" aria-label="التحليلات">
+      <section className="dashboard-analytics-grid" aria-label="Analytics">
         <article className="dashboard-panel dashboard-analytics-panel revenue-panel">
           <div className="analytics-panel-heading">
             <div>
-              <h2>المبيعات حسب الشهر</h2>
-              <p>إجمالي المبيعات الشهرية للطلبات غير الملغية</p>
+              <h2>Sales by Month</h2>
+              <p>Total monthly sales for non-cancelled orders</p>
             </div>
             <strong>{formatIqd(monthlySales)}</strong>
           </div>
@@ -204,8 +204,8 @@ export function DashboardContent() {
         <article className="dashboard-panel dashboard-analytics-panel">
           <div className="analytics-panel-heading">
             <div>
-              <h2>الطلبات حسب الشهر</h2>
-              <p>عدد الطلبات كما يظهر في مرجع العميل</p>
+              <h2>Orders by Month</h2>
+              <p>Number of orders as shown in customer reference</p>
             </div>
             <strong>{monthlyOrders}</strong>
           </div>
@@ -215,8 +215,8 @@ export function DashboardContent() {
         <article className="dashboard-panel dashboard-analytics-panel">
           <div className="analytics-panel-heading">
             <div>
-              <h2>المبيعات حسب المحافظة</h2>
-              <p>توزيع الطلبات على المدن والمحافظات</p>
+              <h2>Sales by Province</h2>
+              <p>Distribution of orders across cities and provinces</p>
             </div>
             <MapPin aria-hidden="true" size={20} strokeWidth={2.3} />
           </div>
@@ -239,8 +239,8 @@ export function DashboardContent() {
         <article className="dashboard-panel dashboard-analytics-panel">
           <div className="analytics-panel-heading">
             <div>
-              <h2>أفضل المنتجات مبيعا</h2>
-              <p>ترتيب بالكمية المباعة ضمن الطلبات الحالية</p>
+              <h2>Best Selling Products</h2>
+              <p>Ranked by quantity sold within current orders</p>
             </div>
             <BarChart3 aria-hidden="true" size={20} strokeWidth={2.3} />
           </div>
@@ -253,22 +253,22 @@ export function DashboardContent() {
                   <strong>{product.nameAr}</strong>
                   <span>{product.sku}</span>
                 </div>
-                <b>{sold} قطعة</b>
+                <b>{sold} units</b>
               </article>
             ))}
           </div>
         </article>
       </section>
 
-      <section className="dashboard-health-grid" aria-label="حالة التشغيل">
+      <section className="dashboard-health-grid" aria-label="Operating Status">
         <article className="dashboard-health-card health-green">
           <span>
             <CheckCircle2 aria-hidden="true" size={18} strokeWidth={2.25} />
           </span>
           <div>
-            <p>نسبة الإنجاز</p>
+            <p>Completion Rate</p>
             <strong>75%</strong>
-            <small>جاهز، مشحون أو مسلم</small>
+            <small>Ready, shipped or delivered</small>
           </div>
         </article>
         <article className="dashboard-health-card health-orange">
@@ -276,9 +276,9 @@ export function DashboardContent() {
             <Package aria-hidden="true" size={18} strokeWidth={2.25} />
           </span>
           <div>
-            <p>تنبيهات المخزون</p>
+            <p>Inventory Alerts</p>
             <strong>1 SKU</strong>
-            <small>منتج واحد نفد من المخزون</small>
+            <small>One product out of stock</small>
           </div>
         </article>
         <article className="dashboard-health-card health-cyan">
@@ -286,9 +286,9 @@ export function DashboardContent() {
             <TrendingUp aria-hidden="true" size={18} strokeWidth={2.25} />
           </span>
           <div>
-            <p>خطط الخصم النشطة</p>
+            <p>Active Discount Plans</p>
             <strong>1</strong>
-            <small>منتجان داخل الخطة</small>
+            <small>Two products in the plan</small>
           </div>
         </article>
         <article className="dashboard-health-card">
@@ -296,27 +296,27 @@ export function DashboardContent() {
             <Wallet aria-hidden="true" size={18} strokeWidth={2.25} />
           </span>
           <div>
-            <p>تسوية قادمة</p>
+            <p>Upcoming Settlement</p>
             <strong>{formatIqd(185000)}</strong>
-            <small>متبقية للدفع</small>
+            <small>Pending Payment</small>
           </div>
         </article>
       </section>
 
       <section className="dashboard-panel table-panel table-panel-large">
         <div className="panel-heading">
-          <h2>آخر الطلبات</h2>
+          <h2>Recent Orders</h2>
         </div>
         <div className="table-wrap">
           <table className="dashboard-table">
             <thead>
               <tr>
-                <th>رقم الطلب</th>
-                <th>المنتج</th>
-                <th>التاريخ والوقت</th>
-                <th>المبلغ</th>
-                <th>حالة الطلب</th>
-                <th>حالة العميل/التوصيل</th>
+                <th>Order Number</th>
+                <th>Product</th>
+                <th>Date & Time</th>
+                <th>Amount</th>
+                <th>Order Status</th>
+                <th>Customer/Delivery Status</th>
               </tr>
             </thead>
             <tbody>

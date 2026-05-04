@@ -49,32 +49,32 @@ export function InventoryContent() {
     <div className="inventory-content dashboard-content">
       <header className="page-title-row">
         <div>
-          <h1>إدارة المخزون</h1>
+          <h1>Inventory Management</h1>
           <p className="dashboard-sub">
-            هذه الصفحة تتحكم بالمخزون فقط. الأسعار تظهر كسياق للقراءة ولا يتم تعديلها هنا.
+            This page controls inventory only. Prices are shown for context and are not edited here.
           </p>
         </div>
         <button
           className="discount-create-button"
           type="button"
-          onClick={() => setMessage("تم حفظ تحديثات المخزون الصالحة.")}
+          onClick={() => setMessage("Valid inventory updates have been saved.")}
         >
           <Save aria-hidden="true" size={16} strokeWidth={2.4} />
-          <span>حفظ المخزون</span>
+          <span>Save Inventory</span>
         </button>
       </header>
 
       {message ? <div className="success-banner">{message}</div> : null}
 
-      <section className="inventory-summary-strip" aria-label="ملخص المخزون">
+      <section className="inventory-summary-strip" aria-label="Inventory Summary">
         <article className="inventory-summary-item inventory-blue">
           <span className="inventory-summary-icon">
             <PackageCheck aria-hidden="true" size={18} strokeWidth={2.3} />
           </span>
           <div>
-            <p>إجمالي المنتجات</p>
+            <p>Total Products</p>
             <strong>{products.length}</strong>
-            <small>منتجات المورد</small>
+            <small>Vendor Products</small>
           </div>
         </article>
         <article className="inventory-summary-item inventory-green">
@@ -82,9 +82,9 @@ export function InventoryContent() {
             <PackageCheck aria-hidden="true" size={18} strokeWidth={2.3} />
           </span>
           <div>
-            <p>منتجات متاحة</p>
+            <p>Available Products</p>
             <strong>{availableCount}</strong>
-            <small>كمية أكبر من صفر</small>
+            <small>Quantity > 0</small>
           </div>
         </article>
         <article className="inventory-summary-item inventory-orange">
@@ -92,32 +92,32 @@ export function InventoryContent() {
             <AlertTriangle aria-hidden="true" size={18} strokeWidth={2.3} />
           </span>
           <div>
-            <p>نفد المخزون</p>
+            <p>Out of Stock</p>
             <strong>{products.length - availableCount}</strong>
-            <small>تحتاج إضافة كمية</small>
+            <small>Restock needed</small>
           </div>
         </article>
       </section>
 
-      <section className="product-list-card inventory-card" aria-label="تحديث المخزون">
+      <section className="product-list-card inventory-card" aria-label="Update Inventory">
         <div className="order-items-filters">
           <label className="order-items-search">
             <Search aria-hidden="true" size={16} strokeWidth={2.2} />
             <input
-              placeholder="بحث بالاسم أو الكود أو اللون"
+              placeholder="Search by name, code or color"
               value={query}
               onChange={(event) => setQuery(event.target.value)}
             />
           </label>
           <label className="order-items-date">
-            <span>الحالة</span>
+            <span>Status</span>
             <select
               value={stockFilter}
               onChange={(event) => setStockFilter(event.target.value as typeof stockFilter)}
             >
-              <option value="all">كل المنتجات</option>
-              <option value="available">متاح</option>
-              <option value="out">نفد المخزون</option>
+              <option value="all">All Products</option>
+              <option value="available">Available</option>
+              <option value="out">Out of Stock</option>
             </select>
           </label>
           <button
@@ -130,13 +130,13 @@ export function InventoryContent() {
             }}
           >
             <RotateCcw aria-hidden="true" size={15} strokeWidth={2.2} />
-            <span>إعادة ضبط</span>
+            <span>Reset</span>
           </button>
         </div>
 
         <div className="inventory-product-grid">
           {visible.length === 0 ? (
-            <div className="empty-state-panel">لا توجد منتجات مطابقة.</div>
+            <div className="empty-state-panel">No matching products.</div>
           ) : (
             visible.map((product) => {
               const quantity = quantities[product.id];
@@ -155,18 +155,18 @@ export function InventoryContent() {
                     </div>
                   </div>
                   <div className="inventory-context">
-                    <span>سعر البيع: {formatIqd(product.sellingPrice)}</span>
-                    <span>سعر الكلفة: {formatIqd(product.costPrice)}</span>
+                    <span>Selling Price: {formatIqd(product.sellingPrice)}</span>
+                    <span>Cost Price: {formatIqd(product.costPrice)}</span>
                   </div>
                   <span
                     className={`approved-status-badge ${
                       quantity > 0 ? "is-active" : "is-rejected"
                     }`}
                   >
-                    {quantity > 0 ? "متاح" : "نفد المخزون"}
+                    {quantity > 0 ? "Available" : "Out of Stock"}
                   </span>
                   <label className="modal-field">
-                    <span>الكمية المتاحة</span>
+                    <span>Available Quantity</span>
                     <input
                       type="number"
                       value={quantity}

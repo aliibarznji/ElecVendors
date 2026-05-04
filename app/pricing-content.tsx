@@ -66,40 +66,40 @@ export function PricingContent() {
     <div className="pricing-content dashboard-content">
       <header className="page-title-row">
         <div>
-          <h1>التسعير السريع</h1>
+          <h1>Quick Pricing</h1>
           <p className="dashboard-sub">
-            تعديل سعر الكلفة، سعر البيع، ونسبة العمولة مع تحذيرات الاتفاقات الخاصة.
+            Edit cost price, selling price, and commission percentage with special agreement warnings.
           </p>
         </div>
         <button
           className="discount-create-button"
           type="button"
-          onClick={() => setSaved("تم حفظ الأسعار التي لا تحتوي أخطاء أو قيود.")}
+          onClick={() => setSaved("Prices without errors or restrictions have been saved.")}
         >
           <Save aria-hidden="true" size={16} strokeWidth={2.4} />
-          <span>حفظ التغييرات</span>
+          <span>Save Changes</span>
         </button>
       </header>
 
       {saved ? <div className="success-banner">{saved}</div> : null}
 
-      <section className="product-list-card pricing-card" aria-label="جدول التسعير">
+      <section className="product-list-card pricing-card" aria-label="Pricing Table">
         <div className="order-items-filters">
           <label className="order-items-search">
             <Search aria-hidden="true" size={16} strokeWidth={2.2} />
             <input
-              placeholder="بحث باسم المنتج أو الكود"
+              placeholder="Search by product name or code"
               value={query}
               onChange={(event) => setQuery(event.target.value)}
             />
           </label>
           <label className="order-items-date">
-            <span>خطة الخصم</span>
+            <span>Discount Plan</span>
             <select value={status} onChange={(event) => setStatus(event.target.value)}>
-              <option value="all">كل المنتجات</option>
-              <option value="none">بدون خصم</option>
-              <option value="active">خصم نشط</option>
-              <option value="scheduled">خصم مجدول</option>
+              <option value="all">All Products</option>
+              <option value="none">No Discount</option>
+              <option value="active">Active Discount</option>
+              <option value="scheduled">Scheduled Discount</option>
             </select>
           </label>
           <button
@@ -112,7 +112,7 @@ export function PricingContent() {
             }}
           >
             <RotateCcw aria-hidden="true" size={15} strokeWidth={2.2} />
-            <span>إعادة ضبط</span>
+            <span>Reset</span>
           </button>
         </div>
 
@@ -120,14 +120,14 @@ export function PricingContent() {
           <table className="purchase-order-table pricing-table">
             <thead>
               <tr>
-                <th>المنتج</th>
-                <th>الكود</th>
-                <th>الحالة</th>
-                <th>سعر الكلفة</th>
-                <th>سعر البيع</th>
-                <th>العمولة %</th>
-                <th>خطة الخصم</th>
-                <th>التحقق</th>
+                <th>Product</th>
+                <th>Code</th>
+                <th>Status</th>
+                <th>Cost Price</th>
+                <th>Selling Price</th>
+                <th>Commission %</th>
+                <th>Discount Plan</th>
+                <th>Validation</th>
               </tr>
             </thead>
             <tbody>

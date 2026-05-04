@@ -133,9 +133,9 @@ export function WarrantyContent() {
     <div className="warranty-content">
       <header className="page-title-row">
         <div>
-          <h1>الضمان</h1>
+          <h1>Warranty</h1>
           <p className="dashboard-sub">
-            بيانات الضمان التي تظهر للعميل في موقع الكترومول.
+            Warranty details displayed to the customer on the ElecMall website.
           </p>
         </div>
         {!editing ? (
@@ -145,7 +145,7 @@ export function WarrantyContent() {
             onClick={() => setEditing(true)}
           >
             <Plus aria-hidden="true" size={16} strokeWidth={2.4} />
-            <span>{warranty ? "تعديل الضمان" : "إضافة ضمان"}</span>
+            <span>{warranty ? "Edit Warranty" : "Add Warranty"}</span>
           </button>
         ) : null}
       </header>

@@ -12,10 +12,10 @@ import {
 } from "./vendor-dashboard-data";
 
 const statusLabel: Record<DiscountStatus | "all", string> = {
-  all: "كل الخطط",
-  active: "نشطة",
-  scheduled: "مجدولة",
-  inactive: "غير نشطة",
+  all: "All Plans",
+  active: "Active",
+  scheduled: "Scheduled",
+  inactive: "Inactive",
 };
 
 const statusClass: Record<DiscountStatus, string> = {
@@ -37,27 +37,27 @@ function CreatePlanForm({
   const [productIds, setProductIds] = useState(["prod-1"]);
 
   return (
-    <section className="warranty-form-card" aria-label="إنشاء خطة خصم">
+    <section className="warranty-form-card" aria-label="Create Discount Plan">
       <div className="warranty-form-header">
-        <h2>إنشاء خطة خصم</h2>
+        <h2>Create Discount Plan</h2>
         <button className="warranty-cancel-outline" type="button" onClick={onCancel}>
           <X aria-hidden="true" size={16} strokeWidth={2.4} />
-          <span>إلغاء</span>
+          <span>Cancel</span>
         </button>
       </div>
       <div className="warranty-main-grid">
         <label className="warranty-field">
-          <span>اسم الخطة</span>
+          <span>Plan Name</span>
           <div className="warranty-field-box">
             <input
               value={name}
-              placeholder="خصم نهاية الأسبوع"
+              placeholder="Weekend Discount"
               onChange={(event) => setName(event.target.value)}
             />
           </div>
         </label>
         <label className="warranty-field">
-          <span>تاريخ البداية</span>
+          <span>Start Date</span>
           <div className="warranty-field-box">
             <input
               type="date"
@@ -67,7 +67,7 @@ function CreatePlanForm({
           </div>
         </label>
         <label className="warranty-field">
-          <span>تاريخ النهاية</span>
+          <span>End Date</span>
           <div className="warranty-field-box">
             <input
               type="date"
@@ -77,7 +77,7 @@ function CreatePlanForm({
           </div>
         </label>
         <label className="warranty-field">
-          <span>المنتجات</span>
+          <span>Products</span>
           <div className="warranty-field-box">
             <select
               multiple
@@ -90,7 +90,7 @@ function CreatePlanForm({
             >
               {["prod-1", "prod-2", "prod-3", "prod-4"].map((id) => (
                 <option key={id} value={id}>
-                  {getProduct(id)?.nameAr}
+                  {getProduct(id)?.nameEn}
                 </option>
               ))}
             </select>
@@ -99,7 +99,7 @@ function CreatePlanForm({
       </div>
       <div className="warranty-actions">
         <button className="warranty-cancel-button" type="button" onClick={onCancel}>
-          إلغاء
+          Cancel
         </button>
         <button
           className="save-warranty-button"
@@ -107,7 +107,7 @@ function CreatePlanForm({
           onClick={() =>
             onSave({
               id: `disc-${Date.now()}`,
-              name: name || "خطة خصم جديدة",
+              name: name || "New Discount Plan",
               startDate,
               endDate,
               productIds,
@@ -117,7 +117,7 @@ function CreatePlanForm({
           }
         >
           <Save aria-hidden="true" size={18} strokeWidth={2.4} />
-          <span>حفظ الخطة</span>
+          <span>Save Plan</span>
         </button>
       </div>
     </section>
@@ -150,9 +150,9 @@ export function DiscountPlansContent() {
     <div className="discount-plans-content dashboard-content">
       <header className="page-title-row">
         <div>
-          <h1>خطط الخصم</h1>
+          <h1>Discount Plans</h1>
           <p className="dashboard-sub">
-            إنشاء خطط تحتوي عدة منتجات مع تاريخ بداية ونهاية ومتابعة المبيعات والكميات.
+            Create plans containing multiple products with start and end dates and track sales and quantities.
           </p>
         </div>
         <button
@@ -161,7 +161,7 @@ export function DiscountPlansContent() {
           onClick={() => setCreating(true)}
         >
           <Plus aria-hidden="true" size={16} strokeWidth={2.4} />
-          <span>إنشاء خطة خصم</span>
+          <span>Create Discount Plan</span>
         </button>
       </header>
 
@@ -175,31 +175,31 @@ export function DiscountPlansContent() {
         />
       ) : (
         <>
-          <section className="kpi-grid" aria-label="ملخص خطط الخصم">
+          <section className="kpi-grid" aria-label="Discount Plans Summary">
             <article className="kpi-card kpi-green">
-              <p>خطط نشطة</p>
+              <p>Active Plans</p>
               <strong>{active}</strong>
             </article>
             <article className="kpi-card kpi-blue">
-              <p>خطط مجدولة</p>
+              <p>Scheduled Plans</p>
               <strong>{scheduled}</strong>
             </article>
             <article className="kpi-card kpi-amber">
-              <p>خطط غير نشطة</p>
+              <p>Inactive Plans</p>
               <strong>{inactive}</strong>
             </article>
             <article className="kpi-card kpi-cyan">
-              <p>مبيعات منتجات مخفضة</p>
+              <p>Discounted Items Sales</p>
               <strong>{formatIqd(sales)}</strong>
             </article>
           </section>
 
-          <section className="discount-plans-card" aria-label="قائمة خطط الخصم">
+          <section className="discount-plans-card" aria-label="Discount Plans List">
             <div className="order-items-filters">
               <label className="order-items-search">
                 <Search aria-hidden="true" size={16} strokeWidth={2.2} />
                 <input
-                  placeholder="بحث باسم الخطة"
+                  placeholder="Search by plan name"
                   value={query}
                   onChange={(event) => setQuery(event.target.value)}
                 />
@@ -222,21 +222,21 @@ export function DiscountPlansContent() {
               <table className="purchase-order-table">
                 <thead>
                   <tr>
-                    <th>اسم الخطة</th>
-                    <th>البداية</th>
-                    <th>النهاية</th>
-                    <th>عدد المنتجات</th>
-                    <th>المبيعات</th>
-                    <th>القطع المباعة</th>
-                    <th>الحالة</th>
-                    <th>عرض</th>
+                    <th>Plan Name</th>
+                    <th>Start</th>
+                    <th>End</th>
+                    <th>Products Count</th>
+                    <th>Sales</th>
+                    <th>Items Sold</th>
+                    <th>Status</th>
+                    <th>View</th>
                   </tr>
                 </thead>
                 <tbody>
                   {visible.length === 0 ? (
                     <tr>
                       <td colSpan={8} className="empty-cell">
-                        لا توجد خطط ضمن هذا الفلتر.
+                        No plans match this filter.
                       </td>
                     </tr>
                   ) : (
@@ -268,7 +268,7 @@ export function DiscountPlansContent() {
                                 }
                               >
                                 <CalendarDays aria-hidden="true" size={14} strokeWidth={2.4} />
-                                تفاصيل
+                                Details
                               </button>
                             </td>
                           </tr>
@@ -282,10 +282,10 @@ export function DiscountPlansContent() {
                                       <article className="best-seller-row" key={productId}>
                                         <span className="seller-rank">%</span>
                                         <div>
-                                          <strong>{product?.nameAr}</strong>
+                                          <strong>{product?.nameEn}</strong>
                                           <span>{product?.sku}</span>
                                         </div>
-                                        <b>{plan.itemsSold[productId] ?? 0} قطعة</b>
+                                        <b>{plan.itemsSold[productId] ?? 0} pcs</b>
                                       </article>
                                     );
                                   })}

@@ -27,9 +27,9 @@ type ColorRow = {
 };
 
 const categories = [
-  ["الجمال", "العناية بالشعر", "أجهزة الشعر", "مكاوي التجعيد"],
-  ["الإلكترونيات", "الصوت", "سماعات", "لاسلكية"],
-  ["الإلكترونيات", "العناية الشخصية", "حلاقة", "ماكينات تهذيب"],
+  ["Beauty", "Hair Care", "Hair Devices", "Curling Irons"],
+  ["Electronics", "Audio", "Headphones", "Wireless"],
+  ["Electronics", "Personal Care", "Shaving", "Trimmers"],
 ];
 
 function Field({
@@ -79,7 +79,7 @@ function SelectBox({
       <span>{label}</span>
       <div className="product-input-box">
         <select value={value} onChange={(event) => onChange(event.target.value)}>
-          <option value="">اختر</option>
+          <option value="">Select</option>
           {options.map((option) => (
             <option key={option}>{option}</option>
           ))}
@@ -108,32 +108,32 @@ export function AddProductContent() {
     {
       id: "color-1",
       code: "#c7ccd4",
-      name: "فضي",
-      sizes: [{ id: "size-1", size: "قياسي", quantity: 1 }],
+      name: "Silver",
+      sizes: [{ id: "size-1", size: "Standard", quantity: 1 }],
     },
   ]);
   const [submitted, setSubmitted] = useState(false);
 
   const errors = useMemo(() => {
     const next: Record<string, string> = {};
-    if (!nameAr.trim()) next.nameAr = "اسم المنتج بالعربية مطلوب.";
-    if (!nameEn.trim()) next.nameEn = "اسم المنتج بالإنجليزية مطلوب.";
-    if (!materialCode.trim()) next.materialCode = "كود المنتج أو المادة مطلوب.";
-    if (!brand.trim()) next.brand = "العلامة التجارية مطلوبة.";
-    if (!barcode.trim()) next.barcode = "الباركود مطلوب.";
-    if (!vendorCode.trim()) next.vendorCode = "كود المنتج لدى التاجر مطلوب.";
+    if (!nameAr.trim()) next.nameAr = "Arabic Product Name is required.";
+    if (!nameEn.trim()) next.nameEn = "English Product Name is required.";
+    if (!materialCode.trim()) next.materialCode = "Product or Material Code is required.";
+    if (!brand.trim()) next.brand = "Brand is required.";
+    if (!barcode.trim()) next.barcode = "Barcode is required.";
+    if (!vendorCode.trim()) next.vendorCode = "Vendor Product Code is required.";
     const selling = Number(sellingPrice);
     const cost = Number(costPrice);
-    if (!selling || selling <= 0) next.sellingPrice = "سعر البيع مطلوب.";
-    if (!cost || cost <= 0) next.costPrice = "سعر الكلفة مطلوب.";
+    if (!selling || selling <= 0) next.sellingPrice = "Selling Price is required.";
+    if (!cost || cost <= 0) next.costPrice = "Cost Price is required.";
     if (selling && cost && selling < cost) {
-      next.sellingPrice = "سعر البيع يجب أن يكون أعلى من الكلفة.";
+      next.sellingPrice = "Selling Price must be higher than the Cost Price.";
     }
     if (colors.some((color) => !color.code || !color.name)) {
-      next.colors = "كل لون يحتاج كود لون واسم لون.";
+      next.colors = "Every color needs a color code and a color name.";
     }
     if (colors.some((color) => color.sizes.some((size) => !size.size || size.quantity < 0))) {
-      next.sizes = "كل صف حجم يحتاج اسم حجم وكمية صحيحة.";
+      next.sizes = "Every size row needs a size name and a valid quantity.";
     }
     return next;
   }, [
@@ -173,9 +173,9 @@ export function AddProductContent() {
     <div className="add-product-content">
       <header className="page-title-row">
         <div>
-          <h1>إضافة / تعديل منتج</h1>
+          <h1>Add / Edit Product</h1>
           <p className="dashboard-sub">
-            نموذج واحد يغطي بيانات المنتج، التسعير، التصنيفات، الصور، الألوان، والأحجام.
+            A single form covering product data, pricing, categories, images, colors, and sizes.
           </p>
         </div>
         <button
@@ -184,77 +184,77 @@ export function AddProductContent() {
           onClick={() => setSubmitted(true)}
         >
           <Save aria-hidden="true" size={16} strokeWidth={2.4} />
-          <span>حفظ المنتج</span>
+          <span>Save Product</span>
         </button>
       </header>
 
       {submitted && Object.keys(errors).length === 0 ? (
         <div className="success-banner">
-          تم التحقق من البيانات. في التطبيق الحقيقي يتم إرسال المنتج للمراجعة أو النشر.
+          Data verified. In the real app, product is sent for review or publishing.
         </div>
       ) : null}
 
       {submitted && Object.keys(errors).length > 0 ? (
         <div className="warning-banner">
-          يرجى إكمال الحقول المطلوبة وتصحيح الأخطاء قبل حفظ المنتج.
+          Please complete required fields and fix errors before saving the product.
         </div>
       ) : null}
 
       <section className="product-section">
-        <h2>المعلومات الأساسية</h2>
+        <h2>Basic Information</h2>
         <div className="product-details-grid">
           <div className="product-field-stack">
             <Field
-              label="اسم المنتج بالعربية"
+              label="Product Name in Arabic"
               value={nameAr}
               onChange={setNameAr}
-              placeholder="مثال: مكواة تجعيد الشعر"
+              placeholder="Example: Hair Curling Iron"
               error={submitted ? errors.nameAr : undefined}
             />
             <Field
-              label="اسم المنتج بالإنجليزية"
+              label="Product Name in English"
               value={nameEn}
               onChange={setNameEn}
               placeholder="Product English name"
               error={submitted ? errors.nameEn : undefined}
             />
             <Field
-              label="النقاط البارزة"
+              label="Highlights"
               value={highlights}
               onChange={setHighlights}
-              placeholder="سريع التسخين، ضمان سنة، لون فضي"
+              placeholder="Fast heating, 1-year warranty, Silver color"
             />
             <Field
-              label="الكلمات المفتاحية"
+              label="Keywords"
               value={keywords}
               onChange={setKeywords}
-              placeholder="sheglam, beauty, مكواة شعر"
+              placeholder="sheglam, beauty, hair iron"
             />
           </div>
           <div className="product-field-stack">
             <Field
-              label="كود المنتج / المادة"
+              label="Product / Material Code"
               value={materialCode}
               onChange={setMaterialCode}
               placeholder="MAT-SG-CURL-400"
               error={submitted ? errors.materialCode : undefined}
             />
             <Field
-              label="العلامة التجارية"
+              label="Brand"
               value={brand}
               onChange={setBrand}
               placeholder="Sheglam"
               error={submitted ? errors.brand : undefined}
             />
             <Field
-              label="الباركود"
+              label="Barcode"
               value={barcode}
               onChange={setBarcode}
               placeholder="8901234567891"
               error={submitted ? errors.barcode : undefined}
             />
             <Field
-              label="كود المنتج لدى التاجر"
+              label="Vendor Product Code"
               value={vendorCode}
               onChange={setVendorCode}
               placeholder="SG-CRL-400-SL"
@@ -263,24 +263,24 @@ export function AddProductContent() {
           </div>
         </div>
         <label className="product-form-field">
-          <span>الوصف</span>
+          <span>Description</span>
           <textarea
             className="product-textarea"
             value={description}
-            placeholder="اكتب وصف المنتج وشروط الاستخدام المهمة."
+            placeholder="Write the product description and important usage terms."
             onChange={(event) => setDescription(event.target.value)}
           />
         </label>
       </section>
 
       <section className="product-section">
-        <h2>التصنيف والسعر</h2>
+        <h2>Classification and Pricing</h2>
         <div className="product-details-grid">
           <div className="product-field-stack">
             {[0, 1, 2, 3].map((level) => (
               <SelectBox
                 key={level}
-                label={`مستوى التصنيف ${level + 1}`}
+                label={`Category Level ${level + 1}`}
                 value={category[level]}
                 onChange={(value) =>
                   setCategory((current) =>
@@ -293,7 +293,7 @@ export function AddProductContent() {
           </div>
           <div className="product-field-stack">
             <Field
-              label="سعر البيع IQD"
+              label="Selling Price IQD"
               type="number"
               value={sellingPrice}
               onChange={setSellingPrice}
@@ -301,7 +301,7 @@ export function AddProductContent() {
               error={submitted ? errors.sellingPrice : undefined}
             />
             <Field
-              label="سعر الكلفة IQD"
+              label="Cost Price IQD"
               type="number"
               value={costPrice}
               onChange={setCostPrice}
@@ -316,7 +316,7 @@ export function AddProductContent() {
             >
               <span className={`toggle-switch${largeProduct ? " is-enabled" : ""}`} />
               <ToggleRight aria-hidden="true" size={18} strokeWidth={2.3} />
-              <strong>{largeProduct ? "منتج كبير" : "منتج صغير/عادي"}</strong>
+              <strong>{largeProduct ? "Large Product" : "Small/Regular Product"}</strong>
             </button>
           </div>
         </div>
@@ -324,20 +324,20 @@ export function AddProductContent() {
 
       <section className="product-section product-images-section">
         <div className="section-copy">
-          <h2>صور المنتج</h2>
-          <p>الصورة الأولى هي الصورة الرئيسية. يفضل رفع صور واضحة بخلفية بيضاء.</p>
+          <h2>Product Images</h2>
+          <p>The first image is the main image. It is preferable to upload clear images with a white background.</p>
         </div>
         <div className="image-dropzone">
           <UploadCloud aria-hidden="true" size={48} strokeWidth={2.2} />
-          <strong>اسحب الصور هنا أو اضغط للرفع</strong>
-          <span>PNG أو JPG - حتى 10 صور</span>
+          <strong>Drag images here or click to upload</strong>
+          <span>PNG or JPG - up to 10 images</span>
         </div>
       </section>
 
       <section className="product-section">
         <div className="section-copy">
-          <h2>الألوان والأحجام والكميات</h2>
-          <p>يمكن إضافة أكثر من لون، وكل لون يحتوي صفوف حجم وكمية.</p>
+          <h2>Colors, Sizes, and Quantities</h2>
+          <p>More than one color can be added, and each color contains size and quantity rows.</p>
         </div>
         {submitted && (errors.colors || errors.sizes) ? (
           <em className="form-error">{errors.colors || errors.sizes}</em>
@@ -347,7 +347,7 @@ export function AddProductContent() {
             <article className="color-variant-card" key={color.id}>
               <div className="color-variant-header">
                 <label>
-                  <span>كود اللون</span>
+                  <span>Color Code</span>
                   <input
                     type="color"
                     value={color.code}
@@ -355,7 +355,7 @@ export function AddProductContent() {
                   />
                 </label>
                 <label>
-                  <span>اسم اللون</span>
+                  <span>Color Name</span>
                   <input
                     value={color.name}
                     onChange={(event) => updateColor(color.id, { name: event.target.value })}
@@ -364,7 +364,7 @@ export function AddProductContent() {
                 <button
                   className="row-action-btn reject-btn"
                   type="button"
-                  aria-label="حذف اللون"
+                  aria-label="Delete Color"
                   onClick={() =>
                     setColors((current) => current.filter((item) => item.id !== color.id))
                   }
@@ -376,7 +376,7 @@ export function AddProductContent() {
                 {color.sizes.map((size) => (
                   <div className="size-row" key={size.id}>
                     <label>
-                      <span>الحجم</span>
+                      <span>Size</span>
                       <input
                         value={size.size}
                         onChange={(event) =>
@@ -385,7 +385,7 @@ export function AddProductContent() {
                       />
                     </label>
                     <label>
-                      <span>الكمية</span>
+                      <span>Quantity</span>
                       <input
                         type="number"
                         value={size.quantity}
@@ -412,7 +412,7 @@ export function AddProductContent() {
                 }
               >
                 <Plus aria-hidden="true" size={16} strokeWidth={2.4} />
-                إضافة حجم
+                Add Size
               </button>
             </article>
           ))}
@@ -433,17 +433,17 @@ export function AddProductContent() {
           }
         >
           <ImagePlus aria-hidden="true" size={16} strokeWidth={2.4} />
-          <span>إضافة لون</span>
+          <span>Add Color</span>
         </button>
       </section>
 
       <section className="product-section">
-        <h2>مراجعة قبل الحفظ</h2>
+        <h2>Review before Saving</h2>
         <div className="review-grid">
-          <span><Tag aria-hidden="true" size={15} /> {nameAr || "اسم المنتج"}</span>
-          <span><Barcode aria-hidden="true" size={15} /> {barcode || "باركود"}</span>
+          <span><Tag aria-hidden="true" size={15} /> {nameAr || "Product Name"}</span>
+          <span><Barcode aria-hidden="true" size={15} /> {barcode || "Barcode"}</span>
           <span>{category.filter(Boolean).join(" / ")}</span>
-          <span>{colors.length} لون / {colors.reduce((sum, color) => sum + color.sizes.length, 0)} حجم</span>
+          <span>{colors.length} Colors / {colors.reduce((sum, color) => sum + color.sizes.length, 0)} Sizes</span>
         </div>
       </section>
     </div>

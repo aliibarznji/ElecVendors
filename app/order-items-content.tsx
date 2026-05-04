@@ -93,9 +93,9 @@ export function OrderItemsContent() {
     <div className="order-items-content">
       <header className="page-title-row">
         <div>
-          <h1>عناصر الطلبات</h1>
+          <h1>Order Items</h1>
           <p className="dashboard-sub">
-            متابعة عناصر الطلبات حسب الحالة مع السعر قبل وبعد العمولة وتفاصيل المنتج.
+            Track order items by status with price before and after commission and product details.
           </p>
         </div>
       </header>

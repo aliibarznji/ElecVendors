@@ -103,8 +103,8 @@ export function SellerReportContent() {
     <div className="seller-report-content dashboard-content">
       <header className="dashboard-header">
         <div>
-          <h1>تقرير البائع</h1>
-          <p className="dashboard-sub">آخر تحديث: {lastUpdated}</p>
+          <h1>Sales Report</h1>
+          <p className="dashboard-sub">Last updated: {lastUpdated}</p>
         </div>
         <div className="primary-controls">
           <button
@@ -113,11 +113,11 @@ export function SellerReportContent() {
             onClick={() => setLastUpdated("2026-05-04 12:15")}
           >
             <RefreshCw aria-hidden="true" size={18} strokeWidth={2.3} />
-            <span>تحديث البيانات</span>
+            <span>Refresh Data</span>
           </button>
           <button className="export-button" type="button">
             <Download aria-hidden="true" size={18} strokeWidth={2.3} />
-            <span>تصدير Excel</span>
+            <span>Export to Excel</span>
           </button>
         </div>
       </header>

@@ -14,13 +14,13 @@ import {
 function statusLabel(status: MarketingCampaign["status"]) {
   switch (status) {
     case "pending":
-      return "بانتظار الموافقة";
+      return "Pending Approval";
     case "active":
-      return "نشطة";
+      return "Active";
     case "completed":
-      return "مكتملة";
+      return "Completed";
     case "rejected":
-      return "مرفوضة";
+      return "Rejected";
   }
 }
 
@@ -64,13 +64,13 @@ export function ExistingMarketingCampaignsContent() {
     <div className="existing-marketing-content dashboard-content">
       <header className="page-title-row">
         <div>
-          <h1>الحملات التسويقية الحالية</h1>
+          <h1>Active Marketing Campaigns</h1>
           <p className="dashboard-sub">
-            متابعة حالة الحملة، كود الحملة، العد التنازلي، وتقارير الأداء بعد الانتهاء.
+            Track campaign status, campaign code, countdown, and performance reports after completion.
           </p>
         </div>
         <Link className="discount-create-button" href="/marketing/new">
-          حملة جديدة
+          New Campaign
         </Link>
       </header>
 
@@ -79,21 +79,21 @@ export function ExistingMarketingCampaignsContent() {
           <table className="purchase-order-table">
             <thead>
               <tr>
-                <th>الحملة</th>
-                <th>الباقة</th>
-                <th>الكود</th>
-                <th>تاريخ الشراء</th>
-                <th>المدة</th>
-                <th>الحالة</th>
-                <th>الوقت المتبقي</th>
-                <th>التقرير</th>
+                <th>Campaign</th>
+                <th>Package</th>
+                <th>Code</th>
+                <th>Purchase Date</th>
+                <th>Duration</th>
+                <th>Status</th>
+                <th>Time Remaining</th>
+                <th>Report</th>
               </tr>
             </thead>
             <tbody>
               {campaigns.length === 0 ? (
                 <tr>
                   <td colSpan={8} className="empty-cell">
-                    لا توجد حملات. ابدأ بشراء باقة تسويقية.
+                    No campaigns found. Start by purchasing a marketing package.
                   </td>
                 </tr>
               ) : (
@@ -104,14 +104,14 @@ export function ExistingMarketingCampaignsContent() {
                     <Fragment key={campaign.id}>
                       <tr className="product-list-data-row">
                         <td>{pkg?.name ?? campaign.packageId}</td>
-                        <td>{pkg ? `$${pkg.price} / ${pkg.durationDays} يوم` : "-"}</td>
+                        <td>{pkg ? `$${pkg.price} / ${pkg.durationDays} days` : "-"}</td>
                         <td>
                           <span className="campaign-code">
                             <code>{campaign.code}</code>
                             <button
                               className="row-action-btn"
                               type="button"
-                              aria-label="نسخ الكود"
+                              aria-label="Copy Code"
                               onClick={() => navigator.clipboard?.writeText(campaign.code)}
                             >
                               <Clipboard aria-hidden="true" size={13} strokeWidth={2.4} />
@@ -119,14 +119,14 @@ export function ExistingMarketingCampaignsContent() {
                           </span>
                         </td>
                         <td>{campaign.purchasedAt}</td>
-                        <td>{pkg?.durationDays ?? "-"} يوم</td>
+                        <td>{pkg?.durationDays ?? "-"} days</td>
                         <td>
                           <span className={`approved-status-badge ${statusClass(campaign.status)}`}>
                             {statusLabel(campaign.status)}
                           </span>
                         </td>
                         <td>
-                          {remaining ? `${remaining.days} يوم / ${remaining.hours} ساعة` : "-"}
+                          {remaining ? `${remaining.days} days / ${remaining.hours} hours` : "-"}
                         </td>
                         <td>
                           {campaign.status === "completed" || campaign.status === "active" ? (
@@ -140,7 +140,7 @@ export function ExistingMarketingCampaignsContent() {
                               }
                             >
                               <Eye aria-hidden="true" size={14} strokeWidth={2.4} />
-                              {campaign.status === "completed" ? "تحميل التقرير" : "إحصاءات مباشرة"}
+                              {campaign.status === "completed" ? "Download Report" : "Live Stats"}
                             </button>
                           ) : (
                             "-"
@@ -151,28 +151,28 @@ export function ExistingMarketingCampaignsContent() {
                         <tr key={`${campaign.id}-report`} className="row-details-row">
                           <td colSpan={8}>
                             <div className="campaign-report">
-                              <h4>تقرير الحملة - {campaign.code}</h4>
+                              <h4>Campaign Report - {campaign.code}</h4>
                               <div className="kpi-grid kpi-grid-3">
                                 <article className="kpi-card kpi-blue">
-                                  <p>المشاهدات</p>
+                                  <p>Views</p>
                                   <strong>{campaign.views.toLocaleString("en-US")}</strong>
                                 </article>
                                 <article className="kpi-card kpi-cyan">
-                                  <p>النقرات</p>
+                                  <p>Clicks</p>
                                   <strong>{campaign.clicks.toLocaleString("en-US")}</strong>
                                 </article>
                                 <article className="kpi-card kpi-green">
-                                  <p>المبيعات الناتجة</p>
+                                  <p>Sales Generated</p>
                                   <strong>{campaign.sales.toLocaleString("en-US")}</strong>
                                 </article>
                                 <article className="kpi-card kpi-amber">
-                                  <p>الوصول</p>
+                                  <p>Reach</p>
                                   <strong>{campaign.reach.toLocaleString("en-US")}</strong>
                                 </article>
                               </div>
                               <button className="export-button" type="button">
                                 <Download aria-hidden="true" size={16} strokeWidth={2.3} />
-                                <span>تحميل التقرير</span>
+                                <span>Download Report</span>
                               </button>
                             </div>
                           </td>

@@ -7,10 +7,10 @@ import { products, validateBulkUpdateRow } from "./vendor-dashboard-data";
 type Mode = "prices" | "stock";
 
 const steps = [
-  "تحميل ملف المنتجات الحالي",
-  "رفع الملف بعد التعديل",
-  "مراجعة الأخطاء والتحذيرات",
-  "تطبيق التحديثات",
+  "Download current products file",
+  "Upload file after editing",
+  "Review errors and warnings",
+  "Apply updates",
 ];
 
 export function BulkOperationsContent() {
@@ -48,9 +48,9 @@ export function BulkOperationsContent() {
     <div className="bulk-content">
       <header className="page-title-row">
         <div>
-          <h1>تحديثات المنتجات</h1>
+          <h1>Product Updates</h1>
           <p className="dashboard-sub">
-            بوابة CSV/XLSX لتحديث الأسعار أو المخزون فقط بدون إنشاء منتجات جديدة.
+            CSV/XLSX gateway to update prices or inventory only without creating new products.
           </p>
         </div>
       </header>
@@ -66,7 +66,7 @@ export function BulkOperationsContent() {
               setApplied(false);
             }}
           >
-            تحديث الأسعار
+            Update Prices
           </button>
           <button
             className={`bulk-tab${mode === "stock" ? " is-active" : ""}`}
@@ -77,14 +77,14 @@ export function BulkOperationsContent() {
               setApplied(false);
             }}
           >
-            تحديث المخزون
+            Update Inventory
           </button>
         </div>
 
         <div className="bulk-tab-body">
           <div className="warning-banner">
-            لا ترفع منتجات جديدة من هذه الصفحة، ولا تغير الأعمدة المحمية مثل اسم المنتج،
-            SKU، الباركود، أو كود المنتج. هذه البوابة للتحديث فقط.
+            Do not upload new products from this page, and do not change protected columns such as product name,
+            SKU, barcode, or product code. This portal is for updates only.
           </div>
 
           <ol className="bulk-steps csv-steps">
@@ -94,7 +94,7 @@ export function BulkOperationsContent() {
                 {index === 0 ? (
                   <button className="bulk-export-button" type="button">
                     <Download aria-hidden="true" size={16} strokeWidth={2.4} />
-                    تحميل ملف المنتجات الحالي
+                    Download current products file
                   </button>
                 ) : null}
                 {index === 1 ? (
@@ -104,7 +104,7 @@ export function BulkOperationsContent() {
                     onClick={() => setUploaded(true)}
                   >
                     <UploadCloud aria-hidden="true" size={24} strokeWidth={2.3} />
-                    <span>{uploaded ? "تم رفع الملف التجريبي" : "اضغط أو اسحب ملف CSV/XLSX هنا"}</span>
+                    <span>{uploaded ? "Sample file uploaded" : "Click or drag CSV/XLSX file here"}</span>
                   </button>
                 ) : null}
                 {index === 2 && uploaded ? (
@@ -113,8 +113,8 @@ export function BulkOperationsContent() {
                       <thead>
                         <tr>
                           <th>SKU</th>
-                          <th>النتيجة</th>
-                          <th>الأخطاء / التحذيرات</th>
+                          <th>Result</th>
+                          <th>Errors / Warnings</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -127,7 +127,7 @@ export function BulkOperationsContent() {
                                   validation[rowIndex].valid ? "is-active" : "is-rejected"
                                 }`}
                               >
-                                {validation[rowIndex].valid ? "صالح" : "يحتاج تصحيح"}
+                                {validation[rowIndex].valid ? "Valid" : "Needs correction"}
                               </span>
                             </td>
                             <td>
@@ -154,7 +154,7 @@ export function BulkOperationsContent() {
                     onClick={() => setApplied(true)}
                   >
                     <FileSpreadsheet aria-hidden="true" size={16} strokeWidth={2.4} />
-                    <span>تطبيق التحديثات</span>
+                    <span>Apply Updates</span>
                   </button>
                 ) : null}
               </li>
@@ -164,7 +164,7 @@ export function BulkOperationsContent() {
           {applied ? (
             <div className="success-banner">
               <CheckCircle2 aria-hidden="true" size={18} strokeWidth={2.4} />
-              تم تطبيق التحديثات الصالحة على بيانات المنتجات.
+              Valid updates have been applied to product data.
             </div>
           ) : null}
         </div>
