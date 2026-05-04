@@ -158,7 +158,28 @@ function WarrantyForm({ onCancel }: { onCancel: () => void }) {
           label="Warranty Period Type:"
           placeholder="Months"
         />
+        <WarrantyField
+          icon={Phone}
+          label="Maintenance Number:"
+          placeholder="+9647XXXXXXXXX"
+        />
+        <div className="warranty-field maintenance-location-field">
+          <span>Maintenance Center Location:</span>
+          <div className="warranty-field-box">
+            <input placeholder="Enter maintenance center address" />
+            <MapPin aria-hidden="true" size={21} strokeWidth={2.1} />
+          </div>
+          <button className="current-location-button" type="button">
+            <MapPin aria-hidden="true" size={15} strokeWidth={2.4} />
+            <span>Pick on map</span>
+          </button>
+        </div>
       </div>
+
+      <p className="maintenance-helper-note">
+        This information will be displayed to customers on the product detail
+        page.
+      </p>
 
       <div className="warranty-locations-header">
         <h3>Locations</h3>

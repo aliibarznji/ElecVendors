@@ -1,6 +1,6 @@
 "use client";
 
-import { Briefcase, Check } from "lucide-react";
+import { Briefcase, Check, Clock } from "lucide-react";
 import { useState } from "react";
 
 const marketingPackages = [
@@ -164,10 +164,12 @@ function MarketingPackageCard({
   name,
   price,
   features,
+  onBuy,
 }: {
   name: string;
   price: string;
   features: string[];
+  onBuy: () => void;
 }) {
   return (
     <article className="marketing-package-card">
@@ -188,20 +190,68 @@ function MarketingPackageCard({
         ))}
       </ul>
 
-      <button className="marketing-package-buy-button" type="button">
+      <button
+        className="marketing-package-buy-button"
+        type="button"
+        onClick={onBuy}
+      >
         Buy Now
       </button>
     </article>
   );
 }
 
-function MarketingPackageSelection() {
+const CAMPAIGNS_KEY = "elecv-campaigns";
+
+function persistCampaign(packageName: string) {
+  if (typeof window === "undefined") return;
+  try {
+    const raw = window.localStorage.getItem(CAMPAIGNS_KEY);
+    const list = raw ? JSON.parse(raw) : [];
+    const code = `EM-${Math.random().toString(36).slice(2, 8).toUpperCase()}`;
+    const now = new Date();
+    const duration = packageName.includes("Gold")
+      ? 30
+      : packageName.includes("Silver")
+        ? 14
+        : packageName.includes("Bronze")
+          ? 7
+          : 5;
+    const ends = new Date(now.getTime() + duration * 86400000);
+    list.unshift({
+      id: `c-${Date.now()}`,
+      name: packageName,
+      packageName,
+      code,
+      purchaseDate: now.toISOString(),
+      duration,
+      endDate: ends.toISOString(),
+      status: "Pending Approval",
+    });
+    window.localStorage.setItem(CAMPAIGNS_KEY, JSON.stringify(list));
+  } catch {
+    // ignore storage failures
+  }
+}
+
+function MarketingPackageSelection({
+  onPurchased,
+}: {
+  onPurchased: (packageName: string) => void;
+}) {
   return (
     <section className="marketing-package-section" aria-label="Marketing packages">
       <div className="marketing-package-scroll">
         <div className="marketing-package-grid">
           {marketingPackages.map((item) => (
-            <MarketingPackageCard key={item.name} {...item} />
+            <MarketingPackageCard
+              key={item.name}
+              {...item}
+              onBuy={() => {
+                persistCampaign(item.name);
+                onPurchased(item.name);
+              }}
+            />
           ))}
         </div>
       </div>
@@ -209,15 +259,54 @@ function MarketingPackageSelection() {
   );
 }
 
+function PurchaseConfirmation({
+  packageName,
+  onAnother,
+}: {
+  packageName: string;
+  onAnother: () => void;
+}) {
+  return (
+    <section
+      className="marketing-confirmation-panel"
+      aria-label="Campaign submitted"
+    >
+      <div className="confirmation-icon">
+        <Clock aria-hidden="true" size={28} strokeWidth={2.4} />
+      </div>
+      <h2>Order Submitted</h2>
+      <p className="confirmation-package">{packageName}</p>
+      <span className="approved-status-badge is-pending">Pending Approval</span>
+      <p className="confirmation-helper">
+        Your campaign has been submitted to the Account Manager for review. You
+        will receive a Campaign Code once approved.
+      </p>
+      <button
+        className="marketing-package-buy-button"
+        type="button"
+        onClick={onAnother}
+      >
+        Buy Another Package
+      </button>
+    </section>
+  );
+}
+
 export function MarketingCampaignContent() {
   const [showPackages, setShowPackages] = useState(false);
+  const [purchased, setPurchased] = useState<string | null>(null);
 
   return (
     <div className="marketing-campaign-content">
       <h1>New Marketing Campaign</h1>
 
-      {showPackages ? (
-        <MarketingPackageSelection />
+      {purchased ? (
+        <PurchaseConfirmation
+          packageName={purchased}
+          onAnother={() => setPurchased(null)}
+        />
+      ) : showPackages ? (
+        <MarketingPackageSelection onPurchased={(name) => setPurchased(name)} />
       ) : (
         <section
           className="marketing-campaign-panel"

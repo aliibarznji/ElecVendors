@@ -1,6 +1,8 @@
 import type { LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
 import {
+  Activity,
+  Award,
   Badge,
   Building2,
   CalendarDays,
@@ -8,7 +10,9 @@ import {
   CheckCircle2,
   Contact,
   CreditCard,
+  Coins,
   FileText,
+  Gauge,
   Globe2,
   Image as ImageIcon,
   Info,
@@ -17,6 +21,7 @@ import {
   MessageSquareText,
   Phone,
   Save,
+  Star,
   Tags,
   Timer,
   Truck,
@@ -179,7 +184,13 @@ export function ProfileContent() {
             <Field
               icon={Badge}
               label="Vendor ID:"
-              value="68c7c5e47bd93a0041cfb75b"
+              value="VEN-68c7c5e47bd93a0041cfb75b"
+              helper="Raw ID: 68c7c5e47bd93a0041cfb75b"
+            />
+            <Field
+              icon={CalendarDays}
+              label="Date of Joining Electro Mall:"
+              value="12 Mar 2024"
             />
             <Field
               icon={Tags}
@@ -383,7 +394,137 @@ export function ProfileContent() {
             </div>
           </div>
         </section>
+
+        <section className="profile-section">
+          <SectionHeading icon={Truck} title="Delivery Mechanism" />
+          <div className="payment-stack">
+            <ChoiceGroup
+              label="Delivery handled by:"
+              options={["By the Vendor", "By Electro Mall"]}
+              selected="By Electro Mall"
+            />
+            <p className="payment-note">
+              Choosing Electro Mall delivery includes platform shipping fees in
+              your settlement; vendor delivery requires you to handle dispatch
+              and last-mile yourself.
+            </p>
+          </div>
+        </section>
+
+        <section className="profile-section">
+          <SectionHeading icon={Coins} title="Vendor Points" />
+          <div className="kpi-grid kpi-grid-3">
+            <article className="kpi-card kpi-blue">
+              <p>Total Points Earned</p>
+              <strong>1,240</strong>
+            </article>
+            <article className="kpi-card kpi-amber">
+              <p>Points Redeemed</p>
+              <strong>320</strong>
+            </article>
+            <article className="kpi-card kpi-green">
+              <p>Available Balance</p>
+              <strong>920</strong>
+            </article>
+          </div>
+          <p className="payment-note">
+            Points are calculated automatically per completed order. Redeem
+            points for marketing campaigns and platform services.
+          </p>
+          <div className="submit-row">
+            <button className="submit-all-button" type="button">
+              <Award aria-hidden="true" size={18} strokeWidth={2.3} />
+              <span>Redeem Points</span>
+            </button>
+          </div>
+          <div className="purchase-order-table-wrap">
+            <table className="purchase-order-table">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Order #</th>
+                  <th>Type</th>
+                  <th>Points</th>
+                  <th>Balance</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td>2026-04-29</td><td>ORD-100190</td><td>Earned</td><td>+ 40</td><td>920</td></tr>
+                <tr><td>2026-04-22</td><td>—</td><td>Redeemed</td><td>− 200</td><td>880</td></tr>
+                <tr><td>2026-04-14</td><td>ORD-100151</td><td>Earned</td><td>+ 60</td><td>1,080</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section className="profile-section">
+          <SectionHeading icon={Gauge} title="Vendor Performance" />
+          <div className="performance-grid">
+            <article className="performance-card">
+              <header>
+                <Activity aria-hidden="true" size={18} strokeWidth={2.3} />
+                <span>Order Processing Speed</span>
+              </header>
+              <strong>4.2 h</strong>
+              <Sparkline data={[6, 5.5, 5, 4.8, 5.2, 4.5, 4.2, 4]} />
+            </article>
+            <article className="performance-card">
+              <header>
+                <Info aria-hidden="true" size={18} strokeWidth={2.3} />
+                <span>Cancellation Rate</span>
+              </header>
+              <strong className="rate-good">1.8%</strong>
+              <Sparkline data={[3, 2.8, 2.5, 2.4, 2, 1.9, 1.8, 1.8]} />
+            </article>
+            <article className="performance-card">
+              <header>
+                <Star aria-hidden="true" size={18} strokeWidth={2.3} />
+                <span>Customer Rating</span>
+              </header>
+              <strong>4.6 / 5</strong>
+              <Sparkline data={[4.2, 4.3, 4.4, 4.5, 4.4, 4.5, 4.6, 4.6]} />
+            </article>
+            <article className="performance-card">
+              <header>
+                <FileText aria-hidden="true" size={18} strokeWidth={2.3} />
+                <span>Product Upload Activity</span>
+              </header>
+              <strong>32 / 28</strong>
+              <Sparkline data={[2, 4, 3, 5, 4, 6, 5, 3]} />
+            </article>
+          </div>
+        </section>
       </div>
     </div>
+  );
+}
+
+function Sparkline({ data }: { data: number[] }) {
+  const max = Math.max(...data);
+  const min = Math.min(...data);
+  const range = max - min || 1;
+  const points = data
+    .map((v, i) => {
+      const x = (i / (data.length - 1)) * 120;
+      const y = 30 - ((v - min) / range) * 26;
+      return `${x},${y}`;
+    })
+    .join(" ");
+  return (
+    <svg
+      viewBox="0 0 120 32"
+      className="sparkline"
+      role="img"
+      aria-label="Trend"
+    >
+      <polyline
+        fill="none"
+        stroke="var(--brand)"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        points={points}
+      />
+    </svg>
   );
 }

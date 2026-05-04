@@ -1,13 +1,16 @@
 "use client";
 
 import {
+  BarChart3,
   Box,
   ChevronLeft,
   ChevronRight,
+  ClipboardCheck,
   ClipboardList,
   CreditCard,
   FileClock,
   FileText,
+  History,
   Home,
   Layers,
   List,
@@ -16,11 +19,15 @@ import {
   PackageCheck,
   Percent,
   PlusSquare,
+  Receipt,
   RotateCcw,
   Send,
   ShieldCheck,
+  ShoppingBag,
+  Tag,
   Truck,
   User,
+  Users,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -34,6 +41,8 @@ const sidebarSections = [
       { label: "Profile", href: "/profile", icon: User },
       { label: "Warranty", href: "/warranty", icon: ShieldCheck },
       { label: "Commissions", href: "/commissions", icon: Percent },
+      { label: "Seller Report", href: "/seller-report", icon: BarChart3 },
+      { label: "Delivery Prices", href: "/delivery-prices", icon: Truck },
     ],
   },
   {
@@ -42,11 +51,13 @@ const sidebarSections = [
       { label: "Add Product", href: "/products/add", icon: PlusSquare },
       { label: "Product List", href: "/products", icon: List },
       { label: "Bulk Operations", href: "/products/bulk", icon: Layers },
+      { label: "Discount Plans", href: "/products/discounts", icon: Tag },
     ],
   },
   {
     title: "TRANSACTIONS",
     links: [
+      { label: "Order Items", href: "/orders", icon: ShoppingBag },
       { label: "Purchase Orders", href: "/purchase-orders", icon: Box },
       {
         label: "Purchase Requisitions",
@@ -56,6 +67,7 @@ const sidebarSections = [
       { label: "Returns", href: "/returns", icon: RotateCcw },
       { label: "Payments", href: "/payments", icon: CreditCard },
       { label: "Account Statement", href: "/account-statement", icon: FileText },
+      { label: "Settlements", href: "/settlements", icon: Receipt },
     ],
   },
   {
@@ -95,6 +107,18 @@ const sidebarSections = [
         href: "/logs/purchase-requisitions",
         icon: ClipboardList,
       },
+    ],
+  },
+  {
+    title: "ACCOUNT MANAGER",
+    links: [
+      { label: "Vendor Orders", href: "/account-manager/orders", icon: Users },
+      {
+        label: "Pending Products",
+        href: "/account-manager/pending-products",
+        icon: ClipboardCheck,
+      },
+      { label: "Operations Log", href: "/account-manager/log", icon: History },
     ],
   },
 ];
