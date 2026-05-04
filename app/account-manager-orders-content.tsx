@@ -9,7 +9,7 @@ import {
   type MarketingCampaign,
 } from "./vendor-dashboard-data";
 
-const vendors = ["Sheglam Iraq", "Electromall Direct", "Braun Distributor", "Philips Iraq"];
+const vendors = ["Shex jaffar", "Electromall Direct", "Braun Distributor", "Philips Iraq"];
 const agents = ["Agent Sara", "Agent Hussein", "Agent Lina", "Agent Omar"];
 
 type Item = {
@@ -38,7 +38,7 @@ const sample: Order[] = [
   {
     id: "o1",
     orderNumber: "AM-300001",
-    vendor: "Sheglam Iraq",
+    vendor: "Shex jaffar",
     customer: "Mariam K.",
     customerPhone: "+964 770 145 8800",
     customerAddress: "Karrada, Baghdad",
@@ -49,7 +49,7 @@ const sample: Order[] = [
     items: [
       {
         id: "i1",
-        product: "Sheglam Curling Iron Silver",
+        product: "Shex jaffar Curling Iron Silver",
         sku: "sv2411203071322707",
         qty: 1,
         agent: "Agent Sara",

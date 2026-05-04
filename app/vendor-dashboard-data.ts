@@ -117,7 +117,7 @@ export type MarketingCampaign = {
 export const vendorProfile = {
   id: "68c7c5e47bd93a0041cfb75b",
   reference: "VEN-2024-00068",
-  name: "Sheglam Iraq",
+  name: "Shex jaffar",
   accountManager: "Sarah Muhammad",
   joinedAt: "2024-03-12",
   email: "beautifulgril2294@gmail.com",
@@ -155,8 +155,8 @@ export const products: VendorProduct[] = [
   {
     id: "prod-1",
     vendorId: vendorProfile.reference,
-    nameAr: "Sheglam 400W Curling Iron - Silver",
-    nameEn: "Sheglam It-Curl One Curling Iron - 400 W - Silver",
+    nameAr: "Shex jaffar 400W Curling Iron - Silver",
+    nameEn: "Shex jaffar It-Curl One Curling Iron - 400 W - Silver",
     highlights: "Quick heating, ceramic coating, auto shut-off",
     description: "Lightweight curling iron suitable for daily use with steady heat control.",
     keywords: ["sheglam", "curling iron", "beauty", "hair iron"],

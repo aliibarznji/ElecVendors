@@ -15,9 +15,9 @@ type Pending = {
 const initial: Pending[] = [
   {
     id: "p1",
-    name: "Sheglam Lipstick Matte Red",
+    name: "Shex jaffar Lipstick Matte Red",
     sku: "sg-lip-22-rd",
-    vendor: "Sheglam Iraq",
+    vendor: "Shex jaffar",
     uploaded: "2026-04-29",
     daysInQueue: 5,
   },

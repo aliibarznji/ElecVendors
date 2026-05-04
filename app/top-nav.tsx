@@ -8,7 +8,7 @@ export function TopNav() {
   return (
     <header className="top-nav">
       <Link className="brand" href="/" aria-label="ElecMall Vendors Dashboard">
-        <span className="brand-mark">EM</span>
+       
         <span className="brand-text">ElecMall Vendors</span>
       </Link>
 

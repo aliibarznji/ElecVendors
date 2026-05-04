@@ -200,7 +200,7 @@ export function ProfileContent() {
             <Field
               icon={Users}
               label="Individual/Company Name:"
-              value="Sheglam Iraq"
+              value="Shex jaffar"
             />
             <Field
               icon={MessageSquareText}

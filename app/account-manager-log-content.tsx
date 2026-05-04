@@ -27,7 +27,7 @@ const entries: Entry[] = [
     user: "AM Sara",
     action: "Order Transfer",
     reference: "AM-300001",
-    details: "Transferred to Sheglam Iraq",
+    details: "Transferred to Shex jaffar",
   },
   {
     id: "l2",
@@ -43,7 +43,7 @@ const entries: Entry[] = [
     user: "AM Lina",
     action: "Approval",
     reference: "PROD-22918",
-    details: "Approved Sheglam Lipstick",
+    details: "Approved Shex jaffar Lipstick",
   },
   {
     id: "l4",
