@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import {
+  AlertTriangle,
+  Boxes,
   ChevronDown,
   ChevronLeft,
   ChevronRight,
@@ -9,10 +11,13 @@ import {
   EyeOff,
   ExternalLink,
   Filter,
+  PackageCheck,
   Pencil,
   RotateCcw,
   Calendar,
+  Wallet,
 } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 
 const productListColumns = [
   "Thumbnail",
@@ -55,6 +60,33 @@ const sampleProduct = {
   quantity: 0,
 };
 
+function InventorySummaryItem({
+  label,
+  value,
+  detail,
+  tone,
+  icon: Icon,
+}: {
+  label: string;
+  value: string;
+  detail: string;
+  tone: string;
+  icon: LucideIcon;
+}) {
+  return (
+    <article className={`inventory-summary-item inventory-${tone}`}>
+      <span className="inventory-summary-icon">
+        <Icon aria-hidden="true" size={18} strokeWidth={2.3} />
+      </span>
+      <div>
+        <p>{label}</p>
+        <strong>{value}</strong>
+        <small>{detail}</small>
+      </div>
+    </article>
+  );
+}
+
 function SelectFilter({
   label,
   value,
@@ -87,6 +119,47 @@ export function ProductListContent() {
     ? (((sellingPrice - sampleProduct.costPrice) / sellingPrice) * 100).toFixed(1)
     : "0.0";
   const cost = (sellingPrice * (1 - parseFloat(margin) / 100)).toFixed(2);
+  const outOfStockCount = stockStatus === "Out of Stock" ? 1 : 0;
+  const lowStockCount = stockStatus === "Low Stock" ? 1 : 0;
+  const inStockCount = stockStatus === "In Stock" ? 1 : 0;
+  const inventoryValue = sampleProduct.quantity * sampleProduct.costPrice;
+  const inventorySummary = [
+    {
+      label: "Total SKUs",
+      value: "1",
+      detail: "Visible products",
+      tone: "blue",
+      icon: Boxes,
+    },
+    {
+      label: "In Stock",
+      value: String(inStockCount),
+      detail: `${sampleProduct.quantity} available units`,
+      tone: "green",
+      icon: PackageCheck,
+    },
+    {
+      label: "Low Stock",
+      value: String(lowStockCount),
+      detail: "Below reorder point",
+      tone: "amber",
+      icon: AlertTriangle,
+    },
+    {
+      label: "Out of Stock",
+      value: String(outOfStockCount),
+      detail: outOfStockCount ? "Needs restock" : "No blocked SKUs",
+      tone: "orange",
+      icon: AlertTriangle,
+    },
+    {
+      label: "Stock Value",
+      value: `${inventoryValue.toLocaleString()} IQD`,
+      detail: "At cost price",
+      tone: "cyan",
+      icon: Wallet,
+    },
+  ];
 
   return (
     <div className="product-list-content">
@@ -148,6 +221,15 @@ export function ProductListContent() {
               </div>
             </div>
 
+            <section
+              className="inventory-summary-strip"
+              aria-label="Inventory summary"
+            >
+              {inventorySummary.map((item) => (
+                <InventorySummaryItem key={item.label} {...item} />
+              ))}
+            </section>
+
             <div className="product-list-filters">
               <SelectFilter label="Status:" value="All Statuses" />
               <label className="product-list-filter">
@@ -168,6 +250,17 @@ export function ProductListContent() {
             </div>
           </>
         )}
+
+        {editMode ? (
+          <section
+            className="inventory-summary-strip"
+            aria-label="Inventory summary"
+          >
+            {inventorySummary.map((item) => (
+              <InventorySummaryItem key={item.label} {...item} />
+            ))}
+          </section>
+        ) : null}
 
         <div className="product-list-table-tools">
           <button
@@ -229,7 +322,7 @@ export function ProductListContent() {
                     <input
                       className="edit-table-input"
                       type="text"
-                      placeholder="—"
+                      placeholder="-"
                       value={offerPrice}
                       onChange={(e) => setOfferPrice(e.target.value)}
                     />

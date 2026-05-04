@@ -2,7 +2,7 @@
 
 import { Clipboard, Download } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import { MarketingCampaignIllustration } from "./marketing-campaign-content";
 
 type Campaign = {
@@ -17,6 +17,9 @@ type Campaign = {
 };
 
 const CAMPAIGNS_KEY = "elecv-campaigns";
+const emptyCampaigns: Campaign[] = [];
+let cachedCampaignsRaw: string | null = null;
+let cachedCampaigns: Campaign[] = [];
 
 function loadCampaigns(): Campaign[] {
   if (typeof window === "undefined") return [];
@@ -26,6 +29,28 @@ function loadCampaigns(): Campaign[] {
   } catch {
     return [];
   }
+}
+
+function getCampaignSnapshot() {
+  if (typeof window === "undefined") return emptyCampaigns;
+
+  const raw = window.localStorage.getItem(CAMPAIGNS_KEY) ?? "";
+  if (raw === cachedCampaignsRaw) return cachedCampaigns;
+
+  cachedCampaignsRaw = raw;
+  cachedCampaigns = loadCampaigns();
+  return cachedCampaigns;
+}
+
+function getCampaignServerSnapshot() {
+  return emptyCampaigns;
+}
+
+function subscribeCampaigns(onStoreChange: () => void) {
+  if (typeof window === "undefined") return () => {};
+
+  window.addEventListener("storage", onStoreChange);
+  return () => window.removeEventListener("storage", onStoreChange);
 }
 
 function statusVariant(status: Campaign["status"]) {
@@ -99,22 +124,12 @@ function ReportPanel({ campaign }: { campaign: Campaign }) {
 }
 
 export function ExistingMarketingCampaignsContent() {
-  const [campaigns, setCampaigns] = useState<Campaign[]>([]);
+  const campaigns = useSyncExternalStore(
+    subscribeCampaigns,
+    getCampaignSnapshot,
+    getCampaignServerSnapshot,
+  );
   const [openReport, setOpenReport] = useState<string | null>(null);
-  const [hydrated, setHydrated] = useState(false);
-
-  useEffect(() => {
-    setCampaigns(loadCampaigns());
-    setHydrated(true);
-  }, []);
-
-  if (!hydrated) {
-    return (
-      <div className="existing-marketing-content">
-        <h1>Existing Marketing Campaigns</h1>
-      </div>
-    );
-  }
 
   if (campaigns.length === 0) {
     return (
@@ -212,7 +227,7 @@ export function ExistingMarketingCampaignsContent() {
                       ) : c.status === "Completed" ? (
                         "Ended"
                       ) : (
-                        "—"
+                        "-"
                       )}
                     </td>
                     <td>
@@ -242,7 +257,7 @@ export function ExistingMarketingCampaignsContent() {
                           View Live Stats
                         </button>
                       ) : (
-                        "—"
+                        "-"
                       )}
                     </td>
                   </tr>

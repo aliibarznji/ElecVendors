@@ -539,6 +539,308 @@ a {
   box-shadow: var(--shadow);
 }
 
+.dashboard-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.dashboard-kpi-card {
+  display: grid;
+  min-height: 158px;
+  align-content: space-between;
+  gap: 18px;
+  padding: 18px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow: var(--shadow-sm);
+  transition: border-color var(--transition), box-shadow var(--transition), transform var(--transition);
+}
+
+.dashboard-kpi-card:hover {
+  border-color: rgba(61, 95, 182, 0.24);
+  box-shadow: var(--shadow);
+  transform: translateY(-2px);
+}
+
+.dashboard-kpi-top,
+.analytics-panel-heading,
+.fulfillment-step div,
+.dashboard-health-card {
+  display: flex;
+  align-items: center;
+}
+
+.dashboard-kpi-top,
+.analytics-panel-heading {
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.dashboard-kpi-icon {
+  display: inline-grid;
+  width: 38px;
+  height: 38px;
+  place-items: center;
+  border-radius: 8px;
+  color: #3154b0;
+  background: #edf3ff;
+}
+
+.dashboard-kpi-change {
+  display: inline-flex;
+  min-height: 26px;
+  align-items: center;
+  border-radius: 999px;
+  background: #f5f8ff;
+  color: #3154b0;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+  padding: 0 9px;
+  white-space: nowrap;
+}
+
+.dashboard-kpi-card p,
+.dashboard-health-card p,
+.analytics-panel-heading p {
+  margin: 0;
+}
+
+.dashboard-kpi-card p,
+.dashboard-kpi-detail,
+.dashboard-health-card small,
+.analytics-panel-heading p {
+  color: #607089;
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.dashboard-kpi-card strong {
+  display: block;
+  margin-top: 7px;
+  color: #17233c;
+  font-size: 24px;
+  font-weight: 750;
+  letter-spacing: 0;
+  line-height: 1.08;
+}
+
+.dashboard-kpi-detail {
+  display: block;
+}
+
+.dashboard-kpi-card.kpi-green .dashboard-kpi-icon,
+.dashboard-kpi-card.kpi-green .dashboard-kpi-change {
+  background: #edf9f3;
+  color: #1f8b58;
+}
+
+.dashboard-kpi-card.kpi-cyan .dashboard-kpi-icon,
+.dashboard-kpi-card.kpi-cyan .dashboard-kpi-change {
+  background: #edfaff;
+  color: #1586a6;
+}
+
+.dashboard-kpi-card.kpi-orange .dashboard-kpi-icon,
+.dashboard-kpi-card.kpi-orange .dashboard-kpi-change {
+  background: #fff4ec;
+  color: #c55523;
+}
+
+.dashboard-analytics-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(320px, 0.85fr);
+  gap: 20px;
+  align-items: stretch;
+}
+
+.dashboard-analytics-panel {
+  display: grid;
+  align-content: start;
+  gap: 22px;
+  min-height: 292px;
+  padding: 22px 24px;
+}
+
+.revenue-panel {
+  min-width: 0;
+}
+
+.analytics-panel-heading h2 {
+  margin: 0 0 5px;
+  color: #17233c;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.analytics-panel-heading strong {
+  color: #17233c;
+  font-size: 18px;
+  font-weight: 750;
+  white-space: nowrap;
+}
+
+.revenue-trend-chart {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(42px, 1fr));
+  gap: 12px;
+  min-height: 188px;
+  align-items: end;
+  padding: 12px 4px 0;
+}
+
+.revenue-bar-item {
+  display: grid;
+  gap: 8px;
+  justify-items: center;
+  min-width: 0;
+}
+
+.revenue-bar-track {
+  position: relative;
+  display: flex;
+  width: 100%;
+  max-width: 54px;
+  height: 150px;
+  align-items: end;
+  overflow: hidden;
+  border-radius: 8px;
+  background: #eef2f8;
+}
+
+.revenue-bar-track span {
+  display: block;
+  width: 100%;
+  min-height: 4px;
+  border-radius: 8px 8px 0 0;
+  background: linear-gradient(180deg, #4f72cf 0%, #3154b0 100%);
+}
+
+.revenue-bar-item small {
+  color: #6a7689;
+  font-size: 11px;
+}
+
+.fulfillment-list {
+  display: grid;
+  gap: 14px;
+  margin: 0;
+  padding: 2px 0 0;
+  list-style: none;
+}
+
+.fulfillment-step {
+  display: grid;
+  grid-template-columns: minmax(110px, 0.8fr) minmax(120px, 1fr) 42px;
+  gap: 12px;
+  align-items: center;
+  color: #526178;
+}
+
+.fulfillment-step div:first-child {
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.fulfillment-step span {
+  min-width: 0;
+  font-size: 13px;
+  line-height: 1.25;
+}
+
+.fulfillment-step strong {
+  color: #17233c;
+  font-size: 15px;
+}
+
+.fulfillment-step small {
+  color: #6a7689;
+  font-size: 12px;
+  text-align: right;
+}
+
+.fulfillment-track {
+  height: 8px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #eef2f8;
+}
+
+.fulfillment-track span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: #4164bd;
+}
+
+.step-green .fulfillment-track span { background: #31b978; }
+.step-cyan .fulfillment-track span { background: #23a6c5; }
+.step-amber .fulfillment-track span { background: #f5a623; }
+
+.dashboard-health-grid {
+  display: grid;
+  grid-column: 1 / -1;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.dashboard-health-card {
+  gap: 12px;
+  min-height: 104px;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow: var(--shadow-sm);
+}
+
+.dashboard-health-card > span {
+  display: inline-grid;
+  width: 36px;
+  height: 36px;
+  flex: 0 0 36px;
+  place-items: center;
+  border-radius: 8px;
+  background: #edf3ff;
+  color: #3154b0;
+}
+
+.dashboard-health-card div {
+  min-width: 0;
+}
+
+.dashboard-health-card p {
+  color: #607089;
+  font-size: 12px;
+}
+
+.dashboard-health-card strong {
+  display: block;
+  margin: 4px 0 3px;
+  color: #17233c;
+  font-size: 18px;
+  font-weight: 750;
+  line-height: 1.15;
+}
+
+.health-green > span {
+  background: #edf9f3;
+  color: #1f8b58;
+}
+
+.health-cyan > span {
+  background: #edfaff;
+  color: #1586a6;
+}
+
+.health-orange > span {
+  background: #fff4ec;
+  color: #c55523;
+}
+
 .stats-panel {
   display: grid;
   gap: 24px;
@@ -2961,6 +3263,79 @@ a {
   justify-content: flex-end;
   gap: 14px;
   flex-wrap: wrap;
+}
+
+.inventory-summary-strip {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(150px, 1fr));
+  gap: 1px;
+  overflow: hidden;
+  border: 1px solid #e2e7f0;
+  border-radius: 8px;
+  background: #e2e7f0;
+}
+
+.inventory-summary-item {
+  display: flex;
+  min-height: 86px;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  padding: 14px 16px;
+  background: #ffffff;
+}
+
+.inventory-summary-icon {
+  display: inline-grid;
+  width: 38px;
+  height: 38px;
+  flex: 0 0 38px;
+  place-items: center;
+  border-radius: 8px;
+  background: #eef4ff;
+  color: #3154b0;
+}
+
+.inventory-summary-item div {
+  min-width: 0;
+}
+
+.inventory-summary-item p,
+.inventory-summary-item small {
+  margin: 0;
+  color: #607089;
+  font-size: 12px;
+  line-height: 1.25;
+}
+
+.inventory-summary-item strong {
+  display: block;
+  margin: 5px 0 3px;
+  overflow-wrap: anywhere;
+  color: #17233c;
+  font-size: 18px;
+  font-weight: 750;
+  line-height: 1.1;
+}
+
+.inventory-green .inventory-summary-icon {
+  background: #edf9f3;
+  color: #1f8b58;
+}
+
+.inventory-amber .inventory-summary-icon {
+  background: #fff8e8;
+  color: #b7790f;
+}
+
+.inventory-orange .inventory-summary-icon {
+  background: #fff4ec;
+  color: #c55523;
+}
+
+.inventory-cyan .inventory-summary-icon {
+  background: #edfaff;
+  color: #1586a6;
 }
 
 .outline-filter-button,
@@ -6094,6 +6469,35 @@ button:not(:disabled):active {
     font-size: 19px;
   }
 
+  .dashboard-kpi-grid,
+  .dashboard-analytics-grid,
+  .dashboard-health-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .dashboard-kpi-card,
+  .dashboard-analytics-panel,
+  .dashboard-health-card {
+    min-height: auto;
+  }
+
+  .analytics-panel-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .revenue-trend-chart {
+    gap: 8px;
+  }
+
+  .fulfillment-step {
+    grid-template-columns: 1fr;
+  }
+
+  .fulfillment-step small {
+    text-align: left;
+  }
+
   .chart-grid {
     grid-template-columns: 1fr;
   }
@@ -6389,6 +6793,10 @@ button:not(:disabled):active {
   .product-list-filters {
     grid-template-columns: 1fr;
     padding: 0;
+  }
+
+  .inventory-summary-strip {
+    grid-template-columns: 1fr;
   }
 
   .score-filter {
@@ -6701,6 +7109,16 @@ button:not(:disabled):active {
 
   .metric-grid {
     grid-template-columns: repeat(2, minmax(170px, 1fr));
+  }
+
+  .dashboard-kpi-grid,
+  .dashboard-health-grid,
+  .inventory-summary-strip {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .dashboard-analytics-grid {
+    grid-template-columns: 1fr;
   }
 
   .chart-grid {
