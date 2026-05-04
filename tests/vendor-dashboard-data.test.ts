@@ -27,7 +27,7 @@ test("filters products by status and search fields", () => {
 });
 
 test("filters orders by status, date, query, and sort", () => {
-  const ready = filterOrders(orders, "ready", "أربيل", "2026-05-01", "2026-05-04");
+  const ready = filterOrders(orders, "ready", "Erbil", "2026-05-01", "2026-05-04");
   assert.equal(ready.length, 1);
   assert.equal(ready[0].status, "ready");
 
@@ -52,7 +52,7 @@ test("validates pricing and locked commission agreements", () => {
     commissionPct: 8,
   });
   assert.equal(invalid.valid, false);
-  assert.match(invalid.errors.join(" "), /أقل/);
+  assert.match(invalid.errors.join(" "), /less than cost price/);
 });
 
 test("validates stock updates", () => {
@@ -82,7 +82,7 @@ test("filters settlements by payment and date", () => {
   const byDate = filterSettlements(settlements, "2026-04-30", "all");
   assert.equal(byDate.length, 1);
 
-  const byMethod = filterSettlements(settlements, "", "نقدي");
+  const byMethod = filterSettlements(settlements, "", "Cash");
   assert.equal(byMethod.length, 1);
 });
 
