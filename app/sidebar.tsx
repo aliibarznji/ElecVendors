@@ -15,6 +15,7 @@ import {
   Layers,
   List,
   Megaphone,
+  Package,
   PackageCheck,
   Percent,
   PlusSquare,
@@ -38,7 +39,6 @@ const sidebarSections = [
       { label: "Dashboard", href: "/", icon: Home },
       { label: "Profile", href: "/profile", icon: User },
       { label: "Warranty", href: "/warranty", icon: ShieldCheck },
-      { label: "Commissions", href: "/commissions", icon: Percent },
       { label: "Seller Report", href: "/seller-report", icon: BarChart3 },
       { label: "Delivery Prices", href: "/delivery-prices", icon: Truck },
     ],
@@ -48,6 +48,8 @@ const sidebarSections = [
     links: [
       { label: "Add Product", href: "/products/add", icon: PlusSquare },
       { label: "Product List", href: "/products", icon: List },
+      { label: "Express Pricing", href: "/pricing", icon: CreditCard },
+      { label: "Stock Management", href: "/inventory", icon: Package },
       { label: "Bulk Operations", href: "/products/bulk", icon: Layers },
       { label: "Discount Plans", href: "/products/discounts", icon: Tag },
     ],
@@ -56,24 +58,13 @@ const sidebarSections = [
     title: "TRANSACTIONS",
     links: [
       { label: "Order Items", href: "/orders", icon: ShoppingBag },
-      { label: "Purchase Orders", href: "/purchase-orders", icon: Box },
-      {
-        label: "Purchase Requisitions",
-        href: "/purchase-requisitions",
-        icon: ClipboardList,
-      },
-      { label: "Returns", href: "/returns", icon: RotateCcw },
-      { label: "Payments", href: "/payments", icon: CreditCard },
-      { label: "Account Statement", href: "/account-statement", icon: FileText },
       { label: "Settlements", href: "/settlements", icon: Receipt },
     ],
   },
   {
     title: "PAID SERVICES",
     links: [
-      { label: "Logistics", href: "/services/logistics", icon: Truck },
-      {
-        label: "New Marketing Campaign",
+      { label: "New Marketing Campaign",
         href: "/marketing/new",
         icon: Megaphone,
       },
@@ -85,22 +76,7 @@ const sidebarSections = [
     ],
   },
   {
-    title: "SYSTEM LOGS",
-    links: [
-      { label: "Product Logs", href: "/logs/products", icon: FileClock },
-      {
-        label: "Purchase Order Logs",
-        href: "/logs/purchase-orders",
-        icon: FileText,
-      },
-      {
-        label: "Purchase Requisition Logs",
-        href: "/logs/purchase-requisitions",
-        icon: ClipboardList,
-      },
-    ],
-  },
-  {
+
     title: "ACCOUNT MANAGER",
     links: [
       { label: "Vendor Orders", href: "/account-manager/orders", icon: Users },
