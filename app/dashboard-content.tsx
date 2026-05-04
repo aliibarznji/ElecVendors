@@ -11,41 +11,19 @@ import {
   Wallet,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useLang } from "./lang-context";
 import { StatusPill } from "./status-pill";
+import { api } from "./lib/api";
 import {
   bestSellingProducts,
   formatIqd,
-  getMonthlyOrders,
-  getMonthlySales,
-  getNetSales,
-  getPendingOrders,
-  getProduct,
-  orders,
-  ordersByMonth,
-  salesByMonth,
   salesByProvince,
-  todayIso,
-} from "./vendor-dashboard-data";
+  type ApiOrder,
+  type ApiProduct,
+} from "./lib/utils";
 
-const RANGE_DAYS: Record<string, number> = {
-  "Last 7 Days": 7,
-  "Last 30 Days": 30,
-  "This Month": 0,
-  "Last Month": 0,
-};
-
-function rangeFrom(label: string): string {
-  const today = new Date(todayIso);
-  if (label === "This Month") return `${todayIso.slice(0, 7)}-01`;
-  if (label === "Last Month") {
-    today.setMonth(today.getMonth() - 1);
-    return `${today.toISOString().slice(0, 7)}-01`;
-  }
-  today.setDate(today.getDate() - RANGE_DAYS[label]);
-  return today.toISOString().slice(0, 10);
-}
+const TODAY = "2026-05-05";
 
 function downloadCsv(filename: string, headers: string[], rows: (string | number)[][]) {
   const csv = [headers, ...rows]
@@ -63,20 +41,22 @@ function downloadCsv(filename: string, headers: string[], rows: (string | number
 const RANGE_KEYS = ["lastSevenDays", "last30Days", "thisMonth", "lastMonth"] as const;
 const RANGE_INTERNAL = ["Last 7 Days", "Last 30 Days", "This Month", "Last Month"] as const;
 
+function rangeFrom(label: string): string {
+  const today = new Date(TODAY);
+  if (label === "This Month") return `${TODAY.slice(0, 7)}-01`;
+  if (label === "Last Month") {
+    today.setMonth(today.getMonth() - 1);
+    return `${today.toISOString().slice(0, 7)}-01`;
+  }
+  const days = label === "Last 7 Days" ? 7 : 30;
+  today.setDate(today.getDate() - days);
+  return today.toISOString().slice(0, 10);
+}
+
 function KpiCard({
-  label,
-  value,
-  detail,
-  tone,
-  icon: Icon,
-  liveLabel,
+  label, value, detail, tone, icon: Icon, liveLabel,
 }: {
-  label: string;
-  value: string;
-  detail: string;
-  tone: string;
-  icon: LucideIcon;
-  liveLabel: string;
+  label: string; value: string; detail: string; tone: string; icon: LucideIcon; liveLabel: string;
 }) {
   return (
     <article className={`dashboard-kpi-card kpi-${tone}`}>
@@ -95,26 +75,16 @@ function KpiCard({
   );
 }
 
-function BarChart({
-  data,
-  valueFormatter,
-}: {
-  data: { label: string; value: number }[];
-  valueFormatter?: (value: number) => string;
-}) {
-  const max = Math.max(...data.map((item) => item.value), 1);
+function BarChart({ data, valueFormatter }: { data: { label: string; value: number }[]; valueFormatter?: (v: number) => string }) {
+  const max = Math.max(...data.map((d) => d.value), 1);
   return (
     <div className="revenue-trend-chart dashboard-bars" aria-label="Monthly chart">
       {data.map((item) => {
         const height = Math.max((item.value / max) * 100, item.value ? 8 : 3);
         return (
           <div className="revenue-bar-item" key={item.label}>
-            <span className="chart-value-label">
-              {valueFormatter ? valueFormatter(item.value) : item.value}
-            </span>
-            <span className="revenue-bar-track">
-              <span style={{ height: `${height}%` }} />
-            </span>
+            <span className="chart-value-label">{valueFormatter ? valueFormatter(item.value) : item.value}</span>
+            <span className="revenue-bar-track"><span style={{ height: `${height}%` }} /></span>
             <small>{item.label}</small>
           </div>
         );
@@ -123,122 +93,89 @@ function BarChart({
   );
 }
 
-function LineChart({
-  data,
-  valueFormatter,
-}: {
-  data: { label: string; value: number }[];
-  valueFormatter?: (value: number) => string;
-}) {
-  const max = Math.max(...data.map((item) => item.value), 1);
-  const width = 100;
-  const height = 100;
-  const stepX = data.length > 1 ? width / (data.length - 1) : 0;
-  const points = data.map((item, index) => {
-    const x = index * stepX;
-    const y = height - (item.value / max) * (height - 12) - 4;
-    return { x, y };
-  });
-  const path = points
-    .map((point, index) => `${index === 0 ? "M" : "L"} ${point.x.toFixed(2)} ${point.y.toFixed(2)}`)
-    .join(" ");
-  const area = `${path} L ${width} ${height} L 0 ${height} Z`;
-
+function LineChart({ data, valueFormatter }: { data: { label: string; value: number }[]; valueFormatter?: (v: number) => string }) {
+  const max = Math.max(...data.map((d) => d.value), 1);
+  const W = 100; const H = 100;
+  const stepX = data.length > 1 ? W / (data.length - 1) : 0;
+  const pts = data.map((d, i) => ({ x: i * stepX, y: H - (d.value / max) * (H - 12) - 4 }));
+  const path = pts.map((p, i) => `${i === 0 ? "M" : "L"} ${p.x.toFixed(2)} ${p.y.toFixed(2)}`).join(" ");
+  const area = `${path} L ${W} ${H} L 0 ${H} Z`;
   return (
     <div className="dashboard-line-chart" aria-label="Monthly trend">
-      <svg viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="none" role="img">
+      <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" role="img">
         <path className="dashboard-line-area" d={area} />
         <path className="dashboard-line-stroke" d={path} />
-        {points.map((point, index) => (
-          <circle
-            key={data[index].label}
-            cx={point.x}
-            cy={point.y}
-            r={1.4}
-            className="dashboard-line-dot"
-          />
-        ))}
+        {pts.map((p, i) => <circle key={data[i].label} cx={p.x} cy={p.y} r={1.4} className="dashboard-line-dot" />)}
       </svg>
       <div className="dashboard-line-labels">
-        {data.map((item) => (
-          <span key={item.label}>
-            <small>{item.label}</small>
-            <strong>{valueFormatter ? valueFormatter(item.value) : item.value}</strong>
-          </span>
+        {data.map((d) => (
+          <span key={d.label}><small>{d.label}</small><strong>{valueFormatter ? valueFormatter(d.value) : d.value}</strong></span>
         ))}
       </div>
     </div>
   );
 }
 
-function ProductThumb({ tone, label }: { tone: string; label: string }) {
-  return (
-    <span
-      className="sample-product-thumb dashboard-thumb"
-      style={{ background: tone }}
-      aria-label={label}
-    >
-      <span>{label.slice(0, 2).toUpperCase()}</span>
-    </span>
-  );
+function ordersByMonth(orders: ApiOrder[]) {
+  const labels = ["2026-01", "2026-02", "2026-03", "2026-04", "2026-05"];
+  const names = ["January", "February", "March", "April", "May"];
+  return labels.map((m, i) => ({
+    label: names[i],
+    value: orders.filter((o) => o.dateTime.startsWith(m)).length,
+  }));
+}
+
+function salesByMonth(orders: ApiOrder[]) {
+  const labels = ["2026-01", "2026-02", "2026-03", "2026-04", "2026-05"];
+  const names = ["January", "February", "March", "April", "May"];
+  return labels.map((m, i) => ({
+    label: names[i],
+    value: orders
+      .filter((o) => o.dateTime.startsWith(m) && o.status !== "cancelled")
+      .reduce((s, o) => s + o.priceWithCommission * o.quantity, 0),
+  }));
 }
 
 export function DashboardContent() {
+  const [allOrders, setAllOrders] = useState<ApiOrder[]>([]);
   const [activeRange, setActiveRange] = useState<string | null>(null);
   const { t } = useLang();
 
-  const filteredOrders = useMemo(() => {
-    if (!activeRange) return orders;
-    const from = rangeFrom(activeRange);
-    const to = activeRange === "Last Month"
-      ? `${new Date(todayIso).toISOString().slice(0, 7).replace(/(\d{4})-(\d{2})/, (_, y, m) => `${y}-${String(Number(m)).padStart(2, "0")}`)}-31`
-      : todayIso;
-    return orders.filter((o) => o.dateTime.slice(0, 10) >= from && o.dateTime.slice(0, 10) <= to);
-  }, [activeRange]);
+  useEffect(() => {
+    api.orders.list({ limit: 500 }).then((r) => setAllOrders(r.items)).catch(console.error);
+  }, []);
 
-  const monthlyOrders = getMonthlyOrders();
-  const monthlySales = getMonthlySales();
-  const pendingOrders = getPendingOrders();
-  const netSales = getNetSales(orders.filter((order) => order.dateTime.startsWith("2026-05")));
-  const provinceRows = salesByProvince().slice(0, 5);
-  const bestSellers = bestSellingProducts().slice(0, 5);
-  const recentOrders = [...filteredOrders].sort((a, b) => b.dateTime.localeCompare(a.dateTime)).slice(0, 10);
+  const filteredOrders = activeRange
+    ? allOrders.filter((o) => {
+        const d = o.dateTime.slice(0, 10);
+        return d >= rangeFrom(activeRange) && d <= TODAY;
+      })
+    : allOrders;
+
+  const month = "2026-05";
+  const monthlyOrders = allOrders.filter((o) => o.dateTime.startsWith(month)).length;
+  const monthlySales = allOrders
+    .filter((o) => o.dateTime.startsWith(month) && o.status !== "cancelled")
+    .reduce((s, o) => s + o.priceWithCommission * o.quantity, 0);
+  const pendingOrders = allOrders.filter((o) => o.status === "new").length;
+  const netSales = allOrders
+    .filter((o) => o.dateTime.startsWith(month) && o.status !== "cancelled")
+    .reduce((s, o) => s + o.priceWithoutCommission * o.quantity, 0);
+
+  const provinceRows = salesByProvince(filteredOrders).slice(0, 5);
+  const bestSellers = bestSellingProducts(filteredOrders).slice(0, 5);
+  const recentOrders = [...filteredOrders]
+    .sort((a, b) => b.dateTime.localeCompare(a.dateTime))
+    .slice(0, 10);
 
   const kpis = [
-    {
-      label: t("monthlyOrdersTotal"),
-      value: String(monthlyOrders),
-      detail: t("monthlyOrdersDetail"),
-      tone: "green",
-      icon: ShoppingCart,
-    },
-    {
-      label: t("monthlySalesTotal"),
-      value: formatIqd(monthlySales),
-      detail: t("monthlySalesDetail"),
-      tone: "blue",
-      icon: TrendingUp,
-    },
-    {
-      label: t("pendingOrdersLabel"),
-      value: String(pendingOrders),
-      detail: t("pendingOrdersDetail"),
-      tone: "orange",
-      icon: AlertTriangle,
-    },
-    {
-      label: t("netSalesLabel"),
-      value: formatIqd(netSales),
-      detail: t("netSalesDetail"),
-      tone: "cyan",
-      icon: Wallet,
-    },
+    { label: t("monthlyOrdersTotal"), value: String(monthlyOrders), detail: t("monthlyOrdersDetail"), tone: "green", icon: ShoppingCart },
+    { label: t("monthlySalesTotal"), value: formatIqd(monthlySales), detail: t("monthlySalesDetail"), tone: "blue", icon: TrendingUp },
+    { label: t("pendingOrdersLabel"), value: String(pendingOrders), detail: t("pendingOrdersDetail"), tone: "orange", icon: AlertTriangle },
+    { label: t("netSalesLabel"), value: formatIqd(netSales), detail: t("netSalesDetail"), tone: "cyan", icon: Wallet },
   ];
 
-  const quickRanges = RANGE_KEYS.map((key, i) => ({
-    label: t(key),
-    internal: RANGE_INTERNAL[i],
-  }));
+  const quickRanges = RANGE_KEYS.map((key, i) => ({ label: t(key), internal: RANGE_INTERNAL[i] }));
 
   return (
     <div className="dashboard-content">
@@ -256,7 +193,7 @@ export function DashboardContent() {
                 const headers = ["Order #", "Product", "Date", "Amount (IQD)", "Status", "City"];
                 const rows = recentOrders.map((o) => [
                   o.orderNumber,
-                  getProduct(o.productId)?.nameEn ?? o.productId,
+                  o.product?.nameEn ?? o.productId,
                   o.dateTime,
                   o.priceWithCommission * o.quantity,
                   o.status,
@@ -269,7 +206,7 @@ export function DashboardContent() {
               <span>{t("exportDashboard")}</span>
             </button>
             <button className="date-range" type="button">
-              <span>2026/05/01 - 2026/05/04</span>
+              <span>2026/05/01 - 2026/05/05</span>
               <CalendarDays aria-hidden="true" size={22} strokeWidth={2.1} />
             </button>
           </div>
@@ -279,7 +216,7 @@ export function DashboardContent() {
                 className={`range-button${activeRange === range.internal ? " is-active" : ""}`}
                 key={range.internal}
                 type="button"
-                onClick={() => setActiveRange((current) => (current === range.internal ? null : range.internal))}
+                onClick={() => setActiveRange((cur) => (cur === range.internal ? null : range.internal))}
               >
                 {range.label}
               </button>
@@ -289,51 +226,37 @@ export function DashboardContent() {
       </header>
 
       <section className="dashboard-kpi-grid" aria-label="Monthly indicators">
-        {kpis.map((kpi) => (
-          <KpiCard key={kpi.label} {...kpi} liveLabel={t("liveUpdate")} />
-        ))}
+        {kpis.map((kpi) => <KpiCard key={kpi.label} {...kpi} liveLabel={t("liveUpdate")} />)}
       </section>
 
       <section className="dashboard-analytics-grid" aria-label="Analytics">
         <article className="dashboard-panel dashboard-analytics-panel revenue-panel">
           <div className="analytics-panel-heading">
-            <div>
-              <h2>{t("salesByMonth")}</h2>
-              <p>{t("salesByMonthSub")}</p>
-            </div>
+            <div><h2>{t("salesByMonth")}</h2><p>{t("salesByMonthSub")}</p></div>
             <strong>{formatIqd(monthlySales)}</strong>
           </div>
-          <LineChart data={salesByMonth()} valueFormatter={(value) => `${Math.round(value / 1000)}k`} />
+          <LineChart data={salesByMonth(filteredOrders)} valueFormatter={(v) => `${Math.round(v / 1000)}k`} />
         </article>
 
         <article className="dashboard-panel dashboard-analytics-panel">
           <div className="analytics-panel-heading">
-            <div>
-              <h2>{t("ordersByMonth")}</h2>
-              <p>{t("ordersByMonthSub")}</p>
-            </div>
+            <div><h2>{t("ordersByMonth")}</h2><p>{t("ordersByMonthSub")}</p></div>
             <strong>{monthlyOrders}</strong>
           </div>
-          <BarChart data={ordersByMonth()} />
+          <BarChart data={ordersByMonth(filteredOrders)} />
         </article>
 
         <article className="dashboard-panel dashboard-analytics-panel">
           <div className="analytics-panel-heading">
-            <div>
-              <h2>{t("salesByCity")}</h2>
-              <p>{t("salesByCitySub")}</p>
-            </div>
+            <div><h2>{t("salesByCity")}</h2><p>{t("salesByCitySub")}</p></div>
             <MapPin aria-hidden="true" size={20} strokeWidth={2.3} />
           </div>
           <ul className="fulfillment-list dashboard-ranked-list">
             {provinceRows.map((row) => (
               <li className="fulfillment-step step-blue" key={row.province}>
-                <div>
-                  <span>{row.province}</span>
-                  <strong>{row.orders}</strong>
-                </div>
+                <div><span>{row.province}</span><strong>{row.orders}</strong></div>
                 <div className="fulfillment-track" aria-hidden="true">
-                  <span style={{ width: `${Math.max((row.sales / provinceRows[0].sales) * 100, 5)}%` }} />
+                  <span style={{ width: `${Math.max((row.sales / (provinceRows[0]?.sales || 1)) * 100, 5)}%` }} />
                 </div>
                 <small>{formatIqd(row.sales)}</small>
               </li>
@@ -343,17 +266,16 @@ export function DashboardContent() {
 
         <article className="dashboard-panel dashboard-analytics-panel">
           <div className="analytics-panel-heading">
-            <div>
-              <h2>{t("bestSelling")}</h2>
-              <p>{t("bestSellingSub")}</p>
-            </div>
+            <div><h2>{t("bestSelling")}</h2><p>{t("bestSellingSub")}</p></div>
             <BarChart3 aria-hidden="true" size={20} strokeWidth={2.3} />
           </div>
           <div className="best-seller-list">
             {bestSellers.map(({ product, sold }, index) => (
               <article key={product.id} className="best-seller-row">
                 <span className="seller-rank">{index + 1}</span>
-                <ProductThumb tone={product.imageTone} label={product.brand} />
+                <span className="sample-product-thumb dashboard-thumb" style={{ background: product.imageTone }} aria-label={product.brand}>
+                  <span>{product.brand.slice(0, 2).toUpperCase()}</span>
+                </span>
                 <div>
                   <strong>{product.nameAr}</strong>
                   <span>{product.sku}</span>
@@ -382,21 +304,16 @@ export function DashboardContent() {
               </tr>
             </thead>
             <tbody>
-              {recentOrders.map((order) => {
-                const product = getProduct(order.productId);
-                return (
-                  <tr key={order.id}>
-                    <td>{order.orderNumber}</td>
-                    <td>{product?.nameEn ?? order.productId}</td>
-                    <td>{order.dateTime}</td>
-                    <td>{formatIqd(order.priceWithCommission * order.quantity)}</td>
-                    <td>
-                      <StatusPill status={order.status} />
-                    </td>
-                    <td>{order.deliveryStatus}</td>
-                  </tr>
-                );
-              })}
+              {recentOrders.map((order) => (
+                <tr key={order.id}>
+                  <td>{order.orderNumber}</td>
+                  <td>{order.product?.nameEn ?? order.productId}</td>
+                  <td>{order.dateTime.replace("T", " ").slice(0, 16)}</td>
+                  <td>{formatIqd(order.priceWithCommission * order.quantity)}</td>
+                  <td><StatusPill status={order.status} /></td>
+                  <td>{order.deliveryStatus}</td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>

@@ -17,13 +17,12 @@ import Link from "next/link";
 import { useState, type ReactNode } from "react";
 import { useLang } from "./lang-context";
 import { StatusPill } from "./status-pill";
-import {
-  formatIqd,
-  getProduct,
-  type VendorOrder,
-} from "./vendor-dashboard-data";
+import { api } from "./lib/api";
+import { formatIqd, type ApiOrder } from "./lib/utils";
 
-const ADVANCE_STATUS: Record<VendorOrder["status"], VendorOrder["status"] | null> = {
+type OrderStatus = ApiOrder["status"];
+
+const ADVANCE_STATUS: Record<OrderStatus, OrderStatus | null> = {
   new: "ready",
   ready: "shipped",
   shipped: "delivered",
@@ -53,22 +52,33 @@ function DetailRow({
   );
 }
 
-export function OrderDetailContent({ order }: { order: VendorOrder }) {
-  const [localStatus, setLocalStatus] = useState<VendorOrder["status"]>(order.status);
+export function OrderDetailContent({ order: initial }: { order: ApiOrder }) {
+  const [order, setOrder] = useState(initial);
   const { t } = useLang();
-  const product = getProduct(order.productId);
+  const product = order.product;
   const lineTotal = order.priceWithCommission * order.quantity;
   const netTotal = order.priceWithoutCommission * order.quantity;
   const commission = lineTotal - netTotal;
 
-  const NEXT_LABEL: Record<VendorOrder["status"], string | null> = {
+  const NEXT_LABEL: Record<OrderStatus, string | null> = {
     new: t("markReadyToShip"),
     ready: t("markShipped"),
     shipped: t("markDelivered"),
     delivered: null,
     cancelled: null,
   };
-  const nextAction = NEXT_LABEL[localStatus];
+  const nextAction = NEXT_LABEL[order.status];
+
+  async function advance() {
+    const next = ADVANCE_STATUS[order.status];
+    if (!next) return;
+    try {
+      const updated = await api.orders.updateStatus(order.orderNumber, next);
+      setOrder((prev) => ({ ...prev, status: updated.status }));
+    } catch (err) {
+      console.error(err);
+    }
+  }
 
   return (
     <div className="dashboard-content order-detail-content">
@@ -82,16 +92,9 @@ export function OrderDetailContent({ order }: { order: VendorOrder }) {
           <p className="dashboard-sub">{t("orderDetailSub")}</p>
         </div>
         <div className="order-detail-actions">
-          <StatusPill status={localStatus} />
+          <StatusPill status={order.status} />
           {nextAction ? (
-            <button
-              className="discount-create-button"
-              type="button"
-              onClick={() => {
-                const next = ADVANCE_STATUS[localStatus];
-                if (next) setLocalStatus(next);
-              }}
-            >
+            <button className="discount-create-button" type="button" onClick={advance}>
               {nextAction}
             </button>
           ) : null}
@@ -114,7 +117,7 @@ export function OrderDetailContent({ order }: { order: VendorOrder }) {
         <article className="dashboard-panel order-detail-card">
           <h2>{t("orderCard")}</h2>
           <DetailRow label={t("orderNumberFull")} value={order.orderNumber} icon={Hash} />
-          <DetailRow label={t("orderTimeFull")} value={order.dateTime} icon={CalendarDays} />
+          <DetailRow label={t("orderTimeFull")} value={order.dateTime.replace("T", " ").slice(0, 16)} icon={CalendarDays} />
           <DetailRow label={t("paymentMethod")} value={order.paymentMethod} icon={CreditCard} />
           <DetailRow label={t("deliveryStatus")} value={order.deliveryStatus} icon={Truck} />
           <DetailRow label={t("deliveryAgent")} value={order.deliveryAgent} icon={ClipboardList} />

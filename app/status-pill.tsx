@@ -1,7 +1,8 @@
 "use client";
 
 import { useLang } from "./lang-context";
-import type { OrderStatus } from "./vendor-dashboard-data";
+
+type OrderStatus = "new" | "ready" | "shipped" | "delivered" | "cancelled";
 
 const STATUS_CLASS: Record<OrderStatus, string> = {
   new: "is-pending",
@@ -34,3 +35,4 @@ export function StatusPill({
 }
 
 export { STATUS_CLASS as orderStatusClass };
+export type { OrderStatus };

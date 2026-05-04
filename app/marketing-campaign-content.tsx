@@ -1,36 +1,37 @@
 "use client";
 
 import { Check, Megaphone, ShoppingCart } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useLang } from "./lang-context";
-import {
-  marketingPackages,
-  vendorProfile,
-  type MarketingCampaign,
-} from "./vendor-dashboard-data";
-
-export const CAMPAIGNS_KEY = "elecv-campaigns";
-
-function readCampaigns(): MarketingCampaign[] {
-  if (typeof window === "undefined") return [];
-  try {
-    const raw = window.localStorage.getItem(CAMPAIGNS_KEY);
-    return raw ? (JSON.parse(raw) as MarketingCampaign[]) : [];
-  } catch {
-    return [];
-  }
-}
-
-function saveCampaign(campaign: MarketingCampaign) {
-  if (typeof window === "undefined") return;
-  const next = [campaign, ...readCampaigns()];
-  window.localStorage.setItem(CAMPAIGNS_KEY, JSON.stringify(next));
-  window.dispatchEvent(new StorageEvent("storage", { key: CAMPAIGNS_KEY }));
-}
+import { api } from "./lib/api";
+import type { ApiMarketingCampaign, ApiMarketingPackage } from "./lib/utils";
 
 export function MarketingCampaignContent() {
-  const [purchased, setPurchased] = useState<MarketingCampaign | null>(null);
+  const [packages, setPackages] = useState<ApiMarketingPackage[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [purchased, setPurchased] = useState<ApiMarketingCampaign | null>(null);
+  const [buying, setBuying] = useState<string | null>(null);
   const { t } = useLang();
+
+  useEffect(() => {
+    setLoading(true);
+    api.marketing
+      .packages()
+      .then((data) => setPackages(data))
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
+
+  const handleBuy = (packageId: string) => {
+    setBuying(packageId);
+    api.marketing
+      .createCampaign(packageId)
+      .then((campaign) => {
+        setPurchased(campaign);
+      })
+      .catch(() => {})
+      .finally(() => setBuying(null));
+  };
 
   return (
     <div className="marketing-campaign-content dashboard-content">
@@ -61,10 +62,12 @@ export function MarketingCampaignContent() {
             Buy another package
           </button>
         </section>
+      ) : loading ? (
+        <div className="empty-cell">Loading…</div>
       ) : (
         <section className="marketing-package-section" aria-label="Marketing Packages">
           <div className="marketing-package-grid">
-            {marketingPackages.map((pkg) => (
+            {packages.map((pkg) => (
               <article className="marketing-package-card" key={pkg.id}>
                 <div className="marketing-package-heading">
                   <div>
@@ -89,22 +92,8 @@ export function MarketingCampaignContent() {
                 <button
                   className="marketing-package-buy-button"
                   type="button"
-                  onClick={() => {
-                    const campaign: MarketingCampaign = {
-                      id: `camp-${Date.now()}`,
-                      packageId: pkg.id,
-                      vendorId: vendorProfile.reference,
-                      code: `EM-${Math.random().toString(36).slice(2, 8).toUpperCase()}`,
-                      status: "pending",
-                      purchasedAt: "2026-05-04",
-                      views: 0,
-                      clicks: 0,
-                      sales: 0,
-                      reach: 0,
-                    };
-                    saveCampaign(campaign);
-                    setPurchased(campaign);
-                  }}
+                  disabled={buying === pkg.id}
+                  onClick={() => handleBuy(pkg.id)}
                 >
                   <ShoppingCart aria-hidden="true" size={16} strokeWidth={2.4} />
                   Buy from panel

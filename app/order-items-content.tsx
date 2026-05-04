@@ -9,29 +9,18 @@ import {
   Search,
 } from "lucide-react";
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useLang } from "./lang-context";
 import { StatusPill } from "./status-pill";
-import {
-  filterOrders,
-  formatIqd,
-  getCancelledOrders,
-  getMonthlyOrders,
-  getMonthlySales,
-  getNetSales,
-  getProduct,
-  orders,
-  type OrderStatus,
-  type VendorOrder,
-} from "./vendor-dashboard-data";
+import { api, type OrdersParams } from "./lib/api";
+import { formatIqd, totalProductQty, type ApiOrder, type ApiProduct } from "./lib/utils";
 
-function ProductThumb({ order }: { order: VendorOrder }) {
-  const product = getProduct(order.productId);
+function ProductThumb({ product }: { product?: ApiProduct }) {
   return (
     <div
       className="sample-product-thumb"
       style={{ background: product?.imageTone }}
-      aria-label={product?.nameAr ?? order.productId}
+      aria-label={product?.nameAr ?? ""}
     >
       <span>{product?.brand.slice(0, 2).toUpperCase()}</span>
     </div>
@@ -39,18 +28,42 @@ function ProductThumb({ order }: { order: VendorOrder }) {
 }
 
 export function OrderItemsContent() {
-  const [activeTab, setActiveTab] = useState<OrderStatus | "all">("all");
+  const [activeTab, setActiveTab] = useState<ApiOrder["status"] | "all">("all");
   const [search, setSearch] = useState("");
   const [from, setFrom] = useState("2026-05-01");
-  const [to, setTo] = useState("2026-05-04");
+  const [to, setTo] = useState("2026-05-05");
   const [sort, setSort] = useState<"newest" | "oldest" | "amount">("newest");
+  const [orders, setOrders] = useState<ApiOrder[]>([]);
+  const [total, setTotal] = useState(0);
+  const [loading, setLoading] = useState(true);
   const { t } = useLang();
 
-  const filtered = useMemo(
-    () => filterOrders(orders, activeTab, search, from, to, sort),
-    [activeTab, from, search, sort, to],
-  );
+  useEffect(() => {
+    setLoading(true);
+    const params: OrdersParams = {
+      status: activeTab === "all" ? undefined : activeTab,
+      search: search || undefined,
+      dateFrom: from || undefined,
+      dateTo: to || undefined,
+      sort,
+      limit: 100,
+    };
+    api.orders.list(params)
+      .then((r) => { setOrders(r.items); setTotal(r.total); })
+      .catch(console.error)
+      .finally(() => setLoading(false));
+  }, [activeTab, search, from, to, sort]);
 
+  const monthlyOrders = orders.filter((o) => o.dateTime.startsWith("2026-05")).length;
+  const monthlySales = orders
+    .filter((o) => o.dateTime.startsWith("2026-05") && o.status !== "cancelled")
+    .reduce((s, o) => s + o.priceWithCommission * o.quantity, 0);
+  const netSales = orders
+    .filter((o) => o.status !== "cancelled")
+    .reduce((s, o) => s + o.priceWithoutCommission * o.quantity, 0);
+  const cancelledOrders = orders.filter(
+    (o) => o.dateTime.startsWith("2026-05") && o.status === "cancelled",
+  ).length;
 
   return (
     <div className="order-items-content">
@@ -64,19 +77,19 @@ export function OrderItemsContent() {
       <section className="kpi-grid" aria-label="Monthly Order Statistics">
         <article className="kpi-card kpi-blue">
           <p>{t("monthlyOrders")}</p>
-          <strong>{String(getMonthlyOrders())}</strong>
+          <strong>{String(monthlyOrders)}</strong>
         </article>
         <article className="kpi-card kpi-green">
           <p>{t("monthlySales")}</p>
-          <strong>{formatIqd(getMonthlySales())}</strong>
+          <strong>{formatIqd(monthlySales)}</strong>
         </article>
         <article className="kpi-card kpi-cyan">
           <p>{t("netSales")}</p>
-          <strong>{formatIqd(getNetSales(filtered))}</strong>
+          <strong>{formatIqd(netSales)}</strong>
         </article>
         <article className="kpi-card kpi-amber">
           <p>{t("cancelledOrders")}</p>
-          <strong>{String(getCancelledOrders())}</strong>
+          <strong>{String(cancelledOrders)}</strong>
         </article>
       </section>
 
@@ -161,42 +174,43 @@ export function OrderItemsContent() {
               </tr>
             </thead>
             <tbody>
-              {filtered.length === 0 ? (
+              {loading ? (
+                <tr>
+                  <td colSpan={10} className="empty-cell">Loading…</td>
+                </tr>
+              ) : orders.length === 0 ? (
                 <tr>
                   <td colSpan={10} className="empty-cell">
                     {t("noOrdersMatch")}
                   </td>
                 </tr>
               ) : (
-                filtered.map((order) => {
-                  const product = getProduct(order.productId);
-                  return (
-                    <tr className="product-list-data-row" key={order.id}>
-                      <td>{order.orderNumber}</td>
-                      <td>{order.dateTime}</td>
-                      <td>
-                        <ProductThumb order={order} />
-                      </td>
-                      <td>{product?.sku}</td>
-                      <td>{order.color}</td>
-                      <td>{order.quantity}</td>
-                      <td>{formatIqd(order.priceWithoutCommission)}</td>
-                      <td>{formatIqd(order.priceWithCommission)}</td>
-                      <td>
-                        <StatusPill status={order.status} shortLabel />
-                      </td>
-                      <td>
-                        <Link
-                          className="row-action-btn"
-                          href={`/orders/${order.orderNumber}`}
-                        >
-                          <Eye aria-hidden="true" size={14} strokeWidth={2.4} />
-                          <span>{t("viewOrder")}</span>
-                        </Link>
-                      </td>
-                    </tr>
-                  );
-                })
+                orders.map((order) => (
+                  <tr className="product-list-data-row" key={order.id}>
+                    <td>{order.orderNumber}</td>
+                    <td>{order.dateTime.replace("T", " ").slice(0, 16)}</td>
+                    <td>
+                      <ProductThumb product={order.product} />
+                    </td>
+                    <td>{order.product?.sku}</td>
+                    <td>{order.color}</td>
+                    <td>{order.quantity}</td>
+                    <td>{formatIqd(order.priceWithoutCommission)}</td>
+                    <td>{formatIqd(order.priceWithCommission)}</td>
+                    <td>
+                      <StatusPill status={order.status} shortLabel />
+                    </td>
+                    <td>
+                      <Link
+                        className="row-action-btn"
+                        href={`/orders/${order.orderNumber}`}
+                      >
+                        <Eye aria-hidden="true" size={14} strokeWidth={2.4} />
+                        <span>{t("viewOrder")}</span>
+                      </Link>
+                    </td>
+                  </tr>
+                ))
               )}
             </tbody>
           </table>
@@ -205,7 +219,7 @@ export function OrderItemsContent() {
         <div className="purchase-order-pagination">
           <span>{t("itemsPerPage")}</span>
           <span>
-            {filtered.length} {t("from")} {orders.length}
+            {orders.length} {t("from")} {total}
           </span>
           <button type="button" aria-label="Previous Page" disabled>
             <ChevronRight aria-hidden="true" size={22} strokeWidth={2.1} />

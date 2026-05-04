@@ -2,17 +2,13 @@
 
 import { Clipboard, Download, Eye } from "lucide-react";
 import Link from "next/link";
-import { Fragment, useEffect, useMemo, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { useLang } from "./lang-context";
-import { CAMPAIGNS_KEY } from "./marketing-campaign-content";
-import {
-  getCampaignRemaining,
-  marketingCampaigns,
-  marketingPackages,
-  type MarketingCampaign,
-} from "./vendor-dashboard-data";
+import { api } from "./lib/api";
+import type { ApiMarketingCampaign } from "./lib/utils";
 
-function downloadCampaignReport(campaign: MarketingCampaign, pkgName: string) {
+function downloadCampaignReport(campaign: ApiMarketingCampaign) {
+  const pkgName = campaign.package?.name ?? campaign.packageId;
   const headers = ["Metric", "Value"];
   const rows: [string, string | number][] = [
     ["Campaign Code", campaign.code],
@@ -36,7 +32,18 @@ function downloadCampaignReport(campaign: MarketingCampaign, pkgName: string) {
   URL.revokeObjectURL(url);
 }
 
-function statusLabel(status: MarketingCampaign["status"]) {
+function getCampaignRemaining(campaign: ApiMarketingCampaign) {
+  if (!campaign.startsAt || !campaign.endsAt) return null;
+  const end = new Date(campaign.endsAt).getTime();
+  const now = Date.now();
+  if (now >= end) return null;
+  const diff = end - now;
+  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+  const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  return { days, hours };
+}
+
+function statusLabel(status: ApiMarketingCampaign["status"]) {
   switch (status) {
     case "pending":
       return "Pending Approval";
@@ -49,7 +56,7 @@ function statusLabel(status: MarketingCampaign["status"]) {
   }
 }
 
-function statusClass(status: MarketingCampaign["status"]) {
+function statusClass(status: ApiMarketingCampaign["status"]) {
   switch (status) {
     case "pending":
       return "is-pending";
@@ -62,29 +69,20 @@ function statusClass(status: MarketingCampaign["status"]) {
   }
 }
 
-function loadStoredCampaigns() {
-  if (typeof window === "undefined") return [];
-  try {
-    const raw = window.localStorage.getItem(CAMPAIGNS_KEY);
-    return raw ? (JSON.parse(raw) as MarketingCampaign[]) : [];
-  } catch {
-    return [];
-  }
-}
-
 export function ExistingMarketingCampaignsContent() {
-  const [stored, setStored] = useState<MarketingCampaign[]>([]);
+  const [campaigns, setCampaigns] = useState<ApiMarketingCampaign[]>([]);
+  const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState<string | null>(null);
   const { t } = useLang();
 
   useEffect(() => {
-    const refresh = () => setStored(loadStoredCampaigns());
-    refresh();
-    window.addEventListener("storage", refresh);
-    return () => window.removeEventListener("storage", refresh);
+    setLoading(true);
+    api.marketing
+      .campaigns()
+      .then((data) => setCampaigns(data))
+      .catch(() => {})
+      .finally(() => setLoading(false));
   }, []);
-
-  const campaigns = useMemo(() => [...stored, ...marketingCampaigns], [stored]);
 
   return (
     <div className="existing-marketing-content dashboard-content">
@@ -116,7 +114,13 @@ export function ExistingMarketingCampaignsContent() {
               </tr>
             </thead>
             <tbody>
-              {campaigns.length === 0 ? (
+              {loading ? (
+                <tr>
+                  <td colSpan={8} className="empty-cell">
+                    Loading…
+                  </td>
+                </tr>
+              ) : campaigns.length === 0 ? (
                 <tr>
                   <td colSpan={8} className="empty-cell">
                     No campaigns found. Start by purchasing a marketing package.
@@ -124,7 +128,7 @@ export function ExistingMarketingCampaignsContent() {
                 </tr>
               ) : (
                 campaigns.map((campaign) => {
-                  const pkg = marketingPackages.find((item) => item.id === campaign.packageId);
+                  const pkg = campaign.package;
                   const remaining = getCampaignRemaining(campaign);
                   return (
                     <Fragment key={campaign.id}>
@@ -144,7 +148,7 @@ export function ExistingMarketingCampaignsContent() {
                             </button>
                           </span>
                         </td>
-                        <td>{campaign.purchasedAt}</td>
+                        <td>{campaign.purchasedAt.slice(0, 10)}</td>
                         <td>{pkg?.durationDays ?? "-"} days</td>
                         <td>
                           <span className={`approved-status-badge ${statusClass(campaign.status)}`}>
@@ -199,9 +203,7 @@ export function ExistingMarketingCampaignsContent() {
                               <button
                                 className="export-button"
                                 type="button"
-                                onClick={() =>
-                                  downloadCampaignReport(campaign, pkg?.name ?? campaign.packageId)
-                                }
+                                onClick={() => downloadCampaignReport(campaign)}
                               >
                                 <Download aria-hidden="true" size={16} strokeWidth={2.3} />
                                 <span>Download Report</span>

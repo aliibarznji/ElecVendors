@@ -2,14 +2,25 @@
 
 import { Bell, Globe2, LogOut } from "lucide-react";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useLang } from "./lang-context";
-import { getUnreadNotifications, vendorProfile } from "./vendor-dashboard-data";
+import { api } from "./lib/api";
 
 export function TopNav() {
-  const unread = getUnreadNotifications();
+  const [unread, setUnread] = useState(0);
+  const [vendorName, setVendorName] = useState("");
   const router = useRouter();
   const { t, lang, setLang } = useLang();
+
+  useEffect(() => {
+    api.notifications.list().then((res) => {
+      setUnread(res.unread);
+    }).catch(() => {});
+    api.profile.get().then((vendor) => {
+      setVendorName(vendor.name);
+    }).catch(() => {});
+  }, []);
 
   return (
     <header className="top-nav">
@@ -18,7 +29,7 @@ export function TopNav() {
       </Link>
 
       <nav className="nav-actions" aria-label="User navigation">
-        <span className="user-name">{vendorProfile.name}</span>
+        {vendorName ? <span className="user-name">{vendorName}</span> : null}
         <Link
           className="nav-action nav-bell"
           href="/notifications"

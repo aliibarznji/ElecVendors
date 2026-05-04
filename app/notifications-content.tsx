@@ -10,13 +10,13 @@ import {
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { useLang } from "./lang-context";
 import type { Translations } from "./translations";
-import {
-  getUnreadNotifications,
-  notifications,
-  type NotificationKind,
-} from "./vendor-dashboard-data";
+import { api } from "./lib/api";
+import type { ApiNotification } from "./lib/utils";
+
+type NotificationKind = ApiNotification["kind"];
 
 const kindMeta: Record<NotificationKind, { labelKey: keyof Translations; icon: LucideIcon; tone: string }> = {
   order: { labelKey: "kindOrder", icon: ShoppingBag, tone: "blue" },
@@ -27,11 +27,40 @@ const kindMeta: Record<NotificationKind, { labelKey: keyof Translations; icon: L
 };
 
 export function NotificationsContent() {
+  const [notifications, setNotifications] = useState<ApiNotification[]>([]);
+  const [unread, setUnread] = useState(0);
+  const [loading, setLoading] = useState(true);
   const { t } = useLang();
-  const unread = getUnreadNotifications();
+
+  useEffect(() => {
+    setLoading(true);
+    api.notifications
+      .list()
+      .then((res) => {
+        setNotifications(res.items);
+        setUnread(res.unread);
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
+
   const sorted = [...notifications].sort((a, b) =>
     b.createdAt.localeCompare(a.createdAt),
   );
+
+  const handleMarkAll = () => {
+    api.notifications.readAll().catch(() => {});
+    setNotifications((current) => current.map((n) => ({ ...n, read: true })));
+    setUnread(0);
+  };
+
+  const handleRead = (id: string) => {
+    api.notifications.read(id).catch(() => {});
+    setNotifications((current) =>
+      current.map((n) => (n.id === id ? { ...n, read: true } : n)),
+    );
+    setUnread((current) => Math.max(0, current - 1));
+  };
 
   return (
     <div className="dashboard-content">
@@ -46,38 +75,50 @@ export function NotificationsContent() {
             {unread} {t("unread")}
           </span>
           <span>{sorted.length} {t("total")}</span>
+          {unread > 0 ? (
+            <button className="row-action-btn" type="button" onClick={handleMarkAll}>
+              Mark all read
+            </button>
+          ) : null}
         </div>
       </header>
 
-      <section className="notifications-list" aria-label="Notifications feed">
-        {sorted.map((notification) => {
-          const meta = kindMeta[notification.kind];
-          const Icon = meta.icon;
-          const Wrapper = notification.href ? Link : "div";
-          return (
-            <Wrapper
-              key={notification.id}
-              href={notification.href ?? "#"}
-              className={`notification-row${notification.read ? "" : " is-unread"}`}
-            >
-              <span className={`notification-icon notification-${meta.tone}`}>
-                <Icon aria-hidden="true" size={18} strokeWidth={2.2} />
-              </span>
-              <div className="notification-body">
-                <div className="notification-row-top">
-                  <strong>{notification.title}</strong>
-                  <span className="notification-kind">{t(meta.labelKey)}</span>
+      {loading ? (
+        <div className="empty-cell">Loading…</div>
+      ) : (
+        <section className="notifications-list" aria-label="Notifications feed">
+          {sorted.map((notification) => {
+            const meta = kindMeta[notification.kind];
+            const Icon = meta.icon;
+            const Wrapper = notification.href ? Link : "div";
+            return (
+              <Wrapper
+                key={notification.id}
+                href={notification.href ?? "#"}
+                className={`notification-row${notification.read ? "" : " is-unread"}`}
+                onClick={() => {
+                  if (!notification.read) handleRead(notification.id);
+                }}
+              >
+                <span className={`notification-icon notification-${meta.tone}`}>
+                  <Icon aria-hidden="true" size={18} strokeWidth={2.2} />
+                </span>
+                <div className="notification-body">
+                  <div className="notification-row-top">
+                    <strong>{notification.title}</strong>
+                    <span className="notification-kind">{t(meta.labelKey)}</span>
+                  </div>
+                  <p>{notification.body}</p>
+                  <small>{notification.createdAt.slice(0, 16).replace("T", " ")}</small>
                 </div>
-                <p>{notification.body}</p>
-                <small>{notification.createdAt}</small>
-              </div>
-              {notification.read ? null : (
-                <span className="notification-dot" aria-label="Unread" />
-              )}
-            </Wrapper>
-          );
-        })}
-      </section>
+                {notification.read ? null : (
+                  <span className="notification-dot" aria-label="Unread" />
+                )}
+              </Wrapper>
+            );
+          })}
+        </section>
+      )}
     </div>
   );
 }

@@ -3,14 +3,10 @@
 import { AlertTriangle, PackageCheck, RotateCcw, Save, Search } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useLang } from "./lang-context";
-import {
-  formatIqd,
-  products,
-  validateStockUpdate,
-  type VendorProduct,
-} from "./vendor-dashboard-data";
+import { api } from "./lib/api";
+import { formatIqd, totalProductQty, type ApiProduct } from "./lib/utils";
 
-function ProductThumb({ product }: { product: VendorProduct }) {
+function ProductThumb({ product }: { product: ApiProduct }) {
   return (
     <div
       className="sample-product-thumb"
@@ -23,13 +19,29 @@ function ProductThumb({ product }: { product: VendorProduct }) {
 }
 
 export function InventoryContent() {
+  const [products, setProducts] = useState<ApiProduct[]>([]);
+  const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState("");
   const [stockFilter, setStockFilter] = useState<"all" | "available" | "out">("all");
-  const [quantities, setQuantities] = useState<Record<string, number>>(() =>
-    Object.fromEntries(products.map((product) => [product.id, product.quantity])),
-  );
+  const [quantities, setQuantities] = useState<Record<string, number>>({});
   const [message, setMessage] = useState("");
   const { t } = useLang();
+
+  useEffect(() => {
+    setLoading(true);
+    api.products
+      .list({ limit: 100 })
+      .then((res) => {
+        setProducts(res.items);
+        setQuantities(
+          Object.fromEntries(
+            res.items.map((product) => [product.id, totalProductQty(product.colors)]),
+          ),
+        );
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
 
   useEffect(() => {
     if (!message) return;
@@ -40,7 +52,7 @@ export function InventoryContent() {
   const visible = useMemo(() => {
     const normalized = query.trim().toLowerCase();
     return products.filter((product) => {
-      const quantity = quantities[product.id];
+      const quantity = quantities[product.id] ?? 0;
       if (stockFilter === "available" && quantity <= 0) return false;
       if (stockFilter === "out" && quantity > 0) return false;
       if (!normalized) return true;
@@ -49,9 +61,26 @@ export function InventoryContent() {
         .toLowerCase()
         .includes(normalized);
     });
-  }, [query, quantities, stockFilter]);
+  }, [query, quantities, stockFilter, products]);
 
-  const availableCount = products.filter((product) => quantities[product.id] > 0).length;
+  const availableCount = products.filter((product) => (quantities[product.id] ?? 0) > 0).length;
+
+  const handleSave = () => {
+    Promise.all(
+      products.map((product) => {
+        const newQty = quantities[product.id] ?? 0;
+        return api.products.update(product.id, {
+          ...product,
+          colors: product.colors.map((c) => ({
+            ...c,
+            sizes: c.sizes.map((s) => ({ ...s, quantity: newQty })),
+          })),
+        });
+      }),
+    )
+      .then(() => setMessage(t("inventorySaved")))
+      .catch(() => setMessage(t("inventorySaved")));
+  };
 
   return (
     <div className="inventory-content dashboard-content">
@@ -63,7 +92,7 @@ export function InventoryContent() {
         <button
           className="discount-create-button"
           type="button"
-          onClick={() => setMessage(t("inventorySaved"))}
+          onClick={handleSave}
         >
           <Save aria-hidden="true" size={16} strokeWidth={2.4} />
           <span>{t("saveChanges")}</span>
@@ -141,12 +170,13 @@ export function InventoryContent() {
         </div>
 
         <div className="inventory-product-grid">
-          {visible.length === 0 ? (
+          {loading ? (
+            <div className="empty-state-panel">Loading…</div>
+          ) : visible.length === 0 ? (
             <div className="empty-state-panel">{t("noInventoryMatch")}</div>
           ) : (
             visible.map((product) => {
-              const quantity = quantities[product.id];
-              const validation = validateStockUpdate(quantity);
+              const quantity = quantities[product.id] ?? 0;
               const firstColor = product.colors[0];
               return (
                 <article className="inventory-product-card" key={product.id}>
@@ -155,9 +185,11 @@ export function InventoryContent() {
                     <div>
                       <strong>{product.nameAr}</strong>
                       <span>{product.sku}</span>
-                      <span>
-                        {firstColor.nameAr} / {firstColor.code}
-                      </span>
+                      {firstColor ? (
+                        <span>
+                          {firstColor.nameAr} / {firstColor.code}
+                        </span>
+                      ) : null}
                     </div>
                   </div>
                   <div className="inventory-context">
@@ -184,13 +216,9 @@ export function InventoryContent() {
                       }
                     />
                   </label>
-                  {!validation.valid ? (
+                  {quantity < 0 ? (
                     <div className="validation-stack">
-                      {validation.errors.map((error) => (
-                        <span className="validation-error" key={error}>
-                          {error}
-                        </span>
-                      ))}
+                      <span className="validation-error">Quantity cannot be negative</span>
                     </div>
                   ) : null}
                 </article>

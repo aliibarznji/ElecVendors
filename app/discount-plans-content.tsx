@@ -1,16 +1,12 @@
 "use client";
 
 import { CalendarDays, Plus, Save, Search, X } from "lucide-react";
-import { Fragment, useMemo, useState } from "react";
+import { Fragment, useEffect, useMemo, useState } from "react";
 import { useLang } from "./lang-context";
-import {
-  discountPlans as initialPlans,
-  formatIqd,
-  getDiscountStatus,
-  getProduct,
-  type DiscountPlan,
-  type DiscountStatus,
-} from "./vendor-dashboard-data";
+import { api } from "./lib/api";
+import { formatIqd, getDiscountStatus, type ApiDiscountPlan } from "./lib/utils";
+
+type DiscountStatus = "active" | "scheduled" | "inactive";
 
 const statusLabel: Record<DiscountStatus | "all", string> = {
   all: "All Plans",
@@ -30,12 +26,23 @@ function CreatePlanForm({
   onSave,
 }: {
   onCancel: () => void;
-  onSave: (plan: DiscountPlan) => void;
+  onSave: (plan: ApiDiscountPlan) => void;
 }) {
   const [name, setName] = useState("");
   const [startDate, setStartDate] = useState("2026-05-10");
   const [endDate, setEndDate] = useState("2026-05-20");
-  const [productIds, setProductIds] = useState(["prod-1"]);
+  const [saving, setSaving] = useState(false);
+
+  const handleSave = () => {
+    if (!name.trim()) return;
+    setSaving(true);
+    api.discountPlans
+      .create({ name, startDate, endDate, productIds: [] })
+      .then((plan) => {
+        onSave(plan);
+      })
+      .catch(() => setSaving(false));
+  };
 
   return (
     <section className="warranty-form-card" aria-label="Create Discount Plan">
@@ -77,26 +84,6 @@ function CreatePlanForm({
             />
           </div>
         </label>
-        <label className="warranty-field">
-          <span>Products</span>
-          <div className="warranty-field-box">
-            <select
-              multiple
-              value={productIds}
-              onChange={(event) =>
-                setProductIds(
-                  Array.from(event.target.selectedOptions).map((option) => option.value),
-                )
-              }
-            >
-              {["prod-1", "prod-2", "prod-3", "prod-4"].map((id) => (
-                <option key={id} value={id}>
-                  {getProduct(id)?.nameEn}
-                </option>
-              ))}
-            </select>
-          </div>
-        </label>
       </div>
       <div className="warranty-actions">
         <button className="warranty-cancel-button" type="button" onClick={onCancel}>
@@ -105,17 +92,8 @@ function CreatePlanForm({
         <button
           className="save-warranty-button"
           type="button"
-          onClick={() =>
-            onSave({
-              id: `disc-${Date.now()}`,
-              name: name || "New Discount Plan",
-              startDate,
-              endDate,
-              productIds,
-              sales: 0,
-              itemsSold: Object.fromEntries(productIds.map((id) => [id, 0])),
-            })
-          }
+          disabled={saving}
+          onClick={handleSave}
         >
           <Save aria-hidden="true" size={18} strokeWidth={2.4} />
           <span>Save Plan</span>
@@ -126,27 +104,42 @@ function CreatePlanForm({
 }
 
 export function DiscountPlansContent() {
-  const [plans, setPlans] = useState(initialPlans);
+  const [plans, setPlans] = useState<ApiDiscountPlan[]>([]);
+  const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<DiscountStatus | "all">("all");
   const [query, setQuery] = useState("");
   const [creating, setCreating] = useState(false);
   const [openPlan, setOpenPlan] = useState<string | null>(null);
   const { t } = useLang();
 
+  useEffect(() => {
+    setLoading(true);
+    api.discountPlans
+      .list()
+      .then((data) => setPlans(data))
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
+
   const visible = useMemo(() => {
     const normalized = query.trim().toLowerCase();
     return plans.filter((plan) => {
-      const status = getDiscountStatus(plan);
+      const status = getDiscountStatus(plan.startDate, plan.endDate);
       if (filter !== "all" && status !== filter) return false;
       if (!normalized) return true;
       return plan.name.toLowerCase().includes(normalized);
     });
   }, [filter, plans, query]);
 
-  const active = plans.filter((plan) => getDiscountStatus(plan) === "active").length;
-  const scheduled = plans.filter((plan) => getDiscountStatus(plan) === "scheduled").length;
-  const inactive = plans.filter((plan) => getDiscountStatus(plan) === "inactive").length;
+  const active = plans.filter((plan) => getDiscountStatus(plan.startDate, plan.endDate) === "active").length;
+  const scheduled = plans.filter((plan) => getDiscountStatus(plan.startDate, plan.endDate) === "scheduled").length;
+  const inactive = plans.filter((plan) => getDiscountStatus(plan.startDate, plan.endDate) === "inactive").length;
   const sales = plans.reduce((sum, plan) => sum + plan.sales, 0);
+
+  const handleDelete = (id: string) => {
+    api.discountPlans.delete(id).catch(() => {});
+    setPlans((current) => current.filter((plan) => plan.id !== id));
+  };
 
   return (
     <div className="discount-plans-content dashboard-content">
@@ -233,7 +226,13 @@ export function DiscountPlansContent() {
                   </tr>
                 </thead>
                 <tbody>
-                  {visible.length === 0 ? (
+                  {loading ? (
+                    <tr>
+                      <td colSpan={8} className="empty-cell">
+                        Loading…
+                      </td>
+                    </tr>
+                  ) : visible.length === 0 ? (
                     <tr>
                       <td colSpan={8} className="empty-cell">
                         No plans match this filter.
@@ -241,14 +240,14 @@ export function DiscountPlansContent() {
                     </tr>
                   ) : (
                     visible.map((plan) => {
-                      const status = getDiscountStatus(plan);
+                      const status = getDiscountStatus(plan.startDate, plan.endDate) as DiscountStatus;
                       const sold = Object.values(plan.itemsSold).reduce((sum, value) => sum + value, 0);
                       return (
                         <Fragment key={plan.id}>
                           <tr className="product-list-data-row">
                             <td>{plan.name}</td>
-                            <td>{plan.startDate}</td>
-                            <td>{plan.endDate}</td>
+                            <td>{plan.startDate.slice(0, 10)}</td>
+                            <td>{plan.endDate.slice(0, 10)}</td>
                             <td>{plan.productIds.length}</td>
                             <td>{formatIqd(plan.sales)}</td>
                             <td>{sold}</td>
@@ -258,37 +257,46 @@ export function DiscountPlansContent() {
                               </span>
                             </td>
                             <td>
-                              <button
-                                className="row-action-btn"
-                                type="button"
-                                onClick={() =>
-                                  setOpenPlan((current) =>
-                                    current === plan.id ? null : plan.id,
-                                  )
-                                }
-                              >
-                                <CalendarDays aria-hidden="true" size={14} strokeWidth={2.4} />
-                                Details
-                              </button>
+                              <div className="row-actions">
+                                <button
+                                  className="row-action-btn"
+                                  type="button"
+                                  onClick={() =>
+                                    setOpenPlan((current) =>
+                                      current === plan.id ? null : plan.id,
+                                    )
+                                  }
+                                >
+                                  <CalendarDays aria-hidden="true" size={14} strokeWidth={2.4} />
+                                  Details
+                                </button>
+                                <button
+                                  className="row-action-btn reject-btn"
+                                  type="button"
+                                  onClick={() => handleDelete(plan.id)}
+                                >
+                                  Delete
+                                </button>
+                              </div>
                             </td>
                           </tr>
                           {openPlan === plan.id ? (
                             <tr key={`${plan.id}-detail`} className="row-details-row">
                               <td colSpan={8}>
                                 <div className="discount-plan-detail">
-                                  {plan.productIds.map((productId) => {
-                                    const product = getProduct(productId);
-                                    return (
+                                  {plan.productIds.length === 0 ? (
+                                    <p className="dashboard-sub">No products in this plan.</p>
+                                  ) : (
+                                    plan.productIds.map((productId) => (
                                       <article className="best-seller-row" key={productId}>
                                         <span className="seller-rank">%</span>
                                         <div>
-                                          <strong>{product?.nameEn}</strong>
-                                          <span>{product?.sku}</span>
+                                          <strong>{productId}</strong>
                                         </div>
                                         <b>{plan.itemsSold[productId] ?? 0} pcs</b>
                                       </article>
-                                    );
-                                  })}
+                                    ))
+                                  )}
                                 </div>
                               </td>
                             </tr>

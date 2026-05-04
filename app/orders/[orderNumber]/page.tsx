@@ -1,14 +1,27 @@
 import { notFound } from "next/navigation";
+import { cookies } from "next/headers";
 import { DashboardShell } from "../../dashboard-shell";
 import { OrderDetailContent } from "../../order-detail-content";
-import { orders } from "../../vendor-dashboard-data";
 
 type Props = { params: Promise<{ orderNumber: string }> };
 
 export default async function OrderDetailPage({ params }: Props) {
   const { orderNumber } = await params;
-  const order = orders.find((entry) => entry.orderNumber === orderNumber);
-  if (!order) notFound();
+  const cookieStore = await cookies();
+  const token = cookieStore.get("token")?.value;
+
+  const res = await fetch(
+    `${process.env.BACKEND_URL ?? "http://localhost:4000"}/api/orders/${orderNumber}`,
+    {
+      headers: { Cookie: token ? `token=${token}` : "" },
+      cache: "no-store",
+    },
+  );
+
+  if (res.status === 404) notFound();
+  if (!res.ok) notFound();
+
+  const order = await res.json();
 
   return (
     <DashboardShell>

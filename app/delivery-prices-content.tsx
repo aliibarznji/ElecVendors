@@ -1,24 +1,28 @@
 "use client";
 
-import { Pencil, Plus, RotateCcw, Save, Search, Trash2 } from "lucide-react";
+import { Pencil, RotateCcw, Save, Search } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useLang } from "./lang-context";
-import { deliveryPrices } from "./vendor-dashboard-data";
-
-type Row = {
-  province: string;
-  small: number;
-  large: number;
-  freeRule: string;
-};
+import { api } from "./lib/api";
+import type { ApiDeliveryPrice } from "./lib/utils";
 
 export function DeliveryPricesContent() {
-  const [rows, setRows] = useState<Row[]>(deliveryPrices);
+  const [rows, setRows] = useState<ApiDeliveryPrice[]>([]);
+  const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState("");
   const [editing, setEditing] = useState<string | null>(null);
   const [message, setMessage] = useState("");
 
   const { t } = useLang();
+
+  useEffect(() => {
+    setLoading(true);
+    api.deliveryPrices
+      .list()
+      .then((data) => setRows(data))
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
 
   useEffect(() => {
     if (!message) return;
@@ -30,11 +34,6 @@ export function DeliveryPricesContent() {
     const normalized = query.trim();
     return rows.filter((row) => !normalized || row.province.includes(normalized));
   }, [query, rows]);
-
-  const update = (province: string, patch: Partial<Row>) =>
-    setRows((current) =>
-      current.map((row) => (row.province === province ? { ...row, ...patch } : row)),
-    );
 
   const hasInvalid = rows.some((row) => row.small < 0 || row.large < 0 || row.large < row.small);
 
@@ -84,19 +83,6 @@ export function DeliveryPricesContent() {
             <RotateCcw aria-hidden="true" size={15} strokeWidth={2.2} />
             <span>Reset</span>
           </button>
-          <button
-            className="discount-create-button"
-            type="button"
-            onClick={() =>
-              setRows((current) => [
-                ...current,
-                { province: "New Province", small: 0, large: 0, freeRule: "" },
-              ])
-            }
-          >
-            <Plus aria-hidden="true" size={16} strokeWidth={2.4} />
-            <span>Add Province</span>
-          </button>
         </div>
 
         <div className="purchase-order-table-wrap">
@@ -112,77 +98,85 @@ export function DeliveryPricesContent() {
               </tr>
             </thead>
             <tbody>
-              {visible.map((row) => {
-                const isEditing = editing === row.province;
-                const invalid = row.small < 0 || row.large < 0 || row.large < row.small;
-                return (
-                  <tr className="product-list-data-row" key={row.province}>
-                    <td>
-                      {isEditing ? (
+              {loading ? (
+                <tr>
+                  <td colSpan={6} className="empty-cell">
+                    Loading…
+                  </td>
+                </tr>
+              ) : (
+                visible.map((row) => {
+                  const isEditing = editing === row.id;
+                  const invalid = row.small < 0 || row.large < 0 || row.large < row.small;
+                  return (
+                    <tr className="product-list-data-row" key={row.id}>
+                      <td>{row.province}</td>
+                      <td>
                         <input
                           className="edit-table-input"
-                          value={row.province}
-                          onChange={(event) => update(row.province, { province: event.target.value })}
+                          type="number"
+                          value={row.small}
+                          disabled={!isEditing}
+                          onChange={(event) =>
+                            setRows((current) =>
+                              current.map((r) =>
+                                r.id === row.id ? { ...r, small: Number(event.target.value) } : r,
+                              ),
+                            )
+                          }
                         />
-                      ) : (
-                        row.province
-                      )}
-                    </td>
-                    <td>
-                      <input
-                        className="edit-table-input"
-                        type="number"
-                        value={row.small}
-                        disabled={!isEditing}
-                        onChange={(event) => update(row.province, { small: Number(event.target.value) })}
-                      />
-                    </td>
-                    <td>
-                      <input
-                        className="edit-table-input"
-                        type="number"
-                        value={row.large}
-                        disabled={!isEditing}
-                        onChange={(event) => update(row.province, { large: Number(event.target.value) })}
-                      />
-                    </td>
-                    <td>
-                      <input
-                        className="edit-table-input delivery-rule-input"
-                        value={row.freeRule}
-                        disabled={!isEditing}
-                        placeholder="e.g., Free over 150,000 IQD"
-                        onChange={(event) => update(row.province, { freeRule: event.target.value })}
-                      />
-                    </td>
-                    <td>
-                      <span className={`approved-status-badge ${invalid ? "is-rejected" : "is-active"}`}>
-                        {invalid ? "Needs correction" : row.freeRule ? "Includes free" : "Paid"}
-                      </span>
-                    </td>
-                    <td>
-                      <div className="row-actions">
-                        <button
-                          className="row-action-btn"
-                          type="button"
-                          onClick={() => setEditing(isEditing ? null : row.province)}
-                        >
-                          <Pencil aria-hidden="true" size={14} strokeWidth={2.4} />
-                          {isEditing ? "Finish" : "Edit"}
-                        </button>
-                        <button
-                          className="row-action-btn reject-btn"
-                          type="button"
-                          onClick={() => setRows((current) => current.filter((item) => item.province !== row.province))}
-                        >
-                          <Trash2 aria-hidden="true" size={14} strokeWidth={2.4} />
-                          Delete
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
+                      </td>
+                      <td>
+                        <input
+                          className="edit-table-input"
+                          type="number"
+                          value={row.large}
+                          disabled={!isEditing}
+                          onChange={(event) =>
+                            setRows((current) =>
+                              current.map((r) =>
+                                r.id === row.id ? { ...r, large: Number(event.target.value) } : r,
+                              ),
+                            )
+                          }
+                        />
+                      </td>
+                      <td>
+                        <input
+                          className="edit-table-input delivery-rule-input"
+                          value={row.freeRule}
+                          disabled={!isEditing}
+                          placeholder="e.g., Free over 150,000 IQD"
+                          onChange={(event) =>
+                            setRows((current) =>
+                              current.map((r) =>
+                                r.id === row.id ? { ...r, freeRule: event.target.value } : r,
+                              ),
+                            )
+                          }
+                        />
+                      </td>
+                      <td>
+                        <span className={`approved-status-badge ${invalid ? "is-rejected" : "is-active"}`}>
+                          {invalid ? "Needs correction" : row.freeRule ? "Includes free" : "Paid"}
+                        </span>
+                      </td>
+                      <td>
+                        <div className="row-actions">
+                          <button
+                            className="row-action-btn"
+                            type="button"
+                            onClick={() => setEditing(isEditing ? null : row.id)}
+                          >
+                            <Pencil aria-hidden="true" size={14} strokeWidth={2.4} />
+                            {isEditing ? "Finish" : "Edit"}
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
             </tbody>
           </table>
         </div>

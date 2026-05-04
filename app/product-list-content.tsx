@@ -11,15 +11,12 @@ import {
   WalletCards,
 } from "lucide-react";
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useLang } from "./lang-context";
-import {
-  filterProducts,
-  formatIqd,
-  products as initialProducts,
-  type ProductStatus,
-  type VendorProduct,
-} from "./vendor-dashboard-data";
+import { api } from "./lib/api";
+import { formatIqd, totalProductQty, type ApiProduct } from "./lib/utils";
+
+type ProductStatus = "published" | "unpublished" | "review";
 
 const statusClass: Record<ProductStatus, string> = {
   published: "is-active",
@@ -27,7 +24,7 @@ const statusClass: Record<ProductStatus, string> = {
   review: "is-pending",
 };
 
-function ProductThumb({ product }: { product: VendorProduct }) {
+function ProductThumb({ product }: { product: ApiProduct }) {
   return (
     <div
       className="sample-product-thumb product-image-thumb"
@@ -39,11 +36,11 @@ function ProductThumb({ product }: { product: VendorProduct }) {
   );
 }
 
-function ProductSummary({ products }: { products: VendorProduct[] }) {
+function ProductSummary({ products }: { products: ApiProduct[] }) {
   const { t } = useLang();
   const published = products.filter((product) => product.status === "published").length;
   const review = products.filter((product) => product.status === "review").length;
-  const outOfStock = products.filter((product) => product.quantity === 0).length;
+  const outOfStock = products.filter((product) => totalProductQty(product.colors) === 0).length;
 
   return (
     <section className="inventory-summary-strip" aria-label="Product Summary">
@@ -92,13 +89,29 @@ function ProductSummary({ products }: { products: VendorProduct[] }) {
 }
 
 export function ProductListContent() {
-  const [items, setItems] = useState(initialProducts);
+  const [items, setItems] = useState<ApiProduct[]>([]);
+  const [loading, setLoading] = useState(true);
   const [activeStatus, setActiveStatus] = useState<ProductStatus | "all">("all");
   const [query, setQuery] = useState("");
   const [brandFilter, setBrandFilter] = useState("all");
   const [categoryFilter, setCategoryFilter] = useState("all");
-  const [selected, setSelected] = useState<VendorProduct | null>(null);
+  const [selected, setSelected] = useState<ApiProduct | null>(null);
   const { t } = useLang();
+
+  useEffect(() => {
+    setLoading(true);
+    api.products
+      .list({
+        status: activeStatus === "all" ? undefined : activeStatus,
+        search: query || undefined,
+        limit: 100,
+      })
+      .then((res) => {
+        setItems(res.items);
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, [activeStatus, query]);
 
   const statusLabel: Record<ProductStatus, string> = {
     published: t("published"),
@@ -115,11 +128,16 @@ export function ProductListContent() {
 
   const visible = useMemo(
     () =>
-      filterProducts(items, activeStatus, query)
+      items
         .filter((p) => brandFilter === "all" || p.brand === brandFilter)
-        .filter((p) => categoryFilter === "all" || p.categoryLevels[0] === categoryFilter),
-    [items, activeStatus, query, brandFilter, categoryFilter],
+        .filter((p) => categoryFilter === "all" || p.categoryLevel1 === categoryFilter),
+    [items, brandFilter, categoryFilter],
   );
+
+  const handleDelete = (id: string) => {
+    api.products.delete(id).catch(() => {});
+    setItems((current) => current.filter((item) => item.id !== id));
+  };
 
   return (
     <div className="product-list-content">
@@ -180,7 +198,7 @@ export function ProductListContent() {
               onChange={(e) => setCategoryFilter(e.target.value)}
             >
               <option value="all">{t("allCategories")}</option>
-              {[...new Set(items.map((product) => product.categoryLevels[0]))].map((category) => (
+              {[...new Set(items.map((product) => product.categoryLevel1))].map((category) => (
                 <option key={category}>{category}</option>
               ))}
             </select>
@@ -206,100 +224,111 @@ export function ProductListContent() {
               </tr>
             </thead>
             <tbody>
-              {visible.length === 0 ? (
+              {loading ? (
+                <tr>
+                  <td colSpan={12} className="empty-cell">
+                    Loading…
+                  </td>
+                </tr>
+              ) : visible.length === 0 ? (
                 <tr>
                   <td colSpan={12} className="empty-cell">
                     {t("noProductsMatch")}
                   </td>
                 </tr>
               ) : (
-                visible.map((product) => (
-                  <tr className="product-list-data-row" key={product.id}>
-                    <td>
-                      <ProductThumb product={product} />
-                    </td>
-                    <td className="product-name-cell">
-                      <strong>{product.nameAr}</strong>
-                      <span>{product.nameEn}</span>
-                    </td>
-                    <td>{formatIqd(product.sellingPrice)}</td>
-                    <td>{formatIqd(product.costPrice)}</td>
-                    <td>{product.description}</td>
-                    <td>
-                      <span
-                        className={`approved-status-badge ${
-                          product.quantity > 0 ? "is-active" : "is-rejected"
-                        }`}
-                      >
-                        {product.quantity > 0 ? `${product.quantity} ${t("available")}` : t("outOfStock")}
-                      </span>
-                    </td>
-                    <td>
-                      <div className="stacked-meta">
-                        <span>{t("skuLabel")}: {product.sku}</span>
-                        <span>{t("barcodeLabel")}: {product.barcode}</span>
-                        <span>{t("codeLabel")}: {product.vendorCode}</span>
-                      </div>
-                    </td>
-                    <td>
-                      <div className="stacked-meta">
-                        <span>{product.brand}</span>
-                        <span>{product.categoryLevels.join(" / ")}</span>
-                      </div>
-                    </td>
-                    <td>
-                      <div className="color-swatch-row">
-                        {product.colors.map((color) => (
-                          <span key={color.code} title={color.nameAr}>
-                            <i style={{ background: color.code }} />
-                            {color.nameAr}
+                visible.map((product) => {
+                  const qty = totalProductQty(product.colors);
+                  return (
+                    <tr className="product-list-data-row" key={product.id}>
+                      <td>
+                        <ProductThumb product={product} />
+                      </td>
+                      <td className="product-name-cell">
+                        <strong>{product.nameAr}</strong>
+                        <span>{product.nameEn}</span>
+                      </td>
+                      <td>{formatIqd(product.sellingPrice)}</td>
+                      <td>{formatIqd(product.costPrice)}</td>
+                      <td>{product.description}</td>
+                      <td>
+                        <span
+                          className={`approved-status-badge ${
+                            qty > 0 ? "is-active" : "is-rejected"
+                          }`}
+                        >
+                          {qty > 0 ? `${qty} ${t("available")}` : t("outOfStock")}
+                        </span>
+                      </td>
+                      <td>
+                        <div className="stacked-meta">
+                          <span>{t("skuLabel")}: {product.sku}</span>
+                          <span>{t("barcodeLabel")}: {product.barcode}</span>
+                          <span>{t("codeLabel")}: {product.vendorCode}</span>
+                        </div>
+                      </td>
+                      <td>
+                        <div className="stacked-meta">
+                          <span>{product.brand}</span>
+                          <span>
+                            {[product.categoryLevel1, product.categoryLevel2, product.categoryLevel3, product.categoryLevel4]
+                              .filter(Boolean)
+                              .join(" / ")}
                           </span>
-                        ))}
-                      </div>
-                    </td>
-                    <td>{product.createdAt}</td>
-                    <td>
-                      <span className={`approved-status-badge ${statusClass[product.status]}`}>
-                        {statusLabel[product.status]}
-                      </span>
-                    </td>
-                    <td>
-                      <div className="row-actions">
-                        <button
-                          className="row-action-btn"
-                          type="button"
-                          title={t("viewDetails")}
-                          onClick={() => setSelected(product)}
-                        >
-                          <Eye aria-hidden="true" size={14} strokeWidth={2.4} />
-                        </button>
-                        <Link
-                          className="row-action-btn"
-                          href={`/products/add?id=${product.id}`}
-                          title={t("editProduct")}
-                        >
-                          <Pencil aria-hidden="true" size={14} strokeWidth={2.4} />
-                        </Link>
-                        <button className="row-action-btn" type="button" title={t("qrCode")}>
-                          <QrCode aria-hidden="true" size={14} strokeWidth={2.4} />
-                        </button>
-                        <button className="row-action-btn" type="button" title={t("installments")}>
-                          <WalletCards aria-hidden="true" size={14} strokeWidth={2.4} />
-                        </button>
-                        <button
-                          className="row-action-btn reject-btn"
-                          type="button"
-                          title={t("delete")}
-                          onClick={() =>
-                            setItems((current) => current.filter((item) => item.id !== product.id))
-                          }
-                        >
-                          <Trash2 aria-hidden="true" size={14} strokeWidth={2.4} />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
+                        </div>
+                      </td>
+                      <td>
+                        <div className="color-swatch-row">
+                          {product.colors.map((color) => (
+                            <span key={color.code} title={color.nameAr}>
+                              <i style={{ background: color.code }} />
+                              {color.nameAr}
+                            </span>
+                          ))}
+                        </div>
+                      </td>
+                      <td>{product.createdAt.slice(0, 10)}</td>
+                      <td>
+                        <span className={`approved-status-badge ${statusClass[product.status]}`}>
+                          {statusLabel[product.status]}
+                        </span>
+                      </td>
+                      <td>
+                        <div className="row-actions">
+                          <button
+                            className="row-action-btn"
+                            type="button"
+                            title={t("viewDetails")}
+                            onClick={() => setSelected(product)}
+                          >
+                            <Eye aria-hidden="true" size={14} strokeWidth={2.4} />
+                          </button>
+                          <Link
+                            className="row-action-btn"
+                            href={`/products/add?id=${product.id}`}
+                            title={t("editProduct")}
+                          >
+                            <Pencil aria-hidden="true" size={14} strokeWidth={2.4} />
+                          </Link>
+                          <button className="row-action-btn" type="button" title={t("qrCode")}>
+                            <QrCode aria-hidden="true" size={14} strokeWidth={2.4} />
+                          </button>
+                          <button className="row-action-btn" type="button" title={t("installments")}>
+                            <WalletCards aria-hidden="true" size={14} strokeWidth={2.4} />
+                          </button>
+                          <button
+                            className="row-action-btn reject-btn"
+                            type="button"
+                            title={t("delete")}
+                            onClick={() => handleDelete(product.id)}
+                          >
+                            <Trash2 aria-hidden="true" size={14} strokeWidth={2.4} />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })
               )}
             </tbody>
           </table>

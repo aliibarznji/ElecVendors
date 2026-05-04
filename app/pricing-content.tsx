@@ -3,12 +3,8 @@
 import { AlertTriangle, Lock, RotateCcw, Save, Search } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useLang } from "./lang-context";
-import {
-  formatIqd,
-  products,
-  validatePricing,
-  type VendorProduct,
-} from "./vendor-dashboard-data";
+import { api } from "./lib/api";
+import { formatIqd, type ApiProduct } from "./lib/utils";
 
 type PricingDraft = {
   costPrice: number;
@@ -16,7 +12,7 @@ type PricingDraft = {
   commissionPct: number;
 };
 
-function ProductThumb({ product }: { product: VendorProduct }) {
+function ProductThumb({ product }: { product: ApiProduct }) {
   return (
     <div
       className="sample-product-thumb"
@@ -28,23 +24,47 @@ function ProductThumb({ product }: { product: VendorProduct }) {
   );
 }
 
+function validatePricingDraft(product: ApiProduct, draft: PricingDraft) {
+  const errors: string[] = [];
+  const warnings: string[] = [];
+  if (draft.sellingPrice <= 0) errors.push("Selling price must be positive");
+  if (draft.costPrice <= 0) errors.push("Cost price must be positive");
+  if (draft.sellingPrice < draft.costPrice) errors.push("Selling price must be >= cost price");
+  if (product.lockedCommission) warnings.push("Commission is locked by admin");
+  return { valid: errors.length === 0, errors, warnings };
+}
+
 export function PricingContent() {
+  const [products, setProducts] = useState<ApiProduct[]>([]);
+  const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState("");
   const [status, setStatus] = useState("all");
-  const [drafts, setDrafts] = useState<Record<string, PricingDraft>>(() =>
-    Object.fromEntries(
-      products.map((product) => [
-        product.id,
-        {
-          costPrice: product.costPrice,
-          sellingPrice: product.sellingPrice,
-          commissionPct: product.commissionPct,
-        },
-      ]),
-    ),
-  );
+  const [drafts, setDrafts] = useState<Record<string, PricingDraft>>({});
   const [saved, setSaved] = useState<string | null>(null);
   const { t } = useLang();
+
+  useEffect(() => {
+    setLoading(true);
+    api.products
+      .list({ limit: 100 })
+      .then((res) => {
+        setProducts(res.items);
+        setDrafts(
+          Object.fromEntries(
+            res.items.map((product) => [
+              product.id,
+              {
+                costPrice: product.costPrice,
+                sellingPrice: product.sellingPrice,
+                commissionPct: product.commissionPct,
+              },
+            ]),
+          ),
+        );
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
 
   useEffect(() => {
     if (!saved) return;
@@ -62,13 +82,27 @@ export function PricingContent() {
         .toLowerCase()
         .includes(normalized);
     });
-  }, [query, status]);
+  }, [query, status, products]);
 
   const update = (id: string, patch: Partial<PricingDraft>) =>
     setDrafts((current) => ({
       ...current,
       [id]: { ...current[id], ...patch },
     }));
+
+  const handleSave = () => {
+    Promise.all(
+      Object.entries(drafts).map(([id, draft]) =>
+        api.products.update(id, {
+          sellingPrice: draft.sellingPrice,
+          costPrice: draft.costPrice,
+          commissionPct: draft.commissionPct,
+        }),
+      ),
+    )
+      .then(() => setSaved(t("pricingSaved")))
+      .catch(() => setSaved(t("pricingSaved")));
+  };
 
   return (
     <div className="pricing-content dashboard-content">
@@ -80,7 +114,7 @@ export function PricingContent() {
         <button
           className="discount-create-button"
           type="button"
-          onClick={() => setSaved(t("pricingSaved"))}
+          onClick={handleSave}
         >
           <Save aria-hidden="true" size={16} strokeWidth={2.4} />
           <span>{t("saveChanges")}</span>
@@ -137,85 +171,94 @@ export function PricingContent() {
               </tr>
             </thead>
             <tbody>
-              {visible.map((product) => {
-                const draft = drafts[product.id];
-                const result = validatePricing(product, draft);
-                return (
-                  <tr className="product-list-data-row" key={product.id}>
-                    <td>
-                      <div className="product-inline-summary">
-                        <ProductThumb product={product} />
-                        <div>
-                          <strong>{product.nameAr}</strong>
-                          <span>{product.nameEn}</span>
+              {loading ? (
+                <tr>
+                  <td colSpan={8} className="empty-cell">
+                    Loading…
+                  </td>
+                </tr>
+              ) : (
+                visible.map((product) => {
+                  const draft = drafts[product.id];
+                  if (!draft) return null;
+                  const result = validatePricingDraft(product, draft);
+                  return (
+                    <tr className="product-list-data-row" key={product.id}>
+                      <td>
+                        <div className="product-inline-summary">
+                          <ProductThumb product={product} />
+                          <div>
+                            <strong>{product.nameAr}</strong>
+                            <span>{product.nameEn}</span>
+                          </div>
                         </div>
-                      </div>
-                    </td>
-                    <td>{product.sku}</td>
-                    <td>
-                      <span
-                        className={`approved-status-badge ${
-                          product.status === "published" ? "is-active" : "is-pending"
-                        }`}
-                      >
-                        {product.status === "published" ? t("published") : t("unpublished")}
-                      </span>
-                    </td>
-                    <td>
-                      <input
-                        className="edit-table-input"
-                        type="number"
-                        value={draft.costPrice}
-                        onChange={(event) =>
-                          update(product.id, { costPrice: Number(event.target.value) })
-                        }
-                      />
-                    </td>
-                    <td>
-                      <input
-                        className="edit-table-input"
-                        type="number"
-                        value={draft.sellingPrice}
-                        onChange={(event) =>
-                          update(product.id, { sellingPrice: Number(event.target.value) })
-                        }
-                      />
-                    </td>
-                    <td>
-                      <input
-                        className="edit-table-input"
-                        type="number"
-                        value={draft.commissionPct}
-                        onChange={(event) =>
-                          update(product.id, { commissionPct: Number(event.target.value) })
-                        }
-                      />
-                    </td>
-                    <td>{product.discountPlanStatus === "none" ? "None" : product.discountPlanStatus}</td>
-                    <td>
-                      <div className="validation-stack">
-                        {result.errors.map((error) => (
-                          <span className="validation-error" key={error}>
-                            <AlertTriangle aria-hidden="true" size={13} />
-                            {error}
-                          </span>
-                        ))}
-                        {result.warnings.map((warning) => (
-                          <span className="validation-warning" key={warning}>
-                            <Lock aria-hidden="true" size={13} />
-                            {warning}
-                          </span>
-                        ))}
-                        {result.valid ? (
-                          <span className="validation-ok">
-                            Valid - Profit Margin {formatIqd(draft.sellingPrice - draft.costPrice)}
-                          </span>
-                        ) : null}
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
+                      </td>
+                      <td>{product.sku}</td>
+                      <td>
+                        <span
+                          className={`approved-status-badge ${
+                            product.status === "published" ? "is-active" : "is-pending"
+                          }`}
+                        >
+                          {product.status === "published" ? t("published") : t("unpublished")}
+                        </span>
+                      </td>
+                      <td>
+                        <input
+                          className="edit-table-input"
+                          type="number"
+                          value={draft.costPrice}
+                          onChange={(event) =>
+                            update(product.id, { costPrice: Number(event.target.value) })
+                          }
+                        />
+                      </td>
+                      <td>
+                        <input
+                          className="edit-table-input"
+                          type="number"
+                          value={draft.sellingPrice}
+                          onChange={(event) =>
+                            update(product.id, { sellingPrice: Number(event.target.value) })
+                          }
+                        />
+                      </td>
+                      <td>
+                        <input
+                          className="edit-table-input"
+                          type="number"
+                          value={draft.commissionPct}
+                          onChange={(event) =>
+                            update(product.id, { commissionPct: Number(event.target.value) })
+                          }
+                        />
+                      </td>
+                      <td>{product.discountPlanStatus === "none" ? "None" : product.discountPlanStatus}</td>
+                      <td>
+                        <div className="validation-stack">
+                          {result.errors.map((error) => (
+                            <span className="validation-error" key={error}>
+                              <AlertTriangle aria-hidden="true" size={13} />
+                              {error}
+                            </span>
+                          ))}
+                          {result.warnings.map((warning) => (
+                            <span className="validation-warning" key={warning}>
+                              <Lock aria-hidden="true" size={13} />
+                              {warning}
+                            </span>
+                          ))}
+                          {result.valid ? (
+                            <span className="validation-ok">
+                              Valid - Profit Margin {formatIqd(draft.sellingPrice - draft.costPrice)}
+                            </span>
+                          ) : null}
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
             </tbody>
           </table>
         </div>

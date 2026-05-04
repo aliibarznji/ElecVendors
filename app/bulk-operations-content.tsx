@@ -1,14 +1,45 @@
 "use client";
 
 import { CheckCircle2, Download, FileSpreadsheet, UploadCloud } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useLang } from "./lang-context";
-import { products, validateBulkUpdateRow } from "./vendor-dashboard-data";
+import { api } from "./lib/api";
+import { totalProductQty, type ApiProduct } from "./lib/utils";
 
-function downloadTemplate(mode: "prices" | "stock") {
+type Mode = "prices" | "stock";
+
+const steps = [
+  "Download current products file",
+  "Upload file after editing",
+  "Review errors and warnings",
+  "Apply updates",
+];
+
+type SampleRow =
+  | { sku: string; sellingPrice: number; costPrice: number; codeChanged?: boolean }
+  | { sku: string; quantity: number };
+
+function validateRow(row: SampleRow, mode: Mode): { valid: boolean; errors: string[]; warnings: string[] } {
+  const errors: string[] = [];
+  const warnings: string[] = [];
+  if (mode === "prices") {
+    const r = row as { sku: string; sellingPrice: number; costPrice: number; codeChanged?: boolean };
+    if (r.codeChanged) errors.push("SKU not found in your product catalog");
+    if (r.costPrice > r.sellingPrice) errors.push("Cost price exceeds selling price");
+    if (r.sellingPrice <= 0) errors.push("Selling price must be positive");
+  } else {
+    const r = row as { sku: string; quantity: number };
+    if (r.quantity < 0) errors.push("Quantity cannot be negative");
+  }
+  return { valid: errors.length === 0, errors, warnings };
+}
+
+function downloadTemplate(products: ApiProduct[], mode: Mode) {
   const headers = mode === "prices" ? ["sku", "selling_price", "cost_price"] : ["sku", "quantity"];
   const rows = products.map((p) =>
-    mode === "prices" ? [p.sku, p.sellingPrice, p.costPrice] : [p.sku, p.quantity],
+    mode === "prices"
+      ? [p.sku, p.sellingPrice, p.costPrice]
+      : [p.sku, totalProductQty(p.colors)],
   );
   const csv = [headers, ...rows].map((row) => row.map((v) => `"${v}"`).join(",")).join("\n");
   const blob = new Blob([csv], { type: "text/csv" });
@@ -20,45 +51,45 @@ function downloadTemplate(mode: "prices" | "stock") {
   URL.revokeObjectURL(url);
 }
 
-type Mode = "prices" | "stock";
-
-const steps = [
-  "Download current products file",
-  "Upload file after editing",
-  "Review errors and warnings",
-  "Apply updates",
-];
-
 export function BulkOperationsContent() {
+  const [products, setProducts] = useState<ApiProduct[]>([]);
   const [mode, setMode] = useState<Mode>("prices");
   const [uploaded, setUploaded] = useState(false);
   const [applied, setApplied] = useState(false);
   const { t } = useLang();
 
-  const sampleRows = useMemo(
+  useEffect(() => {
+    api.products.list({ limit: 100 }).then((res) => setProducts(res.items)).catch(() => {});
+  }, []);
+
+  const sampleRows: SampleRow[] = useMemo(
     () =>
       mode === "prices"
-        ? [
-            {
-              sku: products[0].sku,
-              sellingPrice: products[0].sellingPrice,
-              costPrice: products[0].costPrice,
-            },
-            {
-              sku: "new-sku-not-allowed",
-              sellingPrice: 20000,
-              costPrice: 25000,
-              codeChanged: true,
-            },
-          ]
-        : [
-            { sku: products[0].sku, quantity: 12 },
-            { sku: products[1].sku, quantity: -3 },
-          ],
-    [mode],
+        ? products.length > 0
+          ? [
+              {
+                sku: products[0].sku,
+                sellingPrice: products[0].sellingPrice,
+                costPrice: products[0].costPrice,
+              },
+              {
+                sku: "new-sku-not-allowed",
+                sellingPrice: 20000,
+                costPrice: 25000,
+                codeChanged: true,
+              },
+            ]
+          : []
+        : products.length > 1
+          ? [
+              { sku: products[0].sku, quantity: 12 },
+              { sku: products[1].sku, quantity: -3 },
+            ]
+          : [],
+    [mode, products],
   );
 
-  const validation = sampleRows.map((row) => validateBulkUpdateRow(row, mode));
+  const validation = sampleRows.map((row) => validateRow(row, mode));
   const hasErrors = validation.some((result) => !result.valid);
 
   return (
@@ -112,7 +143,7 @@ export function BulkOperationsContent() {
                   <button
                     className="bulk-export-button"
                     type="button"
-                    onClick={() => downloadTemplate(mode)}
+                    onClick={() => downloadTemplate(products, mode)}
                   >
                     <Download aria-hidden="true" size={16} strokeWidth={2.4} />
                     Download current products file

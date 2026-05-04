@@ -1,33 +1,41 @@
 "use client";
 
 import { Eye, Printer, RotateCcw } from "lucide-react";
-import { Fragment, useMemo, useState } from "react";
+import { Fragment, useEffect, useMemo, useState } from "react";
 import { useLang } from "./lang-context";
-import {
-  filterSettlements,
-  formatIqd,
-  getProduct,
-  orders,
-  settlementAmount,
-  settlements,
-} from "./vendor-dashboard-data";
+import { api } from "./lib/api";
+import { formatIqd, type ApiSettlement } from "./lib/utils";
 
 export function SettlementsContent() {
+  const [settlements, setSettlements] = useState<ApiSettlement[]>([]);
+  const [loading, setLoading] = useState(true);
   const [date, setDate] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("all");
   const [open, setOpen] = useState<string | null>(null);
   const { t } = useLang();
 
-  const visible = useMemo(
-    () => filterSettlements(settlements, date, paymentMethod),
-    [date, paymentMethod],
-  );
+  useEffect(() => {
+    setLoading(true);
+    api.settlements
+      .list({
+        date: date || undefined,
+        paymentMethod: paymentMethod === "all" ? undefined : paymentMethod,
+      })
+      .then((data) => setSettlements(data))
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, [date, paymentMethod]);
+
+  const visible = useMemo(() => settlements, [settlements]);
+
   const paid = settlements
     .filter((settlement) => settlement.status === "paid")
-    .reduce((sum, settlement) => sum + settlementAmount(settlement), 0);
+    .reduce((sum, settlement) => sum + settlement.amount, 0);
   const remaining = settlements
     .filter((settlement) => settlement.status === "remaining")
-    .reduce((sum, settlement) => sum + settlementAmount(settlement), 0);
+    .reduce((sum, settlement) => sum + settlement.amount, 0);
+
+  const allMethods = [...new Set(settlements.map((s) => s.paymentMethod))];
 
   return (
     <div className="settlements-content account-statement-content">
@@ -79,7 +87,7 @@ export function SettlementsContent() {
             <span>{t("paymentMethod")}</span>
             <select value={paymentMethod} onChange={(event) => setPaymentMethod(event.target.value)}>
               <option value="all">All Methods</option>
-              {[...new Set(settlements.map((settlement) => settlement.paymentMethod))].map((method) => (
+              {allMethods.map((method) => (
                 <option key={method}>{method}</option>
               ))}
             </select>
@@ -101,7 +109,13 @@ export function SettlementsContent() {
               </tr>
             </thead>
             <tbody>
-              {visible.length === 0 ? (
+              {loading ? (
+                <tr>
+                  <td colSpan={8} className="empty-cell">
+                    Loading…
+                  </td>
+                </tr>
+              ) : visible.length === 0 ? (
                 <tr>
                   <td colSpan={8} className="empty-cell">
                     {t("noSettlements")}
@@ -111,10 +125,10 @@ export function SettlementsContent() {
                 visible.map((settlement) => (
                   <Fragment key={settlement.id}>
                     <tr className="product-list-data-row">
-                      <td>{settlement.date}</td>
+                      <td>{settlement.date.slice(0, 10)}</td>
                       <td>{settlement.settlementNumber}</td>
                       <td>{settlement.itemIds.length}</td>
-                      <td>{formatIqd(settlementAmount(settlement))}</td>
+                      <td>{formatIqd(settlement.amount)}</td>
                       <td>{settlement.paymentMethod}</td>
                       <td>
                         <span
@@ -154,45 +168,9 @@ export function SettlementsContent() {
                       <tr key={`${settlement.id}-detail`} className="row-details-row">
                         <td colSpan={8}>
                           <div className="purchase-order-table-wrap">
-                            <table className="purchase-order-table inner-table">
-                              <thead>
-                                <tr>
-                                  <th>{t("image")}</th>
-                                  <th>{t("product")}</th>
-                                  <th>{t("sku")}</th>
-                                  <th>{t("orderNumber")}</th>
-                                  <th>{t("status")}</th>
-                                  <th>{t("colDate")}</th>
-                                  <th>{t("colSellingPrice")}</th>
-                                  <th>{t("colCostPrice")}</th>
-                                  <th>{t("commission")}</th>
-                                </tr>
-                              </thead>
-                              <tbody>
-                                {settlement.itemIds.map((orderId) => {
-                                  const order = orders.find((item) => item.id === orderId);
-                                  const product = order ? getProduct(order.productId) : undefined;
-                                  if (!order || !product) return null;
-                                  return (
-                                    <tr key={orderId}>
-                                      <td>
-                                        <div className="sample-product-thumb" style={{ background: product.imageTone }}>
-                                          <span>{product.brand.slice(0, 2).toUpperCase()}</span>
-                                        </div>
-                                      </td>
-                                      <td>{product.nameEn}</td>
-                                      <td>{product.sku}</td>
-                                      <td>{order.orderNumber}</td>
-                                      <td>{order.deliveryStatus}</td>
-                                      <td>{order.dateTime}</td>
-                                      <td>{formatIqd(order.priceWithCommission)}</td>
-                                      <td>{formatIqd(product.costPrice)}</td>
-                                      <td>{formatIqd(order.priceWithCommission - order.priceWithoutCommission)}</td>
-                                    </tr>
-                                  );
-                                })}
-                              </tbody>
-                            </table>
+                            <p className="dashboard-sub">
+                              {settlement.itemIds.length} order items in this settlement.
+                            </p>
                           </div>
                         </td>
                       </tr>
