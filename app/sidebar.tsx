@@ -24,7 +24,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const sidebarSections = [
   {
@@ -99,9 +99,28 @@ const sidebarSections = [
   },
 ];
 
+const SIDEBAR_SCROLL_KEY = "sidebar-scroll-position";
+
 export function Sidebar() {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const pathname = usePathname();
+  const scrollRef = useRef<HTMLElement | null>(null);
+
+  useEffect(() => {
+    const node = scrollRef.current;
+    if (!node) return;
+
+    const saved = sessionStorage.getItem(SIDEBAR_SCROLL_KEY);
+    if (saved) {
+      node.scrollTop = Number(saved) || 0;
+    }
+
+    const handleScroll = () => {
+      sessionStorage.setItem(SIDEBAR_SCROLL_KEY, String(node.scrollTop));
+    };
+    node.addEventListener("scroll", handleScroll, { passive: true });
+    return () => node.removeEventListener("scroll", handleScroll);
+  }, []);
 
   return (
     <aside
@@ -122,7 +141,11 @@ export function Sidebar() {
         )}
       </button>
 
-      <nav className="sidebar-scroll" aria-label="Primary dashboard navigation">
+      <nav
+        className="sidebar-scroll"
+        aria-label="Primary dashboard navigation"
+        ref={scrollRef}
+      >
         {sidebarSections.map((section) => (
           <div className="sidebar-section" key={section.title}>
             <p className="sidebar-section-title">{section.title}</p>
