@@ -14,14 +14,12 @@ import {
   Home,
   Layers,
   List,
-  MapPin,
   Megaphone,
   PackageCheck,
   Percent,
   PlusSquare,
   Receipt,
   RotateCcw,
-  Send,
   ShieldCheck,
   ShoppingBag,
   Tag,
@@ -84,13 +82,6 @@ const sidebarSections = [
         href: "/marketing/campaigns",
         icon: PackageCheck,
       },
-    ],
-  },
-  {
-    title: "DELIVERY SERVICES",
-    links: [
-      { label: "Track My Shipment", href: "/shipments/track", icon: MapPin },
-      { label: "Create a Shipment", href: "/shipments/create", icon: Send },
     ],
   },
   {
