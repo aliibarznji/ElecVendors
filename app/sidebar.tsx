@@ -34,35 +34,57 @@ import { useEffect, useRef, useState } from "react";
 
 const sidebarSections = [
   {
-    title: "MY ACCOUNT",
+    title: "DASHBOARD",
     links: [
       { label: "Dashboard", href: "/", icon: Home },
-      { label: "Profile", href: "/profile", icon: User },
-      { label: "Warranty", href: "/warranty", icon: ShieldCheck },
-      { label: "Seller Report", href: "/seller-report", icon: BarChart3 },
-      { label: "Delivery Prices", href: "/delivery-prices", icon: Truck },
     ],
   },
   {
-    title: "PRODUCTS",
+    title: "PRODUCT MANAGEMENT",
     links: [
       { label: "Add Product", href: "/products/add", icon: PlusSquare },
       { label: "Product List", href: "/products", icon: List },
       { label: "Express Pricing", href: "/pricing", icon: CreditCard },
       { label: "Stock Management", href: "/inventory", icon: Package },
-      { label: "Bulk Operations", href: "/products/bulk", icon: Layers },
-      { label: "Discount Plans", href: "/products/discounts", icon: Tag },
+      { label: "Items Updates", href: "/products/bulk", icon: Layers },
+      { label: "Discount Plan", href: "/products/discounts", icon: Tag },
     ],
   },
   {
-    title: "TRANSACTIONS",
+    title: "ORDER ITEMS PAGE",
     links: [
       { label: "Order Items", href: "/orders", icon: ShoppingBag },
+    ],
+  },
+  {
+    title: "SELLER INFORMATION",
+    links: [
+      { label: "Vendor Profile", href: "/profile", icon: User },
+      { label: "Warranty", href: "/warranty", icon: ShieldCheck },
+      { label: "Seller Report", href: "/seller-report", icon: BarChart3 },
+      { label: "Seller Delivery Prices", href: "/delivery-prices", icon: Truck },
+    ],
+  },
+  {
+    title: "ACCOUNT MANAGER PAGE",
+    links: [
+      { label: "Vendor Orders", href: "/account-manager/orders", icon: Users },
+      {
+        label: "Pending Products",
+        href: "/account-manager/pending-products",
+        icon: ClipboardCheck,
+      },
+      { label: "Operations Log", href: "/account-manager/log", icon: History },
+    ],
+  },
+  {
+    title: "SETTLEMENTS",
+    links: [
       { label: "Settlements", href: "/settlements", icon: Receipt },
     ],
   },
   {
-    title: "PAID SERVICES",
+    title: "MARKETING CAMPAIGNS PAGE",
     links: [
       { label: "New Marketing Campaign",
         href: "/marketing/new",
@@ -73,19 +95,6 @@ const sidebarSections = [
         href: "/marketing/campaigns",
         icon: PackageCheck,
       },
-    ],
-  },
-  {
-
-    title: "ACCOUNT MANAGER",
-    links: [
-      { label: "Vendor Orders", href: "/account-manager/orders", icon: Users },
-      {
-        label: "Pending Products",
-        href: "/account-manager/pending-products",
-        icon: ClipboardCheck,
-      },
-      { label: "Operations Log", href: "/account-manager/log", icon: History },
     ],
   },
 ];
