@@ -1,0 +1,240 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum ProductStatus {
+  published
+  unpublished
+  review
+}
+
+enum OrderStatus {
+  new
+  ready
+  shipped
+  delivered
+  cancelled
+}
+
+enum CampaignStatus {
+  pending
+  active
+  completed
+  rejected
+}
+
+enum NotificationKind {
+  order
+  campaign
+  settlement
+  stock
+  system
+}
+
+model Vendor {
+  id                   String              @id @default(cuid())
+  reference            String              @unique
+  name                 String
+  email                String              @unique
+  phone                String
+  companyLocation      String
+  joinedAt             DateTime
+  accountManager       String
+  deliveryMechanism    String
+  pointsEarned         Int                 @default(0)
+  pointsRedeemed       Int                 @default(0)
+  processingSpeedHours Float               @default(0)
+  cancellationRate     Float               @default(0)
+  customerRating       Float               @default(0)
+  uploadActivity       Int                 @default(0)
+  passwordHash         String
+  createdAt            DateTime            @default(now())
+  updatedAt            DateTime            @updatedAt
+
+  warehouses           Warehouse[]
+  products             Product[]
+  orders               Order[]
+  campaigns            MarketingCampaign[]
+  notifications        Notification[]
+  settlements          Settlement[]
+  discountPlans        DiscountPlan[]
+}
+
+model Warehouse {
+  id          String  @id @default(cuid())
+  vendorId    String
+  name        String
+  address     String
+  phone       String
+  openingDays String
+  openingTime String
+  closingTime String
+
+  vendor Vendor @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+}
+
+model Product {
+  id                 String        @id @default(cuid())
+  vendorId           String
+  nameAr             String
+  nameEn             String
+  highlights         String        @default("")
+  description        String        @default("")
+  keywords           String[]
+  materialCode       String        @default("")
+  sku                String        @unique
+  barcode            String        @default("")
+  vendorCode         String        @default("")
+  brand              String        @default("")
+  categoryLevel1     String        @default("")
+  categoryLevel2     String        @default("")
+  categoryLevel3     String        @default("")
+  categoryLevel4     String        @default("")
+  sellingPrice       Float
+  costPrice          Float
+  commissionPct      Float
+  lockedCommission   Boolean       @default(false)
+  discountPlanStatus String        @default("none")
+  largeProduct       Boolean       @default(false)
+  status             ProductStatus @default(review)
+  imageTone          String        @default("")
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
+
+  vendor Vendor         @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+  colors ProductColor[]
+  orders Order[]
+}
+
+model ProductColor {
+  id        String  @id @default(cuid())
+  productId String
+  code      String
+  nameAr    String
+  nameEn    String
+
+  product Product       @relation(fields: [productId], references: [id], onDelete: Cascade)
+  sizes   ProductSize[]
+}
+
+model ProductSize {
+  id       String @id @default(cuid())
+  colorId  String
+  size     String
+  quantity Int    @default(0)
+
+  color ProductColor @relation(fields: [colorId], references: [id], onDelete: Cascade)
+}
+
+model Order {
+  id                     String      @id @default(cuid())
+  orderNumber            String      @unique
+  vendorId               String
+  productId              String
+  dateTime               DateTime
+  quantity               Int
+  color                  String      @default("")
+  size                   String      @default("")
+  priceWithoutCommission Float
+  priceWithCommission    Float
+  status                 OrderStatus @default(new)
+  city                   String
+  province               String
+  customerName           String
+  customerPhone          String
+  customerAddress        String
+  deliveryStatus         String      @default("")
+  paymentMethod          String
+  deliveryAgent          String      @default("")
+  createdAt              DateTime    @default(now())
+  updatedAt              DateTime    @updatedAt
+
+  vendor  Vendor  @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id])
+}
+
+model DiscountPlan {
+  id         String   @id @default(cuid())
+  vendorId   String
+  name       String
+  startDate  DateTime
+  endDate    DateTime
+  productIds String[]
+  sales      Float    @default(0)
+  itemsSold  Json     @default("{}")
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  vendor Vendor @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+}
+
+model Settlement {
+  id               String   @id @default(cuid())
+  settlementNumber String   @unique
+  vendorId         String
+  date             DateTime
+  paymentMethod    String
+  status           String
+  itemIds          String[]
+  createdAt        DateTime @default(now())
+
+  vendor Vendor @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+}
+
+model MarketingPackage {
+  id           String   @id @default(cuid())
+  name         String
+  price        Float
+  durationDays Int
+  channels     String[]
+  details      String[]
+  createdAt    DateTime @default(now())
+
+  campaigns MarketingCampaign[]
+}
+
+model MarketingCampaign {
+  id          String         @id @default(cuid())
+  packageId   String
+  vendorId    String
+  code        String         @unique
+  status      CampaignStatus @default(pending)
+  purchasedAt DateTime       @default(now())
+  startsAt    DateTime?
+  endsAt      DateTime?
+  views       Int            @default(0)
+  clicks      Int            @default(0)
+  sales       Float          @default(0)
+  reach       Int            @default(0)
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  package MarketingPackage @relation(fields: [packageId], references: [id])
+  vendor  Vendor           @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+}
+
+model Notification {
+  id        String           @id @default(cuid())
+  vendorId  String
+  kind      NotificationKind
+  title     String
+  body      String
+  read      Boolean          @default(false)
+  href      String?
+  createdAt DateTime         @default(now())
+
+  vendor Vendor @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+}
+
+model DeliveryPrice {
+  id       String @id @default(cuid())
+  province String @unique
+  small    Float
+  large    Float
+  freeRule String @default("")
+}
