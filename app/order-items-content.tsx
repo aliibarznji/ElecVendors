@@ -23,19 +23,19 @@ import {
 } from "./vendor-dashboard-data";
 
 const tabs: { id: OrderStatus | "all"; label: string }[] = [
-  { id: "all", label: "كل الطلبات" },
-  { id: "new", label: "طلبات جديدة" },
-  { id: "ready", label: "جاهز للشحن" },
-  { id: "shipped", label: "تم الشحن" },
-  { id: "delivered", label: "تم التسليم" },
+  { id: "all", label: "All Orders" },
+  { id: "new", label: "New Orders" },
+  { id: "ready", label: "Ready to Ship" },
+  { id: "shipped", label: "Shipped" },
+  { id: "delivered", label: "Delivered" },
 ];
 
 const statusLabel: Record<OrderStatus, string> = {
-  new: "جديد",
-  ready: "جاهز للشحن",
-  shipped: "تم الشحن",
-  delivered: "تم التسليم",
-  cancelled: "ملغي",
+  new: "New",
+  ready: "Ready to Ship",
+  shipped: "Shipped",
+  delivered: "Delivered",
+  cancelled: "Cancelled",
 };
 
 const statusClass: Record<OrderStatus, string> = {
@@ -100,14 +100,14 @@ export function OrderItemsContent() {
         </div>
       </header>
 
-      <section className="kpi-grid" aria-label="إحصائيات الطلبات الشهرية">
-        <OrderStat label="عدد الطلبات الشهري" value={String(getMonthlyOrders())} tone="blue" />
-        <OrderStat label="مبيعات الشهر" value={formatIqd(getMonthlySales())} tone="green" />
-        <OrderStat label="صافي المبيعات" value={formatIqd(getNetSales(filtered))} tone="cyan" />
-        <OrderStat label="الطلبات الملغية" value={String(getCancelledOrders())} tone="amber" />
+      <section className="kpi-grid" aria-label="Monthly Order Statistics">
+        <OrderStat label="Monthly Orders" value={String(getMonthlyOrders())} tone="blue" />
+        <OrderStat label="Monthly Sales" value={formatIqd(getMonthlySales())} tone="green" />
+        <OrderStat label="Net Sales" value={formatIqd(getNetSales(filtered))} tone="cyan" />
+        <OrderStat label="Cancelled Orders" value={String(getCancelledOrders())} tone="amber" />
       </section>
 
-      <section className="order-items-card" aria-label="جدول الطلبات">
+      <section className="order-items-card" aria-label="Orders Table">
         <div className="bulk-tabs order-items-tabs">
           {tabs.map((tab) => (
             <button
@@ -125,25 +125,25 @@ export function OrderItemsContent() {
           <label className="order-items-search">
             <Search aria-hidden="true" size={16} strokeWidth={2.2} />
             <input
-              placeholder="بحث برقم الطلب أو SKU أو اسم العميل"
+              placeholder="Search by order number, SKU, or customer name"
               value={search}
               onChange={(event) => setSearch(event.target.value)}
             />
           </label>
           <label className="order-items-date">
-            <span>من</span>
+            <span>From</span>
             <input type="date" value={from} onChange={(event) => setFrom(event.target.value)} />
           </label>
           <label className="order-items-date">
-            <span>إلى</span>
+            <span>To</span>
             <input type="date" value={to} onChange={(event) => setTo(event.target.value)} />
           </label>
           <label className="order-items-date">
-            <span>الترتيب</span>
+            <span>Sort</span>
             <select value={sort} onChange={(event) => setSort(event.target.value as typeof sort)}>
-              <option value="newest">الأحدث</option>
-              <option value="oldest">الأقدم</option>
-              <option value="amount">الأعلى مبلغا</option>
+              <option value="newest">Newest</option>
+              <option value="oldest">Oldest</option>
+              <option value="amount">Highest Amount</option>
             </select>
           </label>
           <button
@@ -158,7 +158,7 @@ export function OrderItemsContent() {
             }}
           >
             <RotateCcw aria-hidden="true" size={15} strokeWidth={2.2} />
-            <span>إعادة ضبط</span>
+            <span>Reset</span>
           </button>
         </div>
 
@@ -166,23 +166,23 @@ export function OrderItemsContent() {
           <table className="purchase-order-table order-items-table">
             <thead>
               <tr>
-                <th>رقم الطلب</th>
-                <th>وقت الطلب</th>
-                <th>الصورة</th>
+                <th>Order #</th>
+                <th>Order Time</th>
+                <th>Image</th>
                 <th>SKU</th>
-                <th>اللون</th>
-                <th>الكمية</th>
-                <th>السعر بدون عمولة</th>
-                <th>السعر مع العمولة</th>
-                <th>الحالة</th>
-                <th>تفاصيل المنتج</th>
+                <th>Color</th>
+                <th>Qty</th>
+                <th>Price (excl. commission)</th>
+                <th>Price (incl. commission)</th>
+                <th>Status</th>
+                <th>Product Details</th>
               </tr>
             </thead>
             <tbody>
               {filtered.length === 0 ? (
                 <tr>
                   <td colSpan={10} className="empty-cell">
-                    لا توجد طلبات مطابقة للفلاتر الحالية.
+                    No orders match the current filters.
                   </td>
                 </tr>
               ) : (
@@ -217,7 +217,7 @@ export function OrderItemsContent() {
                             }
                           >
                             <Eye aria-hidden="true" size={14} strokeWidth={2.4} />
-                            <span>عرض</span>
+                            <span>View</span>
                           </button>
                         </td>
                       </tr>
@@ -226,27 +226,27 @@ export function OrderItemsContent() {
                           <td colSpan={10}>
                             <div className="row-details">
                               <div>
-                                <span>المنتج</span>
+                                <span>Product</span>
                                 <strong>{product?.nameAr}</strong>
                               </div>
                               <div>
-                                <span>كود المنتج</span>
+                                <span>Product Code</span>
                                 <strong>{product?.vendorCode}</strong>
                               </div>
                               <div>
-                                <span>العميل</span>
+                                <span>Customer</span>
                                 <strong>{order.customerName}</strong>
                               </div>
                               <div>
-                                <span>العنوان</span>
+                                <span>Address</span>
                                 <strong>{order.customerAddress}</strong>
                               </div>
                               <div>
-                                <span>الهاتف</span>
+                                <span>Phone</span>
                                 <strong>{order.customerPhone}</strong>
                               </div>
                               <div>
-                                <span>الدفع</span>
+                                <span>Payment</span>
                                 <strong>{order.paymentMethod}</strong>
                               </div>
                             </div>
@@ -262,14 +262,14 @@ export function OrderItemsContent() {
         </div>
 
         <div className="purchase-order-pagination">
-          <span>عدد العناصر: 20</span>
+          <span>Items per page: 20</span>
           <span>
-            {filtered.length} من {orders.length}
+            {filtered.length} From {orders.length}
           </span>
-          <button type="button" aria-label="الصفحة السابقة" disabled>
+          <button type="button" aria-label="Previous Page" disabled>
             <ChevronRight aria-hidden="true" size={22} strokeWidth={2.1} />
           </button>
-          <button type="button" aria-label="الصفحة التالية" disabled>
+          <button type="button" aria-label="Next Page" disabled>
             <ChevronLeft aria-hidden="true" size={22} strokeWidth={2.1} />
           </button>
           <ChevronDown aria-hidden="true" size={16} strokeWidth={2.1} />

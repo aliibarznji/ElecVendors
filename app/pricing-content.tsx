@@ -152,7 +152,7 @@ export function PricingContent() {
                           product.status === "published" ? "is-active" : "is-pending"
                         }`}
                       >
-                        {product.status === "published" ? "منشور" : "غير منشور/مراجعة"}
+                        {product.status === "published" ? "Published" : "Unpublished/Under Review"}
                       </span>
                     </td>
                     <td>
@@ -185,7 +185,7 @@ export function PricingContent() {
                         }
                       />
                     </td>
-                    <td>{product.discountPlanStatus === "none" ? "لا يوجد" : product.discountPlanStatus}</td>
+                    <td>{product.discountPlanStatus === "none" ? "None" : product.discountPlanStatus}</td>
                     <td>
                       <div className="validation-stack">
                         {result.errors.map((error) => (
@@ -202,7 +202,7 @@ export function PricingContent() {
                         ))}
                         {result.valid ? (
                           <span className="validation-ok">
-                            صالح - هامش البيع {formatIqd(draft.sellingPrice - draft.costPrice)}
+                            Valid - Profit Margin {formatIqd(draft.sellingPrice - draft.costPrice)}
                           </span>
                         ) : null}
                       </div>

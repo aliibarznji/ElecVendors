@@ -48,7 +48,7 @@ export function SellerReportContent() {
   }));
   const provinceRows = salesByProvince(filteredOrders).map((row) => ({
     label: row.province,
-    sub: `${row.orders} طلب`,
+    sub: `${row.orders} orders`,
     value: row.orders,
     sales: row.sales,
   }));
@@ -59,7 +59,7 @@ export function SellerReportContent() {
         if (!product) return map;
         const current = map[product.brand] ?? {
           label: product.brand,
-          sub: "علامة تجارية",
+          sub: "Brand",
           value: 0,
           sales: 0,
         };
@@ -79,7 +79,7 @@ export function SellerReportContent() {
         const category = product.categoryLevels[0];
         const current = map[category] ?? {
           label: category,
-          sub: "تصنيف رئيسي",
+          sub: "Main Category",
           value: 0,
           sales: 0,
         };
@@ -93,10 +93,10 @@ export function SellerReportContent() {
   );
 
   const panels = [
-    { id: "items", title: "المبيعات حسب المنتج", rows: itemRows },
-    { id: "province", title: "المبيعات حسب المحافظة/المدينة", rows: provinceRows },
-    { id: "brand", title: "المبيعات حسب العلامة", rows: brandRows },
-    { id: "category", title: "المبيعات حسب التصنيف", rows: categoryRows },
+    { id: "items", title: "Sales by Product", rows: itemRows },
+    { id: "province", title: "Sales by Province/City", rows: provinceRows },
+    { id: "brand", title: "Sales by Brand", rows: brandRows },
+    { id: "category", title: "Sales by Category", rows: categoryRows },
   ];
 
   return (
@@ -124,15 +124,15 @@ export function SellerReportContent() {
 
       <section className="dashboard-panel report-range-panel">
         <label className="order-items-date">
-          <span>من</span>
+          <span>From</span>
           <input type="date" value={from} onChange={(event) => setFrom(event.target.value)} />
         </label>
         <label className="order-items-date">
-          <span>إلى</span>
+          <span>To</span>
           <input type="date" value={to} onChange={(event) => setTo(event.target.value)} />
         </label>
         <article className="kpi-card kpi-green report-total-card">
-          <p>إجمالي المبيعات للفترة</p>
+          <p>Total Sales for Period</p>
           <strong>{formatIqd(totalSales)}</strong>
         </article>
       </section>
@@ -150,12 +150,12 @@ export function SellerReportContent() {
                   onClick={() => setDetail(detail === panel.id ? null : panel.id)}
                 >
                   <Eye aria-hidden="true" size={14} strokeWidth={2.4} />
-                  تفاصيل
+                  Details
                 </button>
               </div>
               <div className="report-mini-chart">
                 {panel.rows.length === 0 ? (
-                  <div className="empty-cell">لا توجد بيانات</div>
+                  <div className="empty-cell">No data available</div>
                 ) : (
                   panel.rows.map((row) => (
                     <div className="report-chart-row" key={`${panel.id}-${row.label}`}>
@@ -177,36 +177,36 @@ export function SellerReportContent() {
       {detail ? (
         <section className="dashboard-panel report-panel">
           <div className="panel-heading">
-            <h2>تفاصيل {panels.find((panel) => panel.id === detail)?.title}</h2>
+            <h2>Details: {panels.find((panel) => panel.id === detail)?.title}</h2>
           </div>
           <p className="dashboard-sub">
-            يتم فتح التفاصيل هنا في النسخة الحالية، ويمكن ربطها لاحقا بصفحة Drill-down.
+            Details will open here in the current version and can be linked later to a Drill-down page.
           </p>
         </section>
       ) : null}
 
       <section className="dashboard-panel report-panel">
         <div className="panel-heading">
-          <h2>جدول تقرير المبيعات الشهري</h2>
+          <h2>Monthly Sales Report Table</h2>
         </div>
         <div className="purchase-order-table-wrap">
           <table className="purchase-order-table report-detail-table">
             <thead>
               <tr>
-                <th>تاريخ البيع</th>
-                <th>اسم المنتج</th>
-                <th>الصورة</th>
-                <th>الباركود</th>
-                <th>اللون</th>
-                <th>رقم الطلب</th>
-                <th>كود المنتج</th>
-                <th>المدينة</th>
-                <th>مندوب التوصيل</th>
-                <th>حالة الشحنة</th>
-                <th>طريقة الدفع</th>
-                <th>الحجم</th>
-                <th>السعر</th>
-                <th>العمولة</th>
+                <th>Sale Date</th>
+                <th>Product Name</th>
+                <th>Image</th>
+                <th>Barcode</th>
+                <th>Color</th>
+                <th>Order #</th>
+                <th>Product Code</th>
+                <th>City</th>
+                <th>Delivery Agent</th>
+                <th>Shipment Status</th>
+                <th>Payment Method</th>
+                <th>Size</th>
+                <th>Price</th>
+                <th>Commission</th>
               </tr>
             </thead>
             <tbody>

@@ -15,11 +15,11 @@ type Warranty = {
 
 const initialWarranty: Warranty = {
   id: "war-1",
-  title: "ضمان أجهزة العناية بالشعر",
-  duration: "12 شهر",
+  title: "Hair Care Devices Warranty",
+  duration: "12 months",
   phone: "+964 750 493 0644",
-  location: "مركز صيانة أربيل - شارع 100",
-  terms: "يشمل عيوب التصنيع ولا يشمل الكسر أو سوء الاستخدام أو السوائل.",
+  location: "Erbil Service Center - Street 100",
+  terms: "Covers manufacturing defects. Does not cover breakage, misuse, or liquid damage.",
   active: true,
 };
 
@@ -37,20 +37,20 @@ function WarrantyForm({
   const hasError = !draft.duration.trim() || !draft.phone.trim() || !draft.location.trim();
 
   return (
-    <section className="warranty-form-card" aria-label="نموذج الضمان">
+    <section className="warranty-form-card" aria-label="Warranty Form">
       <div className="warranty-form-header">
-        <h2>بيانات الضمان</h2>
+        <h2>Warranty Details</h2>
         <button className="warranty-cancel-outline" type="button" onClick={onCancel}>
           <X aria-hidden="true" size={16} strokeWidth={2.4} />
-          <span>إلغاء</span>
+          <span>Cancel</span>
         </button>
       </div>
       {submitted && hasError ? (
-        <div className="warning-banner">مدة الضمان، الهاتف، وموقع مركز الصيانة حقول مطلوبة.</div>
+        <div className="warning-banner">Warranty duration, phone, and service center location are required.</div>
       ) : null}
       <div className="warranty-main-grid">
         <label className="warranty-field">
-          <span>عنوان الضمان</span>
+          <span>Warranty Title</span>
           <div className="warranty-field-box">
             <input
               value={draft.title}
@@ -59,7 +59,7 @@ function WarrantyForm({
           </div>
         </label>
         <label className="warranty-field">
-          <span>مدة الضمان</span>
+          <span>Warranty Duration</span>
           <div className="warranty-field-box">
             <input
               value={draft.duration}
@@ -68,7 +68,7 @@ function WarrantyForm({
           </div>
         </label>
         <label className="warranty-field">
-          <span>رقم الصيانة</span>
+          <span>Service Phone</span>
           <div className="warranty-field-box">
             <input
               value={draft.phone}
@@ -77,7 +77,7 @@ function WarrantyForm({
           </div>
         </label>
         <label className="warranty-field">
-          <span>موقع مركز الصيانة</span>
+          <span>Service Center Location</span>
           <div className="warranty-field-box">
             <input
               value={draft.location}
@@ -87,7 +87,7 @@ function WarrantyForm({
         </label>
       </div>
       <label className="warranty-field">
-        <span>الشروط والأحكام</span>
+        <span>Terms and Conditions</span>
         <div className="warranty-field-box warranty-textarea-box">
           <textarea
             value={draft.terms}
@@ -102,11 +102,11 @@ function WarrantyForm({
         onClick={() => setDraft({ ...draft, active: !draft.active })}
       >
         <span className={`toggle-switch${draft.active ? " is-enabled" : ""}`} />
-        <strong>{draft.active ? "ضمان نشط" : "ضمان غير نشط"}</strong>
+        <strong>{draft.active ? "Active Warranty" : "Inactive Warranty"}</strong>
       </button>
       <div className="warranty-actions">
         <button className="warranty-cancel-button" type="button" onClick={onCancel}>
-          إلغاء
+          Cancel
         </button>
         <button
           className="save-warranty-button"
@@ -117,7 +117,7 @@ function WarrantyForm({
           }}
         >
           <Save aria-hidden="true" size={18} strokeWidth={2.4} />
-          <span>حفظ الضمان</span>
+          <span>Save Warranty</span>
         </button>
       </div>
     </section>
@@ -182,52 +182,52 @@ export function WarrantyContent() {
                       warranty.active ? "is-active" : "is-completed"
                     }`}
                   >
-                    {warranty.active ? "نشط" : "غير نشط"}
+                    {warranty.active ? "Active" : "Inactive"}
                   </span>
                 </div>
               </div>
               <div className="warranty-detail-grid">
                 <article>
-                  <span>مدة الضمان</span>
+                  <span>Warranty Duration</span>
                   <strong>{warranty.duration}</strong>
                 </article>
                 <article>
-                  <span>رقم الصيانة</span>
+                  <span>Service Phone</span>
                   <strong>{warranty.phone}</strong>
                 </article>
                 <article>
-                  <span>مركز الصيانة</span>
+                  <span>Service Center</span>
                   <strong>{warranty.location}</strong>
                 </article>
               </div>
               <div className="warranty-terms-box">
-                <strong>الشروط</strong>
+                <strong>Terms</strong>
                 <p>{warranty.terms}</p>
                 <div className="discount-chip-row">
-                  <span className="discount-chip">عيوب التصنيع</span>
-                  <span className="discount-chip">صيانة معتمدة</span>
-                  <span className="discount-chip">يظهر للعميل</span>
+                  <span className="discount-chip">Manufacturing Defects</span>
+                  <span className="discount-chip">Authorized Service</span>
+                  <span className="discount-chip">Visible to Customer</span>
                 </div>
               </div>
               <div className="row-actions warranty-card-actions">
                 <button className="row-action-btn" type="button" onClick={() => setPreview(true)}>
                   <Eye aria-hidden="true" size={14} strokeWidth={2.4} />
-                  عرض
+                  Preview
                 </button>
                 <button className="row-action-btn" type="button" onClick={() => setEditing(true)}>
                   <Pencil aria-hidden="true" size={14} strokeWidth={2.4} />
-                  تعديل
+                  Edit
                 </button>
                 <button className="row-action-btn reject-btn" type="button" onClick={() => setWarranty(null)}>
                   <Trash2 aria-hidden="true" size={14} strokeWidth={2.4} />
-                  حذف
+                  Delete
                 </button>
               </div>
             </>
           ) : (
             <div className="warranty-empty-state">
-              <h2>لا توجد بيانات ضمان</h2>
-              <p>أضف مدة الضمان ورقم الصيانة وموقع المركز ليظهر للعميل.</p>
+              <h2>No warranty data found</h2>
+              <p>Add warranty duration, service phone, and center location to display to the customer.</p>
             </div>
           )}
         </section>
@@ -238,7 +238,7 @@ export function WarrantyContent() {
           <div className="modal-card">
             <header className="modal-header">
               <div>
-                <h3>معاينة ما يظهر للعميل</h3>
+                <h3>Preview What Customer Sees</h3>
                 <p className="modal-sub">{warranty.title}</p>
               </div>
               <button className="modal-close" type="button" onClick={() => setPreview(false)}>
@@ -246,9 +246,9 @@ export function WarrantyContent() {
               </button>
             </header>
             <div className="modal-body">
-              <p>مدة الضمان: {warranty.duration}</p>
-              <p>اتصل بالصيانة: {warranty.phone}</p>
-              <p>المركز: {warranty.location}</p>
+              <p>Warranty Duration: {warranty.duration}</p>
+              <p>Contact Service: {warranty.phone}</p>
+              <p>Center: {warranty.location}</p>
               <p>{warranty.terms}</p>
             </div>
           </div>

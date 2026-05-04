@@ -144,7 +144,7 @@ export const products: VendorProduct[] = [
   {
     id: "prod-1",
     vendorId: vendorProfile.reference,
-    nameAr: "مكواة تجعيد الشعر شيجلام 400 واط - فضي",
+    nameAr: "Sheglam 400W Curling Iron - Silver",
     nameEn: "Sheglam It-Curl One Curling Iron - 400 W - Silver",
     highlights: "Quick heating, ceramic coating, auto shut-off",
     description: "Lightweight curling iron suitable for daily use with steady heat control.",
@@ -176,7 +176,7 @@ export const products: VendorProduct[] = [
   {
     id: "prod-2",
     vendorId: vendorProfile.reference,
-    nameAr: "مجفف شعر الكترومول 2000 واط - أسود",
+    nameAr: "Electromall 2000W Hair Dryer - Black",
     nameEn: "Electromall Hair Dryer 2000W - Black",
     highlights: "High power, cool air, three speeds",
     description: "Practical hair dryer for salons and home use with concentrating nozzle.",
@@ -209,7 +209,7 @@ export const products: VendorProduct[] = [
   {
     id: "prod-3",
     vendorId: vendorProfile.reference,
-    nameAr: "ماكينة تهذيب براون صغيرة - أحمر",
+    nameAr: "Braun Mini Trimmer - Red",
     nameEn: "Braun Mini Trimmer - Red",
     highlights: "Rechargeable battery, precision head, compact case",
     description: "Compact trimmer for travel and daily grooming.",
@@ -241,7 +241,7 @@ export const products: VendorProduct[] = [
   {
     id: "prod-4",
     vendorId: vendorProfile.reference,
-    nameAr: "سماعات اورايمو لاسلكية - أبيض",
+    nameAr: "Oraimo Wireless Earbuds - White",
     nameEn: "Oraimo Wireless Buds - White",
     highlights: "Bluetooth 5.3, charging case, splash resistant",
     description: "Lightweight wireless earbuds with clear sound for daily use.",
@@ -442,7 +442,7 @@ export const marketingPackages: MarketingPackage[] = [
     price: 250,
     durationDays: 5,
     channels: ["Facebook", "Instagram"],
-    details: ["منشور واحد", "قصتان", "تصميم مواد الحملة"],
+    details: ["1 Post", "2 Stories", "Campaign Materials Design"],
   },
   {
     id: "pkg-bronze",
@@ -450,7 +450,7 @@ export const marketingPackages: MarketingPackage[] = [
     price: 500,
     durationDays: 7,
     channels: ["Facebook", "Instagram", "Push"],
-    details: ["أسبوع حملة", "منشوران", "قصتان", "إشعار تطبيق"],
+    details: ["1 Week Campaign", "2 Posts", "2 Stories", "App Notification"],
   },
   {
     id: "pkg-silver",
@@ -458,7 +458,7 @@ export const marketingPackages: MarketingPackage[] = [
     price: 1000,
     durationDays: 14,
     channels: ["Facebook", "Instagram", "Ads", "Push"],
-    details: ["أسبوعان", "إعلانات ممولة", "إشعارات", "تقرير أداء"],
+    details: ["2 Weeks", "Paid Ads", "Notifications", "Performance Report"],
   },
   {
     id: "pkg-gold",
@@ -466,7 +466,7 @@ export const marketingPackages: MarketingPackage[] = [
     price: 2000,
     durationDays: 30,
     channels: ["Facebook", "Instagram", "Ads", "Push", "Banner"],
-    details: ["شهر كامل", "بانر رئيسي", "إعلانات ممولة", "تقرير تفصيلي"],
+    details: ["Full Month", "Main Banner", "Paid Ads", "Detailed Report"],
   },
 ];
 
@@ -514,18 +514,18 @@ export const marketingCampaigns: MarketingCampaign[] = [
 ];
 
 export const deliveryPrices = [
-  { province: "بغداد", small: 3000, large: 7000, freeRule: "مجاني للطلبات فوق 150,000 د.ع" },
-  { province: "البصرة", small: 4000, large: 8500, freeRule: "" },
-  { province: "أربيل", small: 3500, large: 7500, freeRule: "مجاني للباقات التسويقية الذهبية" },
-  { province: "النجف", small: 3500, large: 8000, freeRule: "" },
-  { province: "كربلاء", small: 3500, large: 8000, freeRule: "" },
-  { province: "السليمانية", small: 4000, large: 8500, freeRule: "" },
-  { province: "نينوى", small: 4500, large: 9500, freeRule: "" },
-  { province: "دهوك", small: 4500, large: 9500, freeRule: "" },
+  { province: "Baghdad", small: 3000, large: 7000, freeRule: "Free for orders over 150,000 IQD" },
+  { province: "Basra", small: 4000, large: 8500, freeRule: "" },
+  { province: "Erbil", small: 3500, large: 7500, freeRule: "Free for Gold Marketing Packages" },
+  { province: "Najaf", small: 3500, large: 8000, freeRule: "" },
+  { province: "Karbala", small: 3500, large: 8000, freeRule: "" },
+  { province: "Sulaymaniyah", small: 4000, large: 8500, freeRule: "" },
+  { province: "Nineveh", small: 4500, large: 9500, freeRule: "" },
+  { province: "Duhok", small: 4500, large: 9500, freeRule: "" },
 ];
 
 export function formatIqd(value: number) {
-  return `${Math.round(value).toLocaleString("en-US")} د.ع`;
+  return `${Math.round(value).toLocaleString("en-US")} IQD`;
 }
 
 export function getProduct(productId: string) {
@@ -560,7 +560,7 @@ export function getCancelledOrders(month = "2026-05", source = orders) {
 
 export function ordersByMonth(source = orders) {
   const labels = ["2026-01", "2026-02", "2026-03", "2026-04", "2026-05"];
-  const names = ["كانون الثاني", "شباط", "آذار", "نيسان", "أيار"];
+  const names = ["January", "February", "March", "April", "May"];
   return labels.map((month, index) => ({
     label: names[index],
     value: source.filter((order) => order.dateTime.startsWith(month)).length,
@@ -569,7 +569,7 @@ export function ordersByMonth(source = orders) {
 
 export function salesByMonth(source = orders) {
   return ordersByMonth(source).map((bucket) => {
-    const monthIndex = ["كانون الثاني", "شباط", "آذار", "نيسان", "أيار"].indexOf(
+    const monthIndex = ["January", "February", "March", "April", "May"].indexOf(
       bucket.label,
     );
     const key = `2026-${String(monthIndex + 1).padStart(2, "0")}`;
@@ -680,22 +680,22 @@ export function validatePricing(
   const warnings: string[] = [];
 
   if (!Number.isFinite(next.costPrice) || next.costPrice <= 0) {
-    errors.push("سعر الكلفة مطلوب ويجب أن يكون أكبر من صفر.");
+    errors.push("Cost price is required and must be greater than zero.");
   }
   if (!Number.isFinite(next.sellingPrice) || next.sellingPrice <= 0) {
-    errors.push("سعر البيع مطلوب ويجب أن يكون أكبر من صفر.");
+    errors.push("Selling price is required and must be greater than zero.");
   }
   if (next.sellingPrice < next.costPrice) {
-    errors.push("سعر البيع لا يمكن أن يكون أقل من سعر الكلفة.");
+    errors.push("Selling price cannot be less than cost price.");
   }
   if (next.commissionPct < 0 || next.commissionPct > 40) {
-    errors.push("نسبة العمولة يجب أن تكون بين 0% و 40%.");
+    errors.push("Commission rate must be between 0% and 40%.");
   }
   if (product.lockedCommission && next.commissionPct !== product.commissionPct) {
-    warnings.push("هذا المنتج مرتبط باتفاق عمولة خاص ولا يمكن تغيير النسبة مباشرة.");
+    warnings.push("This product has a special commission agreement and the rate cannot be changed directly.");
   }
   if (product.lockedCommission && next.sellingPrice !== product.sellingPrice) {
-    warnings.push("تغيير السعر يحتاج موافقة مدير الحساب بسبب العمولة المثبتة.");
+    warnings.push("Price change requires account manager approval due to the fixed commission.");
   }
 
   return { valid: errors.length === 0 && warnings.length === 0, errors, warnings };
@@ -703,8 +703,8 @@ export function validatePricing(
 
 export function validateStockUpdate(quantity: number) {
   const errors: string[] = [];
-  if (!Number.isInteger(quantity)) errors.push("الكمية يجب أن تكون رقما صحيحا.");
-  if (quantity < 0) errors.push("الكمية لا يمكن أن تكون سالبة.");
+  if (!Number.isInteger(quantity)) errors.push("Quantity must be a valid number.");
+  if (quantity < 0) errors.push("Quantity cannot be negative.");
   return {
     valid: errors.length === 0,
     errors,
@@ -726,15 +726,15 @@ export function validateBulkUpdateRow(
   const errors: string[] = [];
   const warnings: string[] = [];
 
-  if (!row.sku) errors.push("SKU مطلوب في كل صف.");
+  if (!row.sku) errors.push("SKU is required in every row.");
   if (row.nameChanged || row.codeChanged) {
-    errors.push("لا يسمح بتغيير اسم المنتج أو كوده من بوابة التحديثات.");
+    errors.push("Changing product name or code is not allowed from the bulk update portal.");
   }
   if (mode === "prices") {
     if (row.sellingPrice === undefined || row.costPrice === undefined) {
-      errors.push("ملفات الأسعار يجب أن تحتوي سعر البيع وسعر الكلفة.");
+      errors.push("Price files must contain selling price and cost price.");
     } else if (row.sellingPrice < row.costPrice) {
-      errors.push("سعر البيع في الملف أقل من سعر الكلفة.");
+      errors.push("Selling price in file is less than cost price.");
     }
   }
   if (mode === "stock") {
@@ -742,7 +742,7 @@ export function validateBulkUpdateRow(
     errors.push(...stock.errors);
   }
   if (row.sku && !products.some((product) => product.sku === row.sku)) {
-    warnings.push("الصف يشير إلى SKU غير موجود؛ لن يتم إنشاء منتجات جديدة هنا.");
+    warnings.push("Row refers to a non-existent SKU; no new products will be created here.");
   }
   return { valid: errors.length === 0, errors, warnings };
 }

@@ -450,7 +450,7 @@ export function AccountManagerOrdersContent() {
                           campaign.status === "pending" ? "is-pending" : "is-active"
                         }`}
                       >
-                        {campaign.status === "pending" ? "بانتظار الموافقة" : campaign.status}
+                        {campaign.status === "pending" ? "Awaiting Approval" : campaign.status}
                       </span>
                     </td>
                     <td>
@@ -474,12 +474,12 @@ export function AccountManagerOrdersContent() {
                           }
                         >
                           <Check aria-hidden="true" size={14} strokeWidth={2.4} />
-                          اعتماد وإرسال الكود
+                          Approve and Send Code
                         </button>
                       ) : (
                         <span className="row-action-btn">
                           <Megaphone aria-hidden="true" size={14} strokeWidth={2.4} />
-                          تم الإرسال
+                          Sent
                         </span>
                       )}
                     </td>
