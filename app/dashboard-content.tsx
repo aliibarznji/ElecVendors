@@ -434,7 +434,6 @@ export function DashboardContent() {
 
       <EmptyTable title="Recent Orders" columns={recentOrderColumns} showFilter />
       <EmptyTable title="Top 10 Selling Items" columns={sellingItemColumns} />
-      <EmptyTable title="Lowest 10 Selling Items" columns={sellingItemColumns} />
     </div>
   );
 }
