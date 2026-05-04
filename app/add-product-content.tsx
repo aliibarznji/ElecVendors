@@ -431,7 +431,7 @@ function ProductSearchStart({
 }
 
 export function AddProductContent() {
-  const [isRegisteringNewProduct, setIsRegisteringNewProduct] = useState(false);
+  const [isRegisteringNewProduct, setIsRegisteringNewProduct] = useState(true);
 
   return (
     <div className="add-product-content">
