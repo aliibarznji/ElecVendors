@@ -9586,3 +9586,925 @@ body,
 .dashboard-table td {
   text-align: left;
 }
+
+
+
+/* ─── Modern Design Refresh ─────────────────────────────────────────────── */
+
+:root {
+  --background: #f0f2f8;
+  --surface: #ffffff;
+  --surface-soft: #f8f9fc;
+  --border: #e4e8f2;
+  --border-strong: #cdd4e6;
+  --radius: 16px;
+  --radius-sm: 10px;
+  --radius-lg: 22px;
+  --shadow-sm: 0 1px 3px rgba(15,23,42,0.05), 0 1px 2px rgba(15,23,42,0.04);
+  --shadow: 0 4px 20px rgba(15,23,42,0.07), 0 1px 4px rgba(15,23,42,0.04);
+  --shadow-lg: 0 20px 48px rgba(15,23,42,0.11), 0 6px 14px rgba(15,23,42,0.05);
+  --shadow-ring: 0 0 0 4px rgba(215,25,32,0.13);
+  --transition: 180ms cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-fast: 120ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Smooth scrolling */
+html { scroll-behavior: smooth; }
+
+/* Thinner, prettier scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-thumb {
+  background: #d0d6e8;
+  border-radius: 999px;
+  border: none;
+}
+::-webkit-scrollbar-thumb:hover { background: #b0bace; }
+
+/* Top nav — frosted glass, tighter */
+.top-nav {
+  min-height: 64px;
+  padding: 0 32px;
+  background: rgba(255,255,255,0.92);
+  backdrop-filter: saturate(200%) blur(20px);
+  -webkit-backdrop-filter: saturate(200%) blur(20px);
+  border-bottom: 1px solid rgba(228,232,242,0.8);
+  box-shadow: 0 1px 0 rgba(15,23,42,0.04), 0 4px 16px rgba(15,23,42,0.03);
+}
+
+.brand-text { font-size: 20px; letter-spacing: -0.4px; }
+
+/* Sidebar — cleaner, no harsh border */
+.sidebar {
+  flex: 0 0 260px;
+  width: 260px;
+  top: 64px;
+  height: calc(100vh - 64px);
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  box-shadow: 2px 0 12px rgba(15,23,42,0.04);
+}
+
+.sidebar-collapsed { flex-basis: 72px; width: 72px; }
+
+.sidebar-scroll {
+  height: calc(100vh - 64px);
+  padding: 16px 0 28px;
+  gap: 4px;
+}
+
+.sidebar-section-title {
+  padding: 14px 20px 5px;
+  font-size: 10px;
+  letter-spacing: 1px;
+  color: #a0aabf;
+}
+
+.sidebar-links { padding: 0 8px; gap: 2px; }
+
+.sidebar-link {
+  min-height: 40px;
+  padding: 0 12px;
+  border-radius: 10px;
+  font-size: 13.5px;
+  gap: 10px;
+  transition: background var(--transition-fast), color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.sidebar-link:hover,
+.sidebar-link:focus-visible {
+  background: #fef2f2;
+  color: var(--brand);
+  box-shadow: none;
+}
+
+.sidebar-link.is-active {
+  background: linear-gradient(90deg, #fff0f0, #fff7f7);
+  color: var(--brand);
+  font-weight: 600;
+  box-shadow: inset 0 0 0 1px rgba(215,25,32,0.1);
+}
+
+.sidebar-link.is-active::before {
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  background: var(--brand);
+}
+
+.sidebar-toggle {
+  width: 28px;
+  height: 28px;
+  right: -14px;
+  box-shadow: 0 2px 8px rgba(15,23,42,0.1);
+  border-color: var(--border);
+}
+
+/* Dashboard body */
+.dashboard-body { min-height: calc(100vh - 64px); }
+.dashboard-stage { min-height: calc(100vh - 64px); }
+
+/* Content area */
+.dashboard-content {
+  gap: 20px;
+  padding: 24px 28px 48px;
+}
+
+/* Page title */
+.page-title-row h1,
+.dashboard-header h1 {
+  font-size: 21px;
+  font-weight: 700;
+  letter-spacing: -0.4px;
+  color: #0f172a;
+}
+
+.dashboard-sub {
+  font-size: 13px;
+  color: #64748b;
+  margin-top: 4px;
+}
+
+/* KPI cards — modern with subtle gradient top */
+.kpi-card {
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: #ffffff;
+  box-shadow: var(--shadow-sm);
+  padding: 20px;
+  min-height: 110px;
+  gap: 6px;
+  transition: box-shadow var(--transition), transform var(--transition);
+}
+
+.kpi-card:hover {
+  box-shadow: var(--shadow);
+  transform: translateY(-2px);
+}
+
+.kpi-card p { font-size: 12px; font-weight: 500; color: #64748b; margin: 0; }
+.kpi-card strong { font-size: 24px; font-weight: 700; color: #0f172a; line-height: 1.1; }
+
+.kpi-blue  { border-top: 3px solid #3b82f6; }
+.kpi-green { border-top: 3px solid #22c55e; }
+.kpi-cyan  { border-top: 3px solid #06b6d4; }
+.kpi-amber { border-top: 3px solid #f59e0b; }
+.kpi-pink  { border-top: 3px solid #ec4899; }
+
+/* Cards / panels */
+.dashboard-panel,
+.product-list-card,
+.account-manager-card,
+.warranty-card,
+.warranty-form-card,
+.order-items-card,
+.pricing-card,
+.discount-plans-card,
+.inventory-card,
+.seller-report-content .dashboard-panel {
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  background: #ffffff;
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow var(--transition);
+}
+
+.dashboard-panel:hover { box-shadow: var(--shadow); }
+
+/* Tables */
+.purchase-order-table,
+.product-list-table,
+.dashboard-table,
+.report-detail-table,
+.pricing-table {
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.purchase-order-table th,
+.product-list-table th,
+.dashboard-table th,
+.report-detail-table th,
+.pricing-table th {
+  background: #f8f9fc;
+  color: #64748b;
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  padding: 11px 14px;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+}
+
+.purchase-order-table td,
+.product-list-table td,
+.dashboard-table td,
+.report-detail-table td,
+.pricing-table td {
+  padding: 11px 14px;
+  font-size: 13.5px;
+  color: #1e293b;
+  border-bottom: 1px solid #f1f4f9;
+  text-align: left;
+}
+
+.product-list-data-row:hover td {
+  background: #fafbfe;
+}
+
+/* Status badges — pill style */
+.approved-status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  white-space: nowrap;
+}
+
+.approved-status-badge.is-active   { background: #dcfce7; color: #15803d; }
+.approved-status-badge.is-pending  { background: #fef9c3; color: #a16207; }
+.approved-status-badge.is-info     { background: #e0f2fe; color: #0369a1; }
+.approved-status-badge.is-completed{ background: #f1f5f9; color: #475569; }
+.approved-status-badge.is-rejected { background: #fee2e2; color: #b91c1c; }
+
+/* Buttons — primary */
+.discount-create-button,
+.save-warranty-button,
+.submit-all-button,
+.marketing-package-buy-button,
+.bulk-export-button,
+.apply-filter-button,
+.edit-product-button,
+.modal-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 18px;
+  min-height: 38px;
+  border-radius: 10px;
+  font-size: 13.5px;
+  font-weight: 600;
+  border: 0;
+  background: linear-gradient(135deg, #e8222a 0%, #c0111a 100%);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(192,17,26,0.22);
+  cursor: pointer;
+  transition: background var(--transition), box-shadow var(--transition), transform var(--transition);
+}
+
+.discount-create-button:hover,
+.save-warranty-button:hover,
+.submit-all-button:hover,
+.marketing-package-buy-button:hover,
+.bulk-export-button:hover,
+.apply-filter-button:hover,
+.edit-product-button:hover,
+.modal-primary:hover {
+  background: linear-gradient(135deg, #c9141d 0%, #a00d14 100%);
+  box-shadow: 0 6px 18px rgba(192,17,26,0.28);
+  transform: translateY(-1px);
+}
+
+.discount-create-button:active,
+.save-warranty-button:active,
+.modal-primary:active {
+  transform: translateY(0) scale(0.98);
+}
+
+/* Secondary / ghost buttons */
+.export-button,
+.purchase-order-reset,
+.row-action-btn,
+.modal-cancel,
+.warranty-cancel-button,
+.warranty-cancel-outline {
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  transition: background var(--transition), box-shadow var(--transition), transform var(--transition);
+}
+
+.export-button:hover,
+.purchase-order-reset:hover {
+  background: #f0f4ff;
+  border-color: rgba(61,95,182,0.25);
+  transform: translateY(-1px);
+}
+
+.row-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--muted);
+  border-radius: 8px;
+  font-size: 12.5px;
+  cursor: pointer;
+}
+
+.row-action-btn:hover {
+  background: #f8f9fc;
+  border-color: var(--border-strong);
+  color: var(--text);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Inputs */
+input[type="text"],
+input[type="number"],
+input[type="date"],
+input[type="email"],
+input[type="search"],
+select,
+textarea {
+  border-radius: 9px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  font-size: 13.5px;
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+
+input[type="text"]:focus,
+input[type="number"]:focus,
+input[type="date"]:focus,
+input[type="email"]:focus,
+input[type="search"]:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: rgba(215,25,32,0.4);
+  box-shadow: 0 0 0 3px rgba(215,25,32,0.1);
+}
+
+/* Search bar */
+.order-items-search {
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow var(--transition), border-color var(--transition);
+}
+
+.order-items-search:focus-within {
+  border-color: rgba(215,25,32,0.35);
+  box-shadow: 0 0 0 3px rgba(215,25,32,0.09);
+}
+
+/* Tabs */
+.bulk-tab,
+.product-status-tab {
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  transition: background var(--transition), color var(--transition);
+}
+
+.bulk-tab.is-active,
+.product-status-tab.is-active {
+  background: var(--brand);
+  color: #fff;
+  box-shadow: 0 3px 10px rgba(215,25,32,0.2);
+}
+
+/* Modal */
+.modal-backdrop {
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  background: rgba(15,23,42,0.35);
+}
+
+.modal-card {
+  border-radius: 18px;
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--border);
+}
+
+/* Banners */
+.success-banner {
+  border-radius: 10px;
+  border: 1px solid #bbf7d0;
+  background: #f0fdf4;
+  color: #166534;
+  font-size: 13px;
+}
+
+.warning-banner {
+  border-radius: 10px;
+  border: 1px solid #fed7aa;
+  background: #fff7ed;
+  color: #9a3412;
+  font-size: 13px;
+}
+
+/* Best seller rows */
+.best-seller-row {
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: #fff;
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow var(--transition), transform var(--transition);
+}
+
+.best-seller-row:hover {
+  box-shadow: var(--shadow);
+  transform: translateY(-1px);
+}
+
+/* Page fade-in animation */
+@keyframes dashboard-fade-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.dashboard-content { animation: dashboard-fade-in 300ms cubic-bezier(0.16,1,0.3,1) both; }
+
+
+
+/* ═══════════════════════════════════════════════════════════════
+   SECTION-BY-SECTION DESIGN POLISH
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── 1. Global tokens ─────────────────────────────────────────── */
+:root {
+  --background: #f1f3f9;
+  --surface: #ffffff;
+  --border: #e3e8f0;
+  --text: #0f172a;
+  --muted: #64748b;
+  --subtle: #94a3b8;
+  --radius: 14px;
+  --radius-sm: 10px;
+  --shadow-sm: 0 1px 3px rgba(15,23,42,0.06);
+  --shadow:    0 4px 16px rgba(15,23,42,0.08), 0 1px 3px rgba(15,23,42,0.04);
+  --shadow-lg: 0 20px 48px rgba(15,23,42,0.12), 0 4px 12px rgba(15,23,42,0.05);
+  --transition: 160ms cubic-bezier(0.16,1,0.3,1);
+  --transition-fast: 100ms cubic-bezier(0.16,1,0.3,1);
+}
+
+body {
+  background: var(--background);
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── 2. Top Nav ───────────────────────────────────────────────── */
+.top-nav {
+  min-height: 60px;
+  padding: 0 28px;
+  background: #ffffff;
+  border-bottom: 1px solid var(--border);
+  box-shadow: 0 1px 0 rgba(15,23,42,0.04);
+  backdrop-filter: none;
+}
+
+.brand-text {
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+  color: #0f172a;
+}
+
+.brand-mark {
+  width: 30px;
+  height: 30px;
+  font-size: 11px;
+  font-weight: 800;
+  border-width: 2px;
+}
+
+.user-name {
+  font-size: 13px;
+  font-weight: 600;
+  padding: 6px 14px;
+  background: #f8f9fc;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--text);
+}
+
+.user-name:hover { box-shadow: none; transform: none; }
+
+.nav-action {
+  font-size: 13.5px;
+  min-height: 36px;
+  padding: 0 10px;
+  border-radius: 8px;
+  color: var(--muted);
+}
+
+.nav-action:hover { background: #f1f3f9; color: var(--text); }
+
+/* ── 3. Sidebar ───────────────────────────────────────────────── */
+.sidebar {
+  flex: 0 0 248px;
+  width: 248px;
+  top: 60px;
+  height: calc(100vh - 60px);
+  background: #ffffff;
+  border-right: 1px solid var(--border);
+  box-shadow: none;
+}
+
+.sidebar-collapsed { flex-basis: 68px; width: 68px; }
+
+.sidebar-scroll {
+  height: calc(100vh - 60px);
+  padding: 12px 0 24px;
+  gap: 2px;
+}
+
+.sidebar-section-title {
+  padding: 12px 18px 4px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  color: #b0bac8;
+  text-transform: uppercase;
+}
+
+.sidebar-links { padding: 0 8px; gap: 1px; }
+
+.sidebar-link {
+  min-height: 38px;
+  padding: 0 10px;
+  border-radius: 8px;
+  font-size: 13.5px;
+  font-weight: 500;
+  gap: 10px;
+  color: #475569;
+}
+
+.sidebar-link svg { color: #94a3b8; }
+
+.sidebar-link:hover,
+.sidebar-link:focus-visible {
+  background: #fef2f2;
+  color: var(--brand);
+  box-shadow: none;
+}
+
+.sidebar-link:hover svg { color: var(--brand); }
+
+.sidebar-link.is-active {
+  background: #fff0f0;
+  color: var(--brand);
+  font-weight: 600;
+  box-shadow: none;
+}
+
+.sidebar-link.is-active svg { color: var(--brand); }
+
+.sidebar-link.is-active::before {
+  left: 0;
+  right: auto;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  background: var(--brand);
+}
+
+.sidebar-toggle {
+  right: -13px;
+  left: auto;
+  width: 26px;
+  height: 26px;
+  box-shadow: 0 2px 6px rgba(15,23,42,0.1);
+}
+
+/* ── 4. Dashboard body ────────────────────────────────────────── */
+.dashboard-body { min-height: calc(100vh - 60px); }
+.dashboard-stage { min-height: calc(100vh - 60px); }
+.dashboard-content { gap: 18px; padding: 22px 24px 48px; }
+
+/* ── 5. Page header ───────────────────────────────────────────── */
+.page-title-row h1,
+.dashboard-header h1 {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+  color: #0f172a;
+  margin: 0;
+}
+
+.dashboard-sub {
+  font-size: 13px;
+  color: #64748b;
+  margin-top: 3px;
+  line-height: 1.5;
+}
+
+/* ── 6. KPI Cards ─────────────────────────────────────────────── */
+.dashboard-kpi-grid { gap: 14px; }
+
+.dashboard-kpi-card {
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: #ffffff;
+  box-shadow: var(--shadow-sm);
+  padding: 18px 20px;
+  min-height: 148px;
+  gap: 14px;
+  transition: box-shadow var(--transition), transform var(--transition);
+}
+
+.dashboard-kpi-card:hover {
+  box-shadow: var(--shadow);
+  transform: translateY(-2px);
+  border-color: rgba(215,25,32,0.15);
+}
+
+.dashboard-kpi-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 9px;
+}
+
+.dashboard-kpi-change {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 0 8px;
+  min-height: 22px;
+  border-radius: 999px;
+}
+
+.dashboard-kpi-card p { font-size: 12px; font-weight: 500; color: #64748b; }
+.dashboard-kpi-card strong { font-size: 22px; font-weight: 700; color: #0f172a; margin-top: 4px; }
+.dashboard-kpi-detail { font-size: 11.5px; color: #94a3b8; }
+
+/* ── 7. Analytics panels ──────────────────────────────────────── */
+.dashboard-analytics-grid { gap: 16px; }
+
+.dashboard-analytics-panel {
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: #ffffff;
+  box-shadow: var(--shadow-sm);
+  padding: 20px 22px;
+  gap: 18px;
+  transition: box-shadow var(--transition);
+}
+
+.dashboard-analytics-panel:hover { box-shadow: var(--shadow); }
+
+.analytics-panel-heading h2 {
+  font-size: 15px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 3px;
+}
+
+.analytics-panel-heading p { font-size: 12px; color: #94a3b8; }
+.analytics-panel-heading strong { font-size: 17px; font-weight: 700; color: #0f172a; }
+
+/* Bar chart */
+.revenue-bar-track {
+  border-radius: 6px;
+  background: #f1f3f9;
+  height: 140px;
+}
+
+.revenue-bar-track span {
+  border-radius: 6px 6px 0 0;
+  background: linear-gradient(180deg, #e8222a 0%, #c0111a 100%);
+}
+
+.revenue-bar-item small { font-size: 10.5px; color: #94a3b8; }
+.chart-value-label { font-size: 10px; font-weight: 700; color: #64748b; }
+
+/* Province progress bars */
+.fulfillment-track {
+  height: 6px;
+  border-radius: 999px;
+  background: #f1f3f9;
+}
+
+.fulfillment-track span { background: var(--brand); }
+.step-blue .fulfillment-track span { background: #3b82f6; }
+.step-green .fulfillment-track span { background: #22c55e; }
+.step-cyan .fulfillment-track span { background: #06b6d4; }
+.step-amber .fulfillment-track span { background: #f59e0b; }
+
+.fulfillment-step span { font-size: 13px; color: #334155; }
+.fulfillment-step strong { font-size: 14px; font-weight: 700; color: #0f172a; }
+.fulfillment-step small { font-size: 11.5px; color: #64748b; }
+
+/* Best seller rows */
+.best-seller-list { gap: 8px; }
+
+.best-seller-row {
+  border-radius: 10px;
+  border: 1px solid #f1f3f9;
+  background: #fafbfe;
+  box-shadow: none;
+  padding: 10px 12px;
+  transition: background var(--transition), border-color var(--transition);
+}
+
+.best-seller-row:hover {
+  background: #ffffff;
+  border-color: var(--border);
+  box-shadow: var(--shadow-sm);
+  transform: none;
+}
+
+.best-seller-row strong { font-size: 13px; color: #0f172a; }
+.best-seller-row span { font-size: 11px; color: #94a3b8; }
+.best-seller-row b { font-size: 12px; font-weight: 700; color: #334155; }
+
+.seller-rank {
+  width: 26px;
+  height: 26px;
+  font-size: 12px;
+  font-weight: 700;
+  background: #fff0f0;
+  color: var(--brand);
+  border-radius: 50%;
+}
+
+/* ── 8. Health cards ──────────────────────────────────────────── */
+.dashboard-health-grid { gap: 14px; }
+
+.dashboard-health-card {
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: #ffffff;
+  box-shadow: var(--shadow-sm);
+  padding: 16px;
+  min-height: 96px;
+  gap: 12px;
+  transition: box-shadow var(--transition), transform var(--transition);
+}
+
+.dashboard-health-card:hover {
+  box-shadow: var(--shadow);
+  transform: translateY(-1px);
+}
+
+.dashboard-health-card > span {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  flex: 0 0 34px;
+}
+
+.dashboard-health-card p { font-size: 11.5px; font-weight: 500; color: #64748b; }
+.dashboard-health-card strong { font-size: 17px; font-weight: 700; color: #0f172a; margin: 3px 0 2px; }
+.dashboard-health-card small { font-size: 11px; color: #94a3b8; }
+
+/* ── 9. Recent orders table ───────────────────────────────────── */
+.table-panel,
+.table-panel-large {
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: #ffffff;
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+.panel-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.panel-heading h2,
+.table-panel h2 {
+  font-size: 15px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+}
+
+.dashboard-table th {
+  background: #f8f9fc;
+  color: #64748b;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+}
+
+.dashboard-table td {
+  padding: 11px 16px;
+  font-size: 13.5px;
+  color: #1e293b;
+  border-bottom: 1px solid #f1f4f9;
+  text-align: left;
+}
+
+.dashboard-table tbody tr:last-child td { border-bottom: none; }
+
+.dashboard-table tbody tr:hover td { background: #fafbfe; }
+
+/* ── 10. Status badges ────────────────────────────────────────── */
+.approved-status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.1px;
+  white-space: nowrap;
+}
+
+/* ── 11. Primary action buttons ───────────────────────────────── */
+.discount-create-button,
+.save-warranty-button,
+.submit-all-button,
+.marketing-package-buy-button,
+.bulk-export-button,
+.apply-filter-button,
+.edit-product-button,
+.modal-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 0 16px;
+  min-height: 36px;
+  border-radius: 9px;
+  font-size: 13.5px;
+  font-weight: 600;
+  border: 0;
+  background: var(--brand);
+  color: #fff;
+  box-shadow: 0 3px 10px rgba(215,25,32,0.2);
+  cursor: pointer;
+  transition: background var(--transition), box-shadow var(--transition), transform var(--transition);
+}
+
+.discount-create-button:hover,
+.save-warranty-button:hover,
+.submit-all-button:hover,
+.marketing-package-buy-button:hover,
+.bulk-export-button:hover,
+.apply-filter-button:hover,
+.edit-product-button:hover,
+.modal-primary:hover {
+  background: var(--brand-dark);
+  box-shadow: 0 5px 14px rgba(215,25,32,0.28);
+  transform: translateY(-1px);
+}
+
+/* ── 12. Export / secondary buttons ──────────────────────────── */
+.export-button {
+  min-height: 36px;
+  padding: 0 14px;
+  border-radius: 9px;
+  font-size: 13px;
+  font-weight: 500;
+  border: 1px solid var(--border);
+  background: #ffffff;
+  color: #334155;
+  box-shadow: var(--shadow-sm);
+  gap: 8px;
+  min-width: auto;
+}
+
+.export-button:hover {
+  background: #f8f9fc;
+  border-color: #c8d0e0;
+  box-shadow: var(--shadow);
+  transform: translateY(-1px);
+}
+
+.date-range {
+  min-height: 36px;
+  padding: 0 12px;
+  border-radius: 9px;
+  font-size: 13px;
+  border: 1px solid var(--border);
+  background: #ffffff;
+  color: #334155;
+  box-shadow: var(--shadow-sm);
+  gap: 12px;
+  min-width: auto;
+}
+
+.range-button {
+  min-height: 32px;
+  padding: 0 12px;
+  border-radius: 8px;
+  font-size: 12.5px;
+  border: 1px solid var(--border);
+  background: #ffffff;
+  color: #475569;
+  min-width: auto;
+}
+
+.range-button:hover { background: #f8f9fc; border-color: #c8d0e0; transform: none; }
+
+/* ── 13. Scrollbar ────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #dde2ee; border-radius: 999px; border: none; }
+::-webkit-scrollbar-thumb:hover { background: #c4cad8; }
