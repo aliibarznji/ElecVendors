@@ -37,7 +37,6 @@ const sidebarSections = [
     links: [
       { label: "Dashboard", href: "/", icon: Home },
       { label: "Profile", href: "/profile", icon: User },
-      { label: "Warranty", href: "/warranty", icon: ShieldCheck },
       { label: "Commissions", href: "/commissions", icon: Percent },
       { label: "Seller Report", href: "/seller-report", icon: BarChart3 },
       { label: "Delivery Prices", href: "/delivery-prices", icon: Truck },
