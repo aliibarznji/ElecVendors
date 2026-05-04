@@ -6775,3 +6775,276 @@ button:not(:disabled):active {
     width: min(340px, 42vw);
   }
 }
+
+.track-shipments-content {
+  display: grid;
+  gap: 20px;
+  padding: 22px 24px 40px;
+  animation: dashboard-fade-in 360ms var(--ease-out) both;
+}
+
+.track-shipments-content h1 {
+  margin: 0;
+  color: #1e2a45;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.2px;
+  line-height: 1.2;
+}
+
+.track-shipments-panel {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  min-height: calc(100vh - 158px);
+  overflow: hidden;
+  border: 1px solid #e5eaf3;
+  border-radius: 12px;
+  background: #ffffff;
+  box-shadow:
+    0 1px 3px rgba(19, 28, 54, 0.07),
+    0 4px 16px rgba(19, 28, 54, 0.06);
+}
+
+.track-shipments-empty {
+  display: grid;
+  width: min(920px, 100%);
+  align-self: center;
+  justify-self: center;
+  justify-items: center;
+  padding: 18px 22px 10px;
+  animation: track-shipments-enter 520ms var(--ease-out) both;
+}
+
+.track-shipments-visual {
+  display: grid;
+  width: 100%;
+  place-items: center;
+}
+
+.track-shipments-illustration {
+  display: block;
+  width: min(780px, 100%);
+  height: auto;
+  filter: drop-shadow(0 22px 22px rgba(36, 68, 142, 0.1));
+}
+
+.track-shipments-copy {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  margin-top: -8px;
+  color: #3e4c67;
+  text-align: center;
+}
+
+.track-shipments-copy h2 {
+  max-width: 310px;
+  margin: 0;
+  color: #1e2a45;
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: 0;
+  line-height: 1.17;
+}
+
+.track-shipments-copy p {
+  margin: 0;
+  color: #485672;
+  font-size: 12px;
+  line-height: 1.3;
+}
+
+.track-shipments-create-button {
+  display: inline-flex;
+  min-height: 34px;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  margin-top: 4px;
+  padding: 0 15px;
+  border-radius: 7px;
+  background: linear-gradient(135deg, #4d6fcd 0%, #3558b4 100%);
+  box-shadow: 0 8px 18px rgba(47, 81, 170, 0.18);
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+  text-decoration: none;
+  transition: box-shadow var(--transition), transform var(--transition), background var(--transition);
+}
+
+.track-shipments-create-button:hover,
+.track-shipments-create-button:focus-visible {
+  background: linear-gradient(135deg, #5577d6 0%, #2f52ad 100%);
+  box-shadow: 0 10px 24px rgba(47, 81, 170, 0.24);
+  transform: translateY(-1px);
+}
+
+.track-shipments-create-button:focus-visible {
+  outline: 2px solid #8293ff;
+  outline-offset: 3px;
+}
+
+.track-shipments-pagination {
+  display: flex;
+  min-height: 54px;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 18px;
+  padding: 11px 30px 20px;
+  color: #5f6b80;
+  font-size: 10px;
+  line-height: 1;
+}
+
+.track-shipments-page-size,
+.track-shipments-pagination button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+  padding: 0;
+}
+
+.track-shipments-page-size {
+  gap: 16px;
+  min-width: 42px;
+  min-height: 25px;
+  border-bottom: 1px solid #9aa4b5;
+  color: #1e2a45;
+}
+
+.track-shipments-pagination button:not(.track-shipments-page-size) {
+  width: 16px;
+  height: 25px;
+  color: #aeb5c2;
+}
+
+.track-shipments-pagination button:disabled {
+  color: #c5cad4;
+  cursor: default;
+}
+
+.track-shipments-page-size:focus-visible,
+.track-shipments-pagination button:focus-visible {
+  outline: 2px solid #8293ff;
+  outline-offset: 2px;
+}
+
+.track-shipments-route {
+  stroke-dasharray: 260;
+  stroke-dashoffset: 260;
+  animation: track-route-draw 1.3s 220ms var(--ease-out) both;
+}
+
+.track-shipments-vehicle {
+  animation: track-vehicle-float 5.8s ease-in-out infinite;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.track-shipments-package {
+  animation: track-package-lift 4.8s ease-in-out infinite;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.track-shipments-pin {
+  animation: track-pin-bob 3.8s ease-in-out infinite;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+@keyframes track-shipments-enter {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.99);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes track-route-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes track-vehicle-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+@keyframes track-package-lift {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-7px);
+  }
+}
+
+@keyframes track-pin-bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+@media (max-width: 760px) {
+  .track-shipments-content {
+    gap: 18px;
+    padding: 18px 16px 30px;
+  }
+
+  .track-shipments-content h1 {
+    font-size: 22px;
+  }
+
+  .track-shipments-panel {
+    min-height: 560px;
+  }
+
+  .track-shipments-empty {
+    padding: 14px 14px 0;
+  }
+
+  .track-shipments-illustration {
+    width: min(560px, 118%);
+  }
+
+  .track-shipments-copy {
+    margin-top: 0;
+  }
+
+  .track-shipments-copy h2 {
+    max-width: 260px;
+    font-size: 17px;
+  }
+
+  .track-shipments-create-button {
+    min-height: 38px;
+    padding: 0 16px;
+  }
+
+  .track-shipments-pagination {
+    justify-content: center;
+    gap: 12px;
+    padding: 12px 14px 18px;
+  }
+}
