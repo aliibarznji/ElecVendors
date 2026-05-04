@@ -1,3 +1,5 @@
+"use client";
+
 import {
   ArrowLeft,
   CalendarDays,
@@ -12,7 +14,8 @@ import {
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import Link from "next/link";
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
+import { useLang } from "./lang-context";
 import { StatusPill } from "./status-pill";
 import {
   formatIqd,
@@ -20,10 +23,10 @@ import {
   type VendorOrder,
 } from "./vendor-dashboard-data";
 
-const NEXT_STATUS: Record<VendorOrder["status"], string | null> = {
-  new: "Mark Ready to Ship",
-  ready: "Mark Shipped",
-  shipped: "Mark Delivered",
+const ADVANCE_STATUS: Record<VendorOrder["status"], VendorOrder["status"] | null> = {
+  new: "ready",
+  ready: "shipped",
+  shipped: "delivered",
   delivered: null,
   cancelled: null,
 };
@@ -51,11 +54,21 @@ function DetailRow({
 }
 
 export function OrderDetailContent({ order }: { order: VendorOrder }) {
+  const [localStatus, setLocalStatus] = useState<VendorOrder["status"]>(order.status);
+  const { t } = useLang();
   const product = getProduct(order.productId);
   const lineTotal = order.priceWithCommission * order.quantity;
   const netTotal = order.priceWithoutCommission * order.quantity;
   const commission = lineTotal - netTotal;
-  const nextAction = NEXT_STATUS[order.status];
+
+  const NEXT_LABEL: Record<VendorOrder["status"], string | null> = {
+    new: t("markReadyToShip"),
+    ready: t("markShipped"),
+    shipped: t("markDelivered"),
+    delivered: null,
+    cancelled: null,
+  };
+  const nextAction = NEXT_LABEL[localStatus];
 
   return (
     <div className="dashboard-content order-detail-content">
@@ -63,17 +76,22 @@ export function OrderDetailContent({ order }: { order: VendorOrder }) {
         <div>
           <Link href="/orders" className="order-detail-back">
             <ArrowLeft aria-hidden="true" size={15} strokeWidth={2.2} />
-            <span>Back to Orders</span>
+            <span>{t("backToOrders")}</span>
           </Link>
           <h1>Order {order.orderNumber}</h1>
-          <p className="dashboard-sub">
-            Customer, payment, fulfillment and pricing for this order.
-          </p>
+          <p className="dashboard-sub">{t("orderDetailSub")}</p>
         </div>
         <div className="order-detail-actions">
-          <StatusPill status={order.status} />
+          <StatusPill status={localStatus} />
           {nextAction ? (
-            <button className="discount-create-button" type="button">
+            <button
+              className="discount-create-button"
+              type="button"
+              onClick={() => {
+                const next = ADVANCE_STATUS[localStatus];
+                if (next) setLocalStatus(next);
+              }}
+            >
               {nextAction}
             </button>
           ) : null}
@@ -82,88 +100,60 @@ export function OrderDetailContent({ order }: { order: VendorOrder }) {
 
       <section className="order-detail-grid" aria-label="Order details">
         <article className="dashboard-panel order-detail-card">
-          <h2>Customer</h2>
-          <DetailRow label="Customer Name" value={order.customerName} icon={User} />
-          <DetailRow label="Phone" value={order.customerPhone} icon={Phone} />
-          <DetailRow label="Address" value={order.customerAddress} icon={MapPin} />
+          <h2>{t("customerCard")}</h2>
+          <DetailRow label={t("customerName")} value={order.customerName} icon={User} />
+          <DetailRow label={t("phone")} value={order.customerPhone} icon={Phone} />
+          <DetailRow label={t("address")} value={order.customerAddress} icon={MapPin} />
           <DetailRow
-            label="City / Province"
+            label={t("cityProvince")}
             value={`${order.city} – ${order.province}`}
             icon={MapPin}
           />
         </article>
 
         <article className="dashboard-panel order-detail-card">
-          <h2>Order</h2>
-          <DetailRow label="Order Number" value={order.orderNumber} icon={Hash} />
-          <DetailRow label="Order Time" value={order.dateTime} icon={CalendarDays} />
-          <DetailRow
-            label="Payment Method"
-            value={order.paymentMethod}
-            icon={CreditCard}
-          />
-          <DetailRow
-            label="Delivery Status"
-            value={order.deliveryStatus}
-            icon={Truck}
-          />
-          <DetailRow
-            label="Delivery Agent"
-            value={order.deliveryAgent}
-            icon={ClipboardList}
-          />
+          <h2>{t("orderCard")}</h2>
+          <DetailRow label={t("orderNumberFull")} value={order.orderNumber} icon={Hash} />
+          <DetailRow label={t("orderTimeFull")} value={order.dateTime} icon={CalendarDays} />
+          <DetailRow label={t("paymentMethod")} value={order.paymentMethod} icon={CreditCard} />
+          <DetailRow label={t("deliveryStatus")} value={order.deliveryStatus} icon={Truck} />
+          <DetailRow label={t("deliveryAgent")} value={order.deliveryAgent} icon={ClipboardList} />
         </article>
 
         <article className="dashboard-panel order-detail-card">
-          <h2>Product</h2>
-          <DetailRow
-            label="Product"
-            value={product?.nameEn ?? order.productId}
-            icon={Package}
-          />
-          <DetailRow label="SKU" value={product?.sku ?? "-"} icon={Hash} />
-          <DetailRow
-            label="Vendor Code"
-            value={product?.vendorCode ?? "-"}
-            icon={Hash}
-          />
-          <DetailRow label="Color" value={order.color} icon={Package} />
-          <DetailRow label="Size" value={order.size} icon={Package} />
-          <DetailRow
-            label="Quantity"
-            value={String(order.quantity)}
-            icon={Package}
-          />
+          <h2>{t("productCard")}</h2>
+          <DetailRow label={t("product")} value={product?.nameEn ?? order.productId} icon={Package} />
+          <DetailRow label={t("sku")} value={product?.sku ?? "-"} icon={Hash} />
+          <DetailRow label={t("vendorCode")} value={product?.vendorCode ?? "-"} icon={Hash} />
+          <DetailRow label={t("color")} value={order.color} icon={Package} />
+          <DetailRow label={t("size")} value={order.size} icon={Package} />
+          <DetailRow label={t("quantity")} value={String(order.quantity)} icon={Package} />
         </article>
 
         <article className="dashboard-panel order-detail-card order-detail-pricing">
-          <h2>Pricing</h2>
+          <h2>{t("pricingCard")}</h2>
           <DetailRow
-            label="Price (excl. commission)"
+            label={t("priceExclFull")}
             value={formatIqd(order.priceWithoutCommission)}
             icon={CreditCard}
           />
           <DetailRow
-            label="Price (incl. commission)"
+            label={t("priceInclFull")}
             value={formatIqd(order.priceWithCommission)}
             icon={CreditCard}
           />
-          <DetailRow
-            label="Quantity"
-            value={String(order.quantity)}
-            icon={Package}
-          />
+          <DetailRow label={t("quantity")} value={String(order.quantity)} icon={Package} />
           <div className="order-detail-totals">
             <div>
-              <span>Net Total</span>
+              <span>{t("netTotal")}</span>
               <strong>{formatIqd(netTotal)}</strong>
             </div>
             <div>
-              <span>Platform Commission</span>
+              <span>{t("platformCommission")}</span>
               <strong>{formatIqd(commission)}</strong>
             </div>
             <div className="order-detail-grand">
-              <span>Order Total</span>
+              <span>{t("orderTotal")}</span>
               <strong>{formatIqd(lineTotal)}</strong>
             </div>
           </div>

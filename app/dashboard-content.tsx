@@ -1,3 +1,5 @@
+"use client";
+
 import {
   AlertTriangle,
   BarChart3,
@@ -9,6 +11,8 @@ import {
   Wallet,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import { useMemo, useState } from "react";
+import { useLang } from "./lang-context";
 import { StatusPill } from "./status-pill";
 import {
   bestSellingProducts,
@@ -22,9 +26,42 @@ import {
   ordersByMonth,
   salesByMonth,
   salesByProvince,
+  todayIso,
 } from "./vendor-dashboard-data";
 
-const quickRanges = ["Last 7 Days", "Last 30 Days", "This Month", "Last Month"];
+const RANGE_DAYS: Record<string, number> = {
+  "Last 7 Days": 7,
+  "Last 30 Days": 30,
+  "This Month": 0,
+  "Last Month": 0,
+};
+
+function rangeFrom(label: string): string {
+  const today = new Date(todayIso);
+  if (label === "This Month") return `${todayIso.slice(0, 7)}-01`;
+  if (label === "Last Month") {
+    today.setMonth(today.getMonth() - 1);
+    return `${today.toISOString().slice(0, 7)}-01`;
+  }
+  today.setDate(today.getDate() - RANGE_DAYS[label]);
+  return today.toISOString().slice(0, 10);
+}
+
+function downloadCsv(filename: string, headers: string[], rows: (string | number)[][]) {
+  const csv = [headers, ...rows]
+    .map((row) => row.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(","))
+    .join("\n");
+  const blob = new Blob([csv], { type: "text/csv" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+const RANGE_KEYS = ["lastSevenDays", "last30Days", "thisMonth", "lastMonth"] as const;
+const RANGE_INTERNAL = ["Last 7 Days", "Last 30 Days", "This Month", "Last Month"] as const;
 
 function KpiCard({
   label,
@@ -32,12 +69,14 @@ function KpiCard({
   detail,
   tone,
   icon: Icon,
+  liveLabel,
 }: {
   label: string;
   value: string;
   detail: string;
   tone: string;
   icon: LucideIcon;
+  liveLabel: string;
 }) {
   return (
     <article className={`dashboard-kpi-card kpi-${tone}`}>
@@ -45,7 +84,7 @@ function KpiCard({
         <span className="dashboard-kpi-icon">
           <Icon aria-hidden="true" size={19} strokeWidth={2.25} />
         </span>
-        <span className="dashboard-kpi-change">Live Update</span>
+        <span className="dashboard-kpi-change">{liveLabel}</span>
       </div>
       <div>
         <p>{label}</p>
@@ -145,59 +184,89 @@ function ProductThumb({ tone, label }: { tone: string; label: string }) {
 }
 
 export function DashboardContent() {
+  const [activeRange, setActiveRange] = useState<string | null>(null);
+  const { t } = useLang();
+
+  const filteredOrders = useMemo(() => {
+    if (!activeRange) return orders;
+    const from = rangeFrom(activeRange);
+    const to = activeRange === "Last Month"
+      ? `${new Date(todayIso).toISOString().slice(0, 7).replace(/(\d{4})-(\d{2})/, (_, y, m) => `${y}-${String(Number(m)).padStart(2, "0")}`)}-31`
+      : todayIso;
+    return orders.filter((o) => o.dateTime.slice(0, 10) >= from && o.dateTime.slice(0, 10) <= to);
+  }, [activeRange]);
+
   const monthlyOrders = getMonthlyOrders();
   const monthlySales = getMonthlySales();
   const pendingOrders = getPendingOrders();
   const netSales = getNetSales(orders.filter((order) => order.dateTime.startsWith("2026-05")));
   const provinceRows = salesByProvince().slice(0, 5);
   const bestSellers = bestSellingProducts().slice(0, 5);
-  const recentOrders = [...orders].sort((a, b) => b.dateTime.localeCompare(a.dateTime)).slice(0, 5);
+  const recentOrders = [...filteredOrders].sort((a, b) => b.dateTime.localeCompare(a.dateTime)).slice(0, 10);
 
   const kpis = [
     {
-      label: "Monthly Orders Total",
+      label: t("monthlyOrdersTotal"),
       value: String(monthlyOrders),
-      detail: "All orders recorded during May",
+      detail: t("monthlyOrdersDetail"),
       tone: "green",
       icon: ShoppingCart,
     },
     {
-      label: "Monthly Sales Total",
+      label: t("monthlySalesTotal"),
       value: formatIqd(monthlySales),
-      detail: "After calculating order commission",
+      detail: t("monthlySalesDetail"),
       tone: "blue",
       icon: TrendingUp,
     },
     {
-      label: "Pending Orders",
+      label: t("pendingOrdersLabel"),
       value: String(pendingOrders),
-      detail: "Need vendor or customer confirmation",
+      detail: t("pendingOrdersDetail"),
       tone: "orange",
       icon: AlertTriangle,
     },
     {
-      label: "Net Sales",
+      label: t("netSalesLabel"),
       value: formatIqd(netSales),
-      detail: "Before platform commission",
+      detail: t("netSalesDetail"),
       tone: "cyan",
       icon: Wallet,
     },
   ];
 
+  const quickRanges = RANGE_KEYS.map((key, i) => ({
+    label: t(key),
+    internal: RANGE_INTERNAL[i],
+  }));
+
   return (
     <div className="dashboard-content">
       <header className="dashboard-header">
         <div>
-          <h1>Main Dashboard</h1>
-          <p className="dashboard-sub">
-            Monthly tracking of orders, sales, cities, and best selling products.
-          </p>
+          <h1>{t("mainDashboard")}</h1>
+          <p className="dashboard-sub">{t("dashboardSub")}</p>
         </div>
         <div className="dashboard-controls">
           <div className="primary-controls">
-            <button className="export-button" type="button">
+            <button
+              className="export-button"
+              type="button"
+              onClick={() => {
+                const headers = ["Order #", "Product", "Date", "Amount (IQD)", "Status", "City"];
+                const rows = recentOrders.map((o) => [
+                  o.orderNumber,
+                  getProduct(o.productId)?.nameEn ?? o.productId,
+                  o.dateTime,
+                  o.priceWithCommission * o.quantity,
+                  o.status,
+                  o.city,
+                ]);
+                downloadCsv("dashboard-orders.csv", headers, rows);
+              }}
+            >
               <Download aria-hidden="true" size={20} strokeWidth={2.2} />
-              <span>Export Dashboard Data</span>
+              <span>{t("exportDashboard")}</span>
             </button>
             <button className="date-range" type="button">
               <span>2026/05/01 - 2026/05/04</span>
@@ -206,8 +275,13 @@ export function DashboardContent() {
           </div>
           <div className="quick-ranges" aria-label="Quick date ranges">
             {quickRanges.map((range) => (
-              <button className="range-button" key={range} type="button">
-                {range}
+              <button
+                className={`range-button${activeRange === range.internal ? " is-active" : ""}`}
+                key={range.internal}
+                type="button"
+                onClick={() => setActiveRange((current) => (current === range.internal ? null : range.internal))}
+              >
+                {range.label}
               </button>
             ))}
           </div>
@@ -216,7 +290,7 @@ export function DashboardContent() {
 
       <section className="dashboard-kpi-grid" aria-label="Monthly indicators">
         {kpis.map((kpi) => (
-          <KpiCard key={kpi.label} {...kpi} />
+          <KpiCard key={kpi.label} {...kpi} liveLabel={t("liveUpdate")} />
         ))}
       </section>
 
@@ -224,8 +298,8 @@ export function DashboardContent() {
         <article className="dashboard-panel dashboard-analytics-panel revenue-panel">
           <div className="analytics-panel-heading">
             <div>
-              <h2>Sales by Month</h2>
-              <p>Total monthly sales for non-cancelled orders</p>
+              <h2>{t("salesByMonth")}</h2>
+              <p>{t("salesByMonthSub")}</p>
             </div>
             <strong>{formatIqd(monthlySales)}</strong>
           </div>
@@ -235,8 +309,8 @@ export function DashboardContent() {
         <article className="dashboard-panel dashboard-analytics-panel">
           <div className="analytics-panel-heading">
             <div>
-              <h2>Orders by Month</h2>
-              <p>Number of orders as shown in customer reference</p>
+              <h2>{t("ordersByMonth")}</h2>
+              <p>{t("ordersByMonthSub")}</p>
             </div>
             <strong>{monthlyOrders}</strong>
           </div>
@@ -246,8 +320,8 @@ export function DashboardContent() {
         <article className="dashboard-panel dashboard-analytics-panel">
           <div className="analytics-panel-heading">
             <div>
-              <h2>Sales by Province</h2>
-              <p>Distribution of orders across cities and provinces</p>
+              <h2>{t("salesByCity")}</h2>
+              <p>{t("salesByCitySub")}</p>
             </div>
             <MapPin aria-hidden="true" size={20} strokeWidth={2.3} />
           </div>
@@ -270,8 +344,8 @@ export function DashboardContent() {
         <article className="dashboard-panel dashboard-analytics-panel">
           <div className="analytics-panel-heading">
             <div>
-              <h2>Best Selling Products</h2>
-              <p>Ranked by quantity sold within current orders</p>
+              <h2>{t("bestSelling")}</h2>
+              <p>{t("bestSellingSub")}</p>
             </div>
             <BarChart3 aria-hidden="true" size={20} strokeWidth={2.3} />
           </div>
@@ -284,7 +358,7 @@ export function DashboardContent() {
                   <strong>{product.nameAr}</strong>
                   <span>{product.sku}</span>
                 </div>
-                <b>{sold} units</b>
+                <b>{sold} {t("units")}</b>
               </article>
             ))}
           </div>
@@ -293,18 +367,18 @@ export function DashboardContent() {
 
       <section className="dashboard-panel table-panel table-panel-large">
         <div className="panel-heading">
-          <h2>Recent Orders</h2>
+          <h2>{t("recentOrders")}</h2>
         </div>
         <div className="table-wrap">
           <table className="dashboard-table">
             <thead>
               <tr>
-                <th>Order Number</th>
-                <th>Product</th>
-                <th>Date & Time</th>
-                <th>Amount</th>
-                <th>Order Status</th>
-                <th>Customer/Delivery Status</th>
+                <th>{t("orderNumber")}</th>
+                <th>{t("product")}</th>
+                <th>{t("orderTime")}</th>
+                <th>{t("amount")}</th>
+                <th>{t("status")}</th>
+                <th>{t("deliveryStatus")}</th>
               </tr>
             </thead>
             <tbody>

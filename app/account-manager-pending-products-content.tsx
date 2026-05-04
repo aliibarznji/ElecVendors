@@ -2,6 +2,7 @@
 
 import { Check, X } from "lucide-react";
 import { useState } from "react";
+import { useLang } from "./lang-context";
 
 type Pending = {
   id: string;
@@ -43,10 +44,11 @@ export function AccountManagerPendingProductsContent() {
   const [list, setList] = useState(initial);
   const [rejecting, setRejecting] = useState<Pending | null>(null);
   const [reason, setReason] = useState("");
+  const { t } = useLang();
 
   return (
     <div className="account-manager-pending-content">
-      <h1>Pending Products</h1>
+      <h1>{t("pendingProducts")}</h1>
 
       <section className="account-manager-card">
         <div className="purchase-order-table-wrap">

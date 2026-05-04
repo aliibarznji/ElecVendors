@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { LangProvider } from "./lang-context";
 
 export const metadata: Metadata = {
   title: "Electromall Vendors Dashboard",
@@ -12,8 +13,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" dir="ltr">
-      <body>{children}</body>
+    <html lang="en" dir="ltr" suppressHydrationWarning>
+      <body>
+        <LangProvider>{children}</LangProvider>
+      </body>
     </html>
   );
 }

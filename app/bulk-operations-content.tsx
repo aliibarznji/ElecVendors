@@ -2,6 +2,7 @@
 
 import { CheckCircle2, Download, FileSpreadsheet, UploadCloud } from "lucide-react";
 import { useMemo, useState } from "react";
+import { useLang } from "./lang-context";
 import { products, validateBulkUpdateRow } from "./vendor-dashboard-data";
 
 function downloadTemplate(mode: "prices" | "stock") {
@@ -32,6 +33,7 @@ export function BulkOperationsContent() {
   const [mode, setMode] = useState<Mode>("prices");
   const [uploaded, setUploaded] = useState(false);
   const [applied, setApplied] = useState(false);
+  const { t } = useLang();
 
   const sampleRows = useMemo(
     () =>
@@ -63,7 +65,7 @@ export function BulkOperationsContent() {
     <div className="bulk-content">
       <header className="page-title-row">
         <div>
-          <h1>Product Updates</h1>
+          <h1>{t("bulkUpdates")}</h1>
           <p className="dashboard-sub">
             CSV/XLSX gateway to update prices or inventory only without creating new products.
           </p>

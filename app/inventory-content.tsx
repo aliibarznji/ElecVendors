@@ -2,6 +2,7 @@
 
 import { AlertTriangle, PackageCheck, RotateCcw, Save, Search } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
+import { useLang } from "./lang-context";
 import {
   formatIqd,
   products,
@@ -28,11 +29,12 @@ export function InventoryContent() {
     Object.fromEntries(products.map((product) => [product.id, product.quantity])),
   );
   const [message, setMessage] = useState("");
+  const { t } = useLang();
 
   useEffect(() => {
     if (!message) return;
-    const t = setTimeout(() => setMessage(""), 4000);
-    return () => clearTimeout(t);
+    const timer = setTimeout(() => setMessage(""), 4000);
+    return () => clearTimeout(timer);
   }, [message]);
 
   const visible = useMemo(() => {
@@ -55,18 +57,16 @@ export function InventoryContent() {
     <div className="inventory-content dashboard-content">
       <header className="page-title-row">
         <div>
-          <h1>Inventory Management</h1>
-          <p className="dashboard-sub">
-            This page controls inventory only. Prices are shown for context and are not edited here.
-          </p>
+          <h1>{t("inventoryManagement")}</h1>
+          <p className="dashboard-sub">{t("inventoryManagementSub")}</p>
         </div>
         <button
           className="discount-create-button"
           type="button"
-          onClick={() => setMessage("Valid inventory updates have been saved.")}
+          onClick={() => setMessage(t("inventorySaved"))}
         >
           <Save aria-hidden="true" size={16} strokeWidth={2.4} />
-          <span>Save Inventory</span>
+          <span>{t("saveChanges")}</span>
         </button>
       </header>
 
@@ -78,9 +78,9 @@ export function InventoryContent() {
             <PackageCheck aria-hidden="true" size={18} strokeWidth={2.3} />
           </span>
           <div>
-            <p>Total Products</p>
+            <p>{t("totalProducts")}</p>
             <strong>{products.length}</strong>
-            <small>Vendor Products</small>
+            <small>{t("totalProductsSub")}</small>
           </div>
         </article>
         <article className="inventory-summary-item inventory-green">
@@ -88,9 +88,9 @@ export function InventoryContent() {
             <PackageCheck aria-hidden="true" size={18} strokeWidth={2.3} />
           </span>
           <div>
-            <p>Available Products</p>
+            <p>{t("inStock")}</p>
             <strong>{availableCount}</strong>
-            <small>Quantity &gt; 0</small>
+            <small>{t("publishedSub")}</small>
           </div>
         </article>
         <article className="inventory-summary-item inventory-orange">
@@ -98,9 +98,9 @@ export function InventoryContent() {
             <AlertTriangle aria-hidden="true" size={18} strokeWidth={2.3} />
           </span>
           <div>
-            <p>Out of Stock</p>
+            <p>{t("outOfStock")}</p>
             <strong>{products.length - availableCount}</strong>
-            <small>Restock needed</small>
+            <small>{t("outOfStockSub")}</small>
           </div>
         </article>
       </section>
@@ -110,20 +110,20 @@ export function InventoryContent() {
           <label className="order-items-search">
             <Search aria-hidden="true" size={16} strokeWidth={2.2} />
             <input
-              placeholder="Search by name, code or color"
+              placeholder={t("searchInventory")}
               value={query}
               onChange={(event) => setQuery(event.target.value)}
             />
           </label>
           <label className="order-items-date">
-            <span>Status</span>
+            <span>{t("status")}</span>
             <select
               value={stockFilter}
               onChange={(event) => setStockFilter(event.target.value as typeof stockFilter)}
             >
-              <option value="all">All Products</option>
-              <option value="available">Available</option>
-              <option value="out">Out of Stock</option>
+              <option value="all">{t("allProducts")}</option>
+              <option value="available">{t("inStock")}</option>
+              <option value="out">{t("outOfStock")}</option>
             </select>
           </label>
           <button
@@ -136,13 +136,13 @@ export function InventoryContent() {
             }}
           >
             <RotateCcw aria-hidden="true" size={15} strokeWidth={2.2} />
-            <span>Reset</span>
+            <span>{t("reset")}</span>
           </button>
         </div>
 
         <div className="inventory-product-grid">
           {visible.length === 0 ? (
-            <div className="empty-state-panel">No matching products.</div>
+            <div className="empty-state-panel">{t("noInventoryMatch")}</div>
           ) : (
             visible.map((product) => {
               const quantity = quantities[product.id];
@@ -169,10 +169,10 @@ export function InventoryContent() {
                       quantity > 0 ? "is-active" : "is-rejected"
                     }`}
                   >
-                    {quantity > 0 ? "Available" : "Out of Stock"}
+                    {quantity > 0 ? t("inStock") : t("outOfStock")}
                   </span>
                   <label className="modal-field">
-                    <span>Available Quantity</span>
+                    <span>{t("quantityColumn")}</span>
                     <input
                       type="number"
                       value={quantity}

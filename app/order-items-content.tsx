@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import { useLang } from "./lang-context";
 import { StatusPill } from "./status-pill";
 import {
   filterOrders,
@@ -23,31 +24,6 @@ import {
   type OrderStatus,
   type VendorOrder,
 } from "./vendor-dashboard-data";
-
-const tabs: { id: OrderStatus | "all"; label: string }[] = [
-  { id: "all", label: "All Orders" },
-  { id: "new", label: "New Orders" },
-  { id: "ready", label: "Ready to Ship" },
-  { id: "shipped", label: "Shipped" },
-  { id: "delivered", label: "Delivered" },
-];
-
-function OrderStat({
-  label,
-  value,
-  tone,
-}: {
-  label: string;
-  value: string;
-  tone: string;
-}) {
-  return (
-    <article className={`kpi-card kpi-${tone}`}>
-      <p>{label}</p>
-      <strong>{value}</strong>
-    </article>
-  );
-}
 
 function ProductThumb({ order }: { order: VendorOrder }) {
   const product = getProduct(order.productId);
@@ -68,67 +44,88 @@ export function OrderItemsContent() {
   const [from, setFrom] = useState("2026-05-01");
   const [to, setTo] = useState("2026-05-04");
   const [sort, setSort] = useState<"newest" | "oldest" | "amount">("newest");
+  const { t } = useLang();
 
   const filtered = useMemo(
     () => filterOrders(orders, activeTab, search, from, to, sort),
     [activeTab, from, search, sort, to],
   );
 
+
   return (
     <div className="order-items-content">
       <header className="page-title-row">
         <div>
-          <h1>Order Items</h1>
-          <p className="dashboard-sub">
-            Track order items by status with price before and after commission and product details.
-          </p>
+          <h1>{t("orderItems")}</h1>
+          <p className="dashboard-sub">{t("orderItemsSub")}</p>
         </div>
       </header>
 
       <section className="kpi-grid" aria-label="Monthly Order Statistics">
-        <OrderStat label="Monthly Orders" value={String(getMonthlyOrders())} tone="blue" />
-        <OrderStat label="Monthly Sales" value={formatIqd(getMonthlySales())} tone="green" />
-        <OrderStat label="Net Sales" value={formatIqd(getNetSales(filtered))} tone="cyan" />
-        <OrderStat label="Cancelled Orders" value={String(getCancelledOrders())} tone="amber" />
+        <article className="kpi-card kpi-blue">
+          <p>{t("monthlyOrders")}</p>
+          <strong>{String(getMonthlyOrders())}</strong>
+        </article>
+        <article className="kpi-card kpi-green">
+          <p>{t("monthlySales")}</p>
+          <strong>{formatIqd(getMonthlySales())}</strong>
+        </article>
+        <article className="kpi-card kpi-cyan">
+          <p>{t("netSales")}</p>
+          <strong>{formatIqd(getNetSales(filtered))}</strong>
+        </article>
+        <article className="kpi-card kpi-amber">
+          <p>{t("cancelledOrders")}</p>
+          <strong>{String(getCancelledOrders())}</strong>
+        </article>
       </section>
 
       <section className="order-items-card" aria-label="Orders Table">
         <div className="bulk-tabs order-items-tabs">
-          {tabs.map((tab) => (
-            <button
-              className={`bulk-tab${activeTab === tab.id ? " is-active" : ""}`}
-              key={tab.id}
-              type="button"
-              onClick={() => setActiveTab(tab.id)}
-            >
-              {tab.label}
-            </button>
-          ))}
+          {(["all", "new", "ready", "shipped", "delivered"] as const).map((id) => {
+            const labels: Record<string, string> = {
+              all: t("allOrders"),
+              new: t("newOrders"),
+              ready: t("readyToShip"),
+              shipped: t("shipped"),
+              delivered: t("delivered"),
+            };
+            return (
+              <button
+                className={`bulk-tab${activeTab === id ? " is-active" : ""}`}
+                key={id}
+                type="button"
+                onClick={() => setActiveTab(id)}
+              >
+                {labels[id]}
+              </button>
+            );
+          })}
         </div>
 
         <div className="order-items-filters">
           <label className="order-items-search">
             <Search aria-hidden="true" size={16} strokeWidth={2.2} />
             <input
-              placeholder="Search by order number, SKU, or customer name"
+              placeholder={t("searchOrders")}
               value={search}
               onChange={(event) => setSearch(event.target.value)}
             />
           </label>
           <label className="order-items-date">
-            <span>From</span>
+            <span>{t("from")}</span>
             <input type="date" value={from} onChange={(event) => setFrom(event.target.value)} />
           </label>
           <label className="order-items-date">
-            <span>To</span>
+            <span>{t("to")}</span>
             <input type="date" value={to} onChange={(event) => setTo(event.target.value)} />
           </label>
           <label className="order-items-date">
-            <span>Sort</span>
+            <span>{t("sort")}</span>
             <select value={sort} onChange={(event) => setSort(event.target.value as typeof sort)}>
-              <option value="newest">Newest</option>
-              <option value="oldest">Oldest</option>
-              <option value="amount">Highest Amount</option>
+              <option value="newest">{t("newest")}</option>
+              <option value="oldest">{t("oldest")}</option>
+              <option value="amount">{t("highestAmount")}</option>
             </select>
           </label>
           <button
@@ -143,7 +140,7 @@ export function OrderItemsContent() {
             }}
           >
             <RotateCcw aria-hidden="true" size={15} strokeWidth={2.2} />
-            <span>Reset</span>
+            <span>{t("reset")}</span>
           </button>
         </div>
 
@@ -151,23 +148,23 @@ export function OrderItemsContent() {
           <table className="purchase-order-table order-items-table">
             <thead>
               <tr>
-                <th>Order #</th>
-                <th>Order Time</th>
-                <th>Image</th>
-                <th>SKU</th>
-                <th>Color</th>
-                <th>Qty</th>
-                <th>Price (excl. commission)</th>
-                <th>Price (incl. commission)</th>
-                <th>Status</th>
-                <th>Product Details</th>
+                <th>{t("orderNumber")}</th>
+                <th>{t("orderTime")}</th>
+                <th>{t("image")}</th>
+                <th>{t("sku")}</th>
+                <th>{t("color")}</th>
+                <th>{t("qty")}</th>
+                <th>{t("priceExcl")}</th>
+                <th>{t("priceIncl")}</th>
+                <th>{t("status")}</th>
+                <th>{t("productDetails")}</th>
               </tr>
             </thead>
             <tbody>
               {filtered.length === 0 ? (
                 <tr>
                   <td colSpan={10} className="empty-cell">
-                    No orders match the current filters.
+                    {t("noOrdersMatch")}
                   </td>
                 </tr>
               ) : (
@@ -194,7 +191,7 @@ export function OrderItemsContent() {
                           href={`/orders/${order.orderNumber}`}
                         >
                           <Eye aria-hidden="true" size={14} strokeWidth={2.4} />
-                          <span>View</span>
+                          <span>{t("viewOrder")}</span>
                         </Link>
                       </td>
                     </tr>
@@ -206,9 +203,9 @@ export function OrderItemsContent() {
         </div>
 
         <div className="purchase-order-pagination">
-          <span>Items per page: 20</span>
+          <span>{t("itemsPerPage")}</span>
           <span>
-            {filtered.length} From {orders.length}
+            {filtered.length} {t("from")} {orders.length}
           </span>
           <button type="button" aria-label="Previous Page" disabled>
             <ChevronRight aria-hidden="true" size={22} strokeWidth={2.1} />

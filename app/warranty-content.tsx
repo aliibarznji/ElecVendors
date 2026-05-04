@@ -2,6 +2,7 @@
 
 import { Eye, Pencil, Plus, Save, ShieldCheck, Trash2, X } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useLang } from "./lang-context";
 
 type Warranty = {
   id: string;
@@ -152,11 +153,12 @@ export function WarrantyContent() {
   const [editing, setEditing] = useState(false);
   const [preview, setPreview] = useState(false);
   const [savedMsg, setSavedMsg] = useState("");
+  const { t } = useLang();
 
   useEffect(() => {
     if (!savedMsg) return;
-    const t = setTimeout(() => setSavedMsg(""), 4000);
-    return () => clearTimeout(t);
+    const timer = setTimeout(() => setSavedMsg(""), 4000);
+    return () => clearTimeout(timer);
   }, [savedMsg]);
 
   return (
@@ -164,10 +166,8 @@ export function WarrantyContent() {
       {savedMsg ? <div className="success-banner">{savedMsg}</div> : null}
       <header className="page-title-row">
         <div>
-          <h1>Warranty</h1>
-          <p className="dashboard-sub">
-            Warranty details displayed to the customer on the ElecMall website.
-          </p>
+          <h1>{t("warrantyTitle")}</h1>
+          <p className="dashboard-sub">{t("warrantySub")}</p>
         </div>
         {!editing ? (
           <button
@@ -199,7 +199,7 @@ export function WarrantyContent() {
           onSave={(next) => {
             setWarranty(next);
             setEditing(false);
-            setSavedMsg("Warranty saved successfully.");
+            setSavedMsg(t("warrantySaved"));
           }}
         />
       ) : (

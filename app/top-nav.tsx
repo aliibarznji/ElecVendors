@@ -3,17 +3,18 @@
 import { Bell, Globe2, LogOut } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useLang } from "./lang-context";
 import { getUnreadNotifications, vendorProfile } from "./vendor-dashboard-data";
 
 export function TopNav() {
   const unread = getUnreadNotifications();
   const router = useRouter();
+  const { t, lang, setLang } = useLang();
 
   return (
     <header className="top-nav">
-      <Link className="brand" href="/" aria-label="ElecMall Vendors Dashboard">
-       
-        <span className="brand-text">ElecMall Vendors</span>
+      <Link className="brand" href="/" aria-label={t("brandName")}>
+        <span className="brand-text">{t("brandName")}</span>
       </Link>
 
       <nav className="nav-actions" aria-label="User navigation">
@@ -23,8 +24,8 @@ export function TopNav() {
           href="/notifications"
           aria-label={
             unread > 0
-              ? `Notifications, ${unread} unread`
-              : "Notifications"
+              ? `${t("notifications")}, ${unread} ${t("unread")}`
+              : t("notifications")
           }
         >
           <Bell aria-hidden="true" size={22} strokeWidth={2.1} />
@@ -34,21 +35,26 @@ export function TopNav() {
             </span>
           ) : null}
         </Link>
-        <button className="nav-action" type="button" aria-label="Change language">
+        <button
+          className="nav-action"
+          type="button"
+          aria-label={t("changeLanguage")}
+          onClick={() => setLang(lang === "en" ? "ar" : "en")}
+        >
           <Globe2 aria-hidden="true" size={24} strokeWidth={2.1} />
-          <span>English</span>
+          <span>{t("changeLanguage")}</span>
         </button>
         <button
           className="nav-action"
           type="button"
           onClick={() => {
-            if (window.confirm("Are you sure you want to log out?")) {
+            if (window.confirm(t("logoutConfirm"))) {
               router.push("/");
             }
           }}
         >
           <LogOut aria-hidden="true" size={24} strokeWidth={2.1} />
-          <span>Logout</span>
+          <span>{t("logout")}</span>
         </button>
       </nav>
     </header>

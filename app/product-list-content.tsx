@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import { useLang } from "./lang-context";
 import {
   filterProducts,
   formatIqd,
@@ -19,19 +20,6 @@ import {
   type ProductStatus,
   type VendorProduct,
 } from "./vendor-dashboard-data";
-
-const statusTabs: { id: ProductStatus | "all"; label: string }[] = [
-  { id: "all", label: "All Products" },
-  { id: "published", label: "Published" },
-  { id: "unpublished", label: "Unpublished" },
-  { id: "review", label: "Under Review" },
-];
-
-const statusLabel: Record<ProductStatus, string> = {
-  published: "Published",
-  unpublished: "Unpublished",
-  review: "Awaiting Review",
-};
 
 const statusClass: Record<ProductStatus, string> = {
   published: "is-active",
@@ -52,20 +40,21 @@ function ProductThumb({ product }: { product: VendorProduct }) {
 }
 
 function ProductSummary({ products }: { products: VendorProduct[] }) {
+  const { t } = useLang();
   const published = products.filter((product) => product.status === "published").length;
   const review = products.filter((product) => product.status === "review").length;
   const outOfStock = products.filter((product) => product.quantity === 0).length;
 
   return (
-      <section className="inventory-summary-strip" aria-label="Product Summary">
+    <section className="inventory-summary-strip" aria-label="Product Summary">
       <article className="inventory-summary-item inventory-blue">
         <span className="inventory-summary-icon">
           <PackageCheck aria-hidden="true" size={18} strokeWidth={2.3} />
         </span>
         <div>
-          <p>Total Products</p>
+          <p>{t("totalProducts")}</p>
           <strong>{products.length}</strong>
-          <small>Vendor reference and associated products</small>
+          <small>{t("totalProductsSub")}</small>
         </div>
       </article>
       <article className="inventory-summary-item inventory-green">
@@ -73,9 +62,9 @@ function ProductSummary({ products }: { products: VendorProduct[] }) {
           <PackageCheck aria-hidden="true" size={18} strokeWidth={2.3} />
         </span>
         <div>
-          <p>Published</p>
+          <p>{t("publishedCount")}</p>
           <strong>{published}</strong>
-          <small>Visible to customers now</small>
+          <small>{t("publishedSub")}</small>
         </div>
       </article>
       <article className="inventory-summary-item inventory-amber">
@@ -83,9 +72,9 @@ function ProductSummary({ products }: { products: VendorProduct[] }) {
           <PackageCheck aria-hidden="true" size={18} strokeWidth={2.3} />
         </span>
         <div>
-          <p>Under Review</p>
+          <p>{t("underReview")}</p>
           <strong>{review}</strong>
-          <small>Awaiting data team</small>
+          <small>{t("underReviewSub")}</small>
         </div>
       </article>
       <article className="inventory-summary-item inventory-orange">
@@ -93,9 +82,9 @@ function ProductSummary({ products }: { products: VendorProduct[] }) {
           <PackageCheck aria-hidden="true" size={18} strokeWidth={2.3} />
         </span>
         <div>
-          <p>Out of Stock</p>
+          <p>{t("outOfStock")}</p>
           <strong>{outOfStock}</strong>
-          <small>Needs quantity update</small>
+          <small>{t("outOfStockSub")}</small>
         </div>
       </article>
     </section>
@@ -106,25 +95,42 @@ export function ProductListContent() {
   const [items, setItems] = useState(initialProducts);
   const [activeStatus, setActiveStatus] = useState<ProductStatus | "all">("all");
   const [query, setQuery] = useState("");
+  const [brandFilter, setBrandFilter] = useState("all");
+  const [categoryFilter, setCategoryFilter] = useState("all");
   const [selected, setSelected] = useState<VendorProduct | null>(null);
+  const { t } = useLang();
+
+  const statusLabel: Record<ProductStatus, string> = {
+    published: t("published"),
+    unpublished: t("unpublished"),
+    review: t("awaitingReview"),
+  };
+
+  const statusTabs = [
+    { id: "all" as const, label: t("allProducts") },
+    { id: "published" as const, label: t("published") },
+    { id: "unpublished" as const, label: t("unpublished") },
+    { id: "review" as const, label: t("underReview") },
+  ];
 
   const visible = useMemo(
-    () => filterProducts(items, activeStatus, query),
-    [items, activeStatus, query],
+    () =>
+      filterProducts(items, activeStatus, query)
+        .filter((p) => brandFilter === "all" || p.brand === brandFilter)
+        .filter((p) => categoryFilter === "all" || p.categoryLevels[0] === categoryFilter),
+    [items, activeStatus, query, brandFilter, categoryFilter],
   );
 
   return (
     <div className="product-list-content">
       <header className="page-title-row">
         <div>
-          <h1>Product Management</h1>
-          <p className="dashboard-sub">
-            All vendor products with prices, codes, stock, colors, and publishing status.
-          </p>
+          <h1>{t("productManagement")}</h1>
+          <p className="dashboard-sub">{t("productManagementSub")}</p>
         </div>
         <Link className="discount-create-button" href="/products/add">
           <Plus aria-hidden="true" size={16} strokeWidth={2.4} />
-          <span>Add Product</span>
+          <span>{t("addProduct")}</span>
         </Link>
       </header>
 
@@ -148,24 +154,32 @@ export function ProductListContent() {
           <label className="order-items-search">
             <Search aria-hidden="true" size={16} strokeWidth={2.2} />
             <input
-              placeholder="Search by name, barcode, or SKU"
+              placeholder={t("searchProducts")}
               value={query}
               onChange={(event) => setQuery(event.target.value)}
             />
           </label>
           <label className="product-list-filter">
-            <span>Brand</span>
-            <select className="product-list-search" defaultValue="all">
-              <option value="all">All Brands</option>
+            <span>{t("brand")}</span>
+            <select
+              className="product-list-search"
+              value={brandFilter}
+              onChange={(e) => setBrandFilter(e.target.value)}
+            >
+              <option value="all">{t("allBrands")}</option>
               {[...new Set(items.map((product) => product.brand))].map((brand) => (
                 <option key={brand}>{brand}</option>
               ))}
             </select>
           </label>
           <label className="product-list-filter">
-            <span>Category</span>
-            <select className="product-list-search" defaultValue="all">
-              <option value="all">All Categories</option>
+            <span>{t("category")}</span>
+            <select
+              className="product-list-search"
+              value={categoryFilter}
+              onChange={(e) => setCategoryFilter(e.target.value)}
+            >
+              <option value="all">{t("allCategories")}</option>
               {[...new Set(items.map((product) => product.categoryLevels[0]))].map((category) => (
                 <option key={category}>{category}</option>
               ))}
@@ -177,25 +191,25 @@ export function ProductListContent() {
           <table className="product-list-table product-management-table">
             <thead>
               <tr>
-                <th>Image</th>
-                <th>Product</th>
-                <th>Selling Price</th>
-                <th>Cost Price</th>
-                <th>Description</th>
-                <th>Quantity</th>
-                <th>Codes</th>
-                <th>Category</th>
-                <th>Colors</th>
-                <th>Date</th>
-                <th>Status</th>
-                <th>Actions</th>
+                <th>{t("colImage")}</th>
+                <th>{t("colProduct")}</th>
+                <th>{t("colSellingPrice")}</th>
+                <th>{t("colCostPrice")}</th>
+                <th>{t("colDescription")}</th>
+                <th>{t("colQuantity")}</th>
+                <th>{t("colCodes")}</th>
+                <th>{t("colCategory")}</th>
+                <th>{t("colColors")}</th>
+                <th>{t("colDate")}</th>
+                <th>{t("colStatus")}</th>
+                <th>{t("colActions")}</th>
               </tr>
             </thead>
             <tbody>
               {visible.length === 0 ? (
                 <tr>
                   <td colSpan={12} className="empty-cell">
-                    No products match the current search or filter.
+                    {t("noProductsMatch")}
                   </td>
                 </tr>
               ) : (
@@ -217,14 +231,14 @@ export function ProductListContent() {
                           product.quantity > 0 ? "is-active" : "is-rejected"
                         }`}
                       >
-                        {product.quantity > 0 ? `${product.quantity} Available` : "Out of Stock"}
+                        {product.quantity > 0 ? `${product.quantity} ${t("available")}` : t("outOfStock")}
                       </span>
                     </td>
                     <td>
                       <div className="stacked-meta">
-                        <span>SKU: {product.sku}</span>
-                        <span>Barcode: {product.barcode}</span>
-                        <span>Code: {product.vendorCode}</span>
+                        <span>{t("skuLabel")}: {product.sku}</span>
+                        <span>{t("barcodeLabel")}: {product.barcode}</span>
+                        <span>{t("codeLabel")}: {product.vendorCode}</span>
                       </div>
                     </td>
                     <td>
@@ -254,28 +268,28 @@ export function ProductListContent() {
                         <button
                           className="row-action-btn"
                           type="button"
-                          title="View Details"
+                          title={t("viewDetails")}
                           onClick={() => setSelected(product)}
                         >
                           <Eye aria-hidden="true" size={14} strokeWidth={2.4} />
                         </button>
                         <Link
                           className="row-action-btn"
-                          href="/products/add"
-                          title="Edit Product"
+                          href={`/products/add?id=${product.id}`}
+                          title={t("editProduct")}
                         >
                           <Pencil aria-hidden="true" size={14} strokeWidth={2.4} />
                         </Link>
-                        <button className="row-action-btn" type="button" title="QR Code">
+                        <button className="row-action-btn" type="button" title={t("qrCode")}>
                           <QrCode aria-hidden="true" size={14} strokeWidth={2.4} />
                         </button>
-                        <button className="row-action-btn" type="button" title="Installments">
+                        <button className="row-action-btn" type="button" title={t("installments")}>
                           <WalletCards aria-hidden="true" size={14} strokeWidth={2.4} />
                         </button>
                         <button
                           className="row-action-btn reject-btn"
                           type="button"
-                          title="Delete"
+                          title={t("delete")}
                           onClick={() =>
                             setItems((current) => current.filter((item) => item.id !== product.id))
                           }
@@ -304,7 +318,7 @@ export function ProductListContent() {
                 className="modal-close"
                 type="button"
                 onClick={() => setSelected(null)}
-                aria-label="Close"
+                aria-label={t("close")}
               >
                 ×
               </button>
@@ -314,9 +328,9 @@ export function ProductListContent() {
               <div className="stacked-meta">
                 <strong>{selected.highlights}</strong>
                 <span>{selected.description}</span>
-                <span>Keywords: {selected.keywords.join(", ")}</span>
-                <span>Large Product: {selected.largeProduct ? "Yes" : "No"}</span>
-                <span>Discount Plan: {selected.discountPlanStatus}</span>
+                <span>{t("keywords")}: {selected.keywords.join(", ")}</span>
+                <span>{t("largeProduct")}: {selected.largeProduct ? "Yes" : "No"}</span>
+                <span>{t("discountPlan")}: {selected.discountPlanStatus}</span>
               </div>
             </div>
           </div>

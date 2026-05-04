@@ -2,6 +2,7 @@
 
 import { Download, Eye, RefreshCw } from "lucide-react";
 import { useMemo, useState } from "react";
+import { useLang } from "./lang-context";
 import {
   bestSellingProducts,
   formatIqd,
@@ -36,6 +37,7 @@ export function SellerReportContent() {
   const [to, setTo] = useState("2026-05-04");
   const [lastUpdated, setLastUpdated] = useState("2026-05-04 12:00");
   const [detail, setDetail] = useState<string | null>(null);
+  const { t } = useLang();
 
   const filteredOrders = useMemo(
     () =>
@@ -106,18 +108,18 @@ export function SellerReportContent() {
   );
 
   const panels = [
-    { id: "items", title: "Sales by Product", rows: itemRows },
-    { id: "province", title: "Sales by Province/City", rows: provinceRows },
-    { id: "brand", title: "Sales by Brand", rows: brandRows },
-    { id: "category", title: "Sales by Category", rows: categoryRows },
+    { id: "items", titleKey: "salesByProduct" as const, rows: itemRows },
+    { id: "province", titleKey: "salesByProvince" as const, rows: provinceRows },
+    { id: "brand", titleKey: "salesByBrand" as const, rows: brandRows },
+    { id: "category", titleKey: "salesByCategory" as const, rows: categoryRows },
   ];
 
   return (
     <div className="seller-report-content dashboard-content">
       <header className="dashboard-header">
         <div>
-          <h1>Sales Report</h1>
-          <p className="dashboard-sub">Last updated: {lastUpdated}</p>
+          <h1>{t("salesReport")}</h1>
+          <p className="dashboard-sub">{t("lastUpdated")}: {lastUpdated}</p>
         </div>
         <div className="primary-controls">
           <button
@@ -126,7 +128,7 @@ export function SellerReportContent() {
             onClick={() => setLastUpdated("2026-05-04 12:15")}
           >
             <RefreshCw aria-hidden="true" size={18} strokeWidth={2.3} />
-            <span>Refresh Data</span>
+            <span>{t("refreshData")}</span>
           </button>
           <button
             className="export-button"
@@ -157,7 +159,7 @@ export function SellerReportContent() {
             }}
           >
             <Download aria-hidden="true" size={18} strokeWidth={2.3} />
-            <span>Export to CSV</span>
+            <span>{t("exportCsv")}</span>
           </button>
         </div>
       </header>
@@ -172,7 +174,7 @@ export function SellerReportContent() {
           <input type="date" value={to} onChange={(event) => setTo(event.target.value)} />
         </label>
         <article className="kpi-card kpi-green report-total-card">
-          <p>Total Sales for Period</p>
+          <p>{t("totalSalesPeriod")}</p>
           <strong>{formatIqd(totalSales)}</strong>
         </article>
       </section>
@@ -183,19 +185,19 @@ export function SellerReportContent() {
           return (
             <section className="dashboard-panel report-panel" key={panel.id}>
               <div className="panel-heading">
-                <h2>{panel.title}</h2>
+                <h2>{t(panel.titleKey)}</h2>
                 <button
                   className="row-action-btn"
                   type="button"
                   onClick={() => setDetail(detail === panel.id ? null : panel.id)}
                 >
                   <Eye aria-hidden="true" size={14} strokeWidth={2.4} />
-                  Details
+                  {t("details")}
                 </button>
               </div>
               <div className="report-mini-chart">
                 {panel.rows.length === 0 ? (
-                  <div className="empty-cell">No data available</div>
+                  <div className="empty-cell">{t("noDataAvailable")}</div>
                 ) : (
                   panel.rows.map((row) => (
                     <div className="report-chart-row" key={`${panel.id}-${row.label}`}>
@@ -217,7 +219,7 @@ export function SellerReportContent() {
       {detail ? (
         <section className="dashboard-panel report-panel">
           <div className="panel-heading">
-            <h2>Details: {panels.find((panel) => panel.id === detail)?.title}</h2>
+            <h2>{t("detailsPanel")} {t(panels.find((panel) => panel.id === detail)?.titleKey ?? "salesByProduct")}</h2>
           </div>
           <p className="dashboard-sub">
             Details will open here in the current version and can be linked later to a Drill-down page.
@@ -227,26 +229,26 @@ export function SellerReportContent() {
 
       <section className="dashboard-panel report-panel">
         <div className="panel-heading">
-          <h2>Monthly Sales Report Table</h2>
+          <h2>{t("monthlySalesTable")}</h2>
         </div>
         <div className="purchase-order-table-wrap">
           <table className="purchase-order-table report-detail-table">
             <thead>
               <tr>
-                <th>Sale Date</th>
-                <th>Product Name</th>
-                <th>Image</th>
-                <th>Barcode</th>
-                <th>Color</th>
-                <th>Order #</th>
-                <th>Product Code</th>
-                <th>City</th>
-                <th>Delivery Agent</th>
-                <th>Shipment Status</th>
-                <th>Payment Method</th>
-                <th>Size</th>
-                <th>Price</th>
-                <th>Commission</th>
+                <th>{t("saleDate")}</th>
+                <th>{t("productName")}</th>
+                <th>{t("image")}</th>
+                <th>{t("barcode")}</th>
+                <th>{t("color")}</th>
+                <th>{t("orderNum")}</th>
+                <th>{t("productCode")}</th>
+                <th>{t("city")}</th>
+                <th>{t("deliveryAgent")}</th>
+                <th>{t("shipmentStatus")}</th>
+                <th>{t("paymentMethod")}</th>
+                <th>{t("size")}</th>
+                <th>{t("price")}</th>
+                <th>{t("commission")}</th>
               </tr>
             </thead>
             <tbody>

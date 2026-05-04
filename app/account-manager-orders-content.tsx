@@ -2,6 +2,7 @@
 
 import { ArrowRightLeft, Check, Megaphone, Send, UserPlus, X } from "lucide-react";
 import { Fragment, useState } from "react";
+import { useLang } from "./lang-context";
 import {
   marketingCampaigns,
   marketingPackages,
@@ -204,6 +205,7 @@ function TransferAgentModal({
 }
 
 export function AccountManagerOrdersContent() {
+  const { t } = useLang();
   const [orders, setOrders] = useState(sample);
   const [campaigns, setCampaigns] = useState<MarketingCampaign[]>(marketingCampaigns);
   const [vendorFilter, setVendorFilter] = useState<string[]>([]);
@@ -225,7 +227,7 @@ export function AccountManagerOrdersContent() {
 
   return (
     <div className="account-manager-orders-content">
-      <h1>Vendor Orders</h1>
+      <h1>{t("vendorOrders")}</h1>
 
       <section className="account-manager-card">
         <div className="am-filters">

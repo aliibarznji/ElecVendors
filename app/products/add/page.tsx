@@ -1,10 +1,13 @@
 import { AddProductContent } from "../../add-product-content";
 import { DashboardShell } from "../../dashboard-shell";
 
-export default function AddProductPage() {
+type Props = { searchParams: Promise<{ id?: string }> };
+
+export default async function AddProductPage({ searchParams }: Props) {
+  const { id } = await searchParams;
   return (
     <DashboardShell>
-      <AddProductContent />
+      <AddProductContent editId={id} />
     </DashboardShell>
   );
 }

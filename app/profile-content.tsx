@@ -2,6 +2,7 @@
 
 import type { LucideIcon } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
+import { useLang } from "./lang-context";
 import {
   Activity,
   Award,
@@ -166,17 +167,18 @@ function MapFrame({ title }: { title: string }) {
 
 export function ProfileContent() {
   const [banner, setBanner] = useState("");
+  const { t } = useLang();
 
   useEffect(() => {
     if (!banner) return;
-    const t = setTimeout(() => setBanner(""), 4000);
-    return () => clearTimeout(t);
+    const timer = setTimeout(() => setBanner(""), 4000);
+    return () => clearTimeout(timer);
   }, [banner]);
 
   return (
     <div className="profile-content">
       {banner ? <div className="success-banner">{banner}</div> : null}
-      <h1>Profile Details</h1>
+      <h1>{t("vendorProfile")}</h1>
 
       <div className="profile-card">
         <section className="profile-section">
@@ -306,7 +308,7 @@ export function ProfileContent() {
             <button
               className="warehouse-button"
               type="button"
-              onClick={() => setBanner("Warehouse form available in the full platform. Contact your account manager to add a new warehouse location.")}
+              onClick={() => setBanner(t("warehouseContact"))}
             >
               <MapPin aria-hidden="true" size={17} strokeWidth={2.4} />
               <span>Add warehouse</span>
@@ -405,7 +407,7 @@ export function ProfileContent() {
               <button
                 className="submit-all-button"
                 type="button"
-                onClick={() => setBanner("Documents submitted successfully. The team will review them within 1–2 business days.")}
+                onClick={() => setBanner(t("documentsSubmitted"))}
               >
                 <Save aria-hidden="true" size={20} strokeWidth={2.3} />
                 <span>Submit All</span>
@@ -455,8 +457,8 @@ export function ProfileContent() {
               className="submit-all-button"
               type="button"
               onClick={() => {
-                if (window.confirm("Redeem 100 points for marketing credits?")) {
-                  setBanner("100 points redeemed. Marketing credits have been added to your account.");
+                if (window.confirm(t("redeemConfirm"))) {
+                  setBanner(t("pointsRedeemed"));
                 }
               }}
             >

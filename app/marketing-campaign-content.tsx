@@ -2,6 +2,7 @@
 
 import { Check, Megaphone, ShoppingCart } from "lucide-react";
 import { useState } from "react";
+import { useLang } from "./lang-context";
 import {
   marketingPackages,
   vendorProfile,
@@ -29,15 +30,14 @@ function saveCampaign(campaign: MarketingCampaign) {
 
 export function MarketingCampaignContent() {
   const [purchased, setPurchased] = useState<MarketingCampaign | null>(null);
+  const { t } = useLang();
 
   return (
     <div className="marketing-campaign-content dashboard-content">
       <header className="page-title-row">
         <div>
-          <h1>Purchase Marketing Campaign</h1>
-          <p className="dashboard-sub">
-            Choose a marketing package from the platform. After purchase, it appears in account manager pending approval.
-          </p>
+          <h1>{t("newCampaign")}</h1>
+          <p className="dashboard-sub">{t("newCampaignSub")}</p>
         </div>
       </header>
 

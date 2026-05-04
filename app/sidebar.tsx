@@ -26,68 +26,65 @@ import {
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { useLang } from "./lang-context";
+import type { Translations } from "./translations";
 
-const sidebarSections = [
+type SidebarLink = { labelKey: keyof Translations; href: string; icon: React.ComponentType<{ "aria-hidden"?: boolean | "true"; size?: number; strokeWidth?: number }> };
+type SidebarSection = { titleKey: keyof Translations; links: SidebarLink[] };
+
+const sidebarSections: SidebarSection[] = [
   {
-    title: "Dashboard",
+    titleKey: "sectionDashboard",
     links: [
-      { label: "Home", href: "/", icon: Home },
-      { label: "Notifications", href: "/notifications", icon: Bell },
+      { labelKey: "navHome", href: "/", icon: Home },
+      { labelKey: "navNotifications", href: "/notifications", icon: Bell },
     ],
   },
   {
-    title: "Store",
+    titleKey: "sectionStore",
     links: [
-      { label: "Order Items", href: "/orders", icon: ShoppingBag },
-      { label: "Inventory Management", href: "/inventory", icon: Package },
-      { label: "Instant Pricing", href: "/pricing", icon: CreditCard },
-      { label: "Product List", href: "/products", icon: List },
-      { label: "Add Product", href: "/products/add", icon: PlusSquare },
-      { label: "Bulk Updates", href: "/products/bulk", icon: Layers },
+      { labelKey: "navOrderItems", href: "/orders", icon: ShoppingBag },
+      { labelKey: "navInventory", href: "/inventory", icon: Package },
+      { labelKey: "navPricing", href: "/pricing", icon: CreditCard },
+      { labelKey: "navProductList", href: "/products", icon: List },
+      { labelKey: "navAddProduct", href: "/products/add", icon: PlusSquare },
+      { labelKey: "navBulkUpdates", href: "/products/bulk", icon: Layers },
     ],
   },
   {
-    title: "Discounts & Offers",
+    titleKey: "sectionDiscounts",
     links: [
-      { label: "Discount Plans", href: "/products/discounts", icon: Tag },
-      { label: "Delivery Prices", href: "/delivery-prices", icon: Truck },
+      { labelKey: "navDiscountPlans", href: "/products/discounts", icon: Tag },
+      { labelKey: "navDeliveryPrices", href: "/delivery-prices", icon: Truck },
     ],
   },
   {
-    title: "Reports",
+    titleKey: "sectionReports",
     links: [
-      { label: "Sales Report", href: "/seller-report", icon: BarChart3 },
-      { label: "Settlements", href: "/settlements", icon: Receipt },
+      { labelKey: "navSalesReport", href: "/seller-report", icon: BarChart3 },
+      { labelKey: "navSettlements", href: "/settlements", icon: Receipt },
     ],
   },
   {
-    title: "Marketing",
+    titleKey: "sectionMarketing",
     links: [
-      { label: "New Campaign", href: "/marketing/new", icon: Megaphone },
-      {
-        label: "Active Campaigns",
-        href: "/marketing/campaigns",
-        icon: PackageCheck,
-      },
+      { labelKey: "navNewCampaign", href: "/marketing/new", icon: Megaphone },
+      { labelKey: "navActiveCampaigns", href: "/marketing/campaigns", icon: PackageCheck },
     ],
   },
   {
-    title: "Vendor Profile",
+    titleKey: "sectionProfile",
     links: [
-      { label: "Vendor Profile", href: "/profile", icon: User },
-      { label: "Warranty", href: "/warranty", icon: ShieldCheck },
+      { labelKey: "navVendorProfile", href: "/profile", icon: User },
+      { labelKey: "navWarranty", href: "/warranty", icon: ShieldCheck },
     ],
   },
   {
-    title: "Account Manager",
+    titleKey: "sectionAccountManager",
     links: [
-      { label: "Vendor Orders", href: "/account-manager/orders", icon: Users },
-      {
-        label: "Pending Products",
-        href: "/account-manager/pending-products",
-        icon: ClipboardCheck,
-      },
-      { label: "Operations Log", href: "/account-manager/log", icon: History },
+      { labelKey: "navVendorOrders", href: "/account-manager/orders", icon: Users },
+      { labelKey: "navPendingProducts", href: "/account-manager/pending-products", icon: ClipboardCheck },
+      { labelKey: "navOperationsLog", href: "/account-manager/log", icon: History },
     ],
   },
 ];
@@ -98,6 +95,7 @@ export function Sidebar() {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const pathname = usePathname();
   const scrollRef = useRef<HTMLElement | null>(null);
+  const { t } = useLang();
 
   useEffect(() => {
     const node = scrollRef.current;
@@ -123,7 +121,7 @@ export function Sidebar() {
       <button
         className="sidebar-toggle"
         type="button"
-        aria-label={isCollapsed ? "Expand menu" : "Collapse menu"}
+        aria-label={isCollapsed ? t("expandMenu") : t("collapseMenu")}
         aria-expanded={!isCollapsed}
         onClick={() => setIsCollapsed((current) => !current)}
       >
@@ -140,8 +138,8 @@ export function Sidebar() {
         ref={scrollRef}
       >
         {sidebarSections.map((section) => (
-          <div className="sidebar-section" key={section.title}>
-            <p className="sidebar-section-title">{section.title}</p>
+          <div className="sidebar-section" key={section.titleKey}>
+            <p className="sidebar-section-title">{t(section.titleKey)}</p>
             <div className="sidebar-links">
               {section.links.map((link) => {
                 const Icon = link.icon;
@@ -157,11 +155,11 @@ export function Sidebar() {
                     aria-current={isActive ? "page" : undefined}
                     className={`sidebar-link${isActive ? " is-active" : ""}`}
                     href={link.href}
-                    key={link.label}
-                    title={isCollapsed ? link.label : undefined}
+                    key={link.labelKey}
+                    title={isCollapsed ? t(link.labelKey) : undefined}
                   >
                     <Icon aria-hidden="true" size={21} strokeWidth={1.9} />
-                    <span className="sidebar-link-label">{link.label}</span>
+                    <span className="sidebar-link-label">{t(link.labelKey)}</span>
                   </Link>
                 );
               })}

@@ -527,6 +527,13 @@ a {
   outline-offset: 2px;
 }
 
+.range-button.is-active {
+  background: var(--brand);
+  color: #fff;
+  border-color: var(--brand);
+  box-shadow: var(--shadow);
+}
+
 .dashboard-panel {
   border-radius: var(--radius);
   background: var(--surface);
@@ -11333,3 +11340,296 @@ body { background: var(--bg); }
 }
 .dashboard-line-labels span { display: grid; gap: 2px; font-size: 12px; color: var(--muted); }
 .dashboard-line-labels strong { font-size: 12.5px; color: var(--text); font-weight: 600; }
+
+/* ── RTL / Arabic layout overrides ────────────────────────────── */
+[dir="rtl"] {
+  font-family: "Segoe UI", "Noto Sans Arabic", "Cairo", "Tajawal", system-ui, sans-serif;
+}
+
+[dir="rtl"] .top-nav {
+  flex-direction: row-reverse;
+}
+
+[dir="rtl"] .nav-actions {
+  flex-direction: row-reverse;
+}
+
+[dir="rtl"] .dashboard-shell {
+  flex-direction: row-reverse;
+}
+
+[dir="rtl"] .sidebar {
+  border-right: none;
+  border-left: 1px solid var(--border);
+  order: 1;
+}
+
+[dir="rtl"] .sidebar-toggle {
+  left: auto;
+  right: -16px;
+}
+
+[dir="rtl"] .sidebar-section-title {
+  text-align: right;
+}
+
+[dir="rtl"] .sidebar-link {
+  flex-direction: row-reverse;
+  text-align: right;
+}
+
+[dir="rtl"] .sidebar-link.is-active::before {
+  left: auto;
+  right: 0;
+}
+
+[dir="rtl"] .dashboard-stage {
+  order: 0;
+}
+
+[dir="rtl"] .page-title-row,
+[dir="rtl"] .dashboard-header {
+  flex-direction: row-reverse;
+}
+
+[dir="rtl"] .page-title-row > div,
+[dir="rtl"] .dashboard-header > div {
+  text-align: right;
+}
+
+[dir="rtl"] .primary-controls,
+[dir="rtl"] .dashboard-controls,
+[dir="rtl"] .order-detail-actions {
+  flex-direction: row-reverse;
+}
+
+[dir="rtl"] .quick-ranges {
+  flex-direction: row-reverse;
+}
+
+[dir="rtl"] h1,
+[dir="rtl"] h2,
+[dir="rtl"] h3,
+[dir="rtl"] p,
+[dir="rtl"] .dashboard-sub {
+  text-align: right;
+}
+
+[dir="rtl"] .kpi-grid,
+[dir="rtl"] .dashboard-kpi-grid {
+  direction: rtl;
+}
+
+[dir="rtl"] .dashboard-kpi-top {
+  flex-direction: row-reverse;
+}
+
+[dir="rtl"] .dashboard-analytics-grid {
+  direction: rtl;
+}
+
+[dir="rtl"] .analytics-panel-heading {
+  flex-direction: row-reverse;
+}
+
+[dir="rtl"] .analytics-panel-heading > div {
+  text-align: right;
+}
+
+[dir="rtl"] .panel-heading {
+  flex-direction: row-reverse;
+}
+
+[dir="rtl"] .fulfillment-step > div,
+[dir="rtl"] .fulfillment-step {
+  direction: rtl;
+}
+
+[dir="rtl"] .best-seller-row {
+  flex-direction: row-reverse;
+}
+
+[dir="rtl"] .best-seller-row > div {
+  text-align: right;
+}
+
+[dir="rtl"] table {
+  direction: rtl;
+}
+
+[dir="rtl"] th,
+[dir="rtl"] td {
+  text-align: right;
+}
+
+[dir="rtl"] .order-items-filters,
+[dir="rtl"] .product-list-filters,
+[dir="rtl"] .product-management-filters {
+  flex-direction: row-reverse;
+}
+
+[dir="rtl"] .order-items-search {
+  flex-direction: row-reverse;
+}
+
+[dir="rtl"] .row-actions {
+  flex-direction: row-reverse;
+}
+
+[dir="rtl"] .order-detail-grid {
+  direction: rtl;
+}
+
+[dir="rtl"] .order-detail-card {
+  text-align: right;
+}
+
+[dir="rtl"] .order-detail-row {
+  flex-direction: row-reverse;
+}
+
+[dir="rtl"] .order-detail-totals > div {
+  flex-direction: row-reverse;
+}
+
+[dir="rtl"] .order-detail-back {
+  flex-direction: row-reverse;
+}
+
+[dir="rtl"] .product-section {
+  direction: rtl;
+}
+
+[dir="rtl"] .product-form-field > span,
+[dir="rtl"] label > span {
+  text-align: right;
+}
+
+[dir="rtl"] .section-copy {
+  text-align: right;
+}
+
+[dir="rtl"] .color-variant-header {
+  flex-direction: row-reverse;
+}
+
+[dir="rtl"] .inventory-summary-strip {
+  direction: rtl;
+}
+
+[dir="rtl"] .inventory-summary-item {
+  flex-direction: row-reverse;
+}
+
+[dir="rtl"] .inventory-summary-item > div {
+  text-align: right;
+}
+
+[dir="rtl"] .notification-row {
+  flex-direction: row-reverse;
+}
+
+[dir="rtl"] .notification-body {
+  text-align: right;
+}
+
+[dir="rtl"] .notification-row-top {
+  flex-direction: row-reverse;
+}
+
+[dir="rtl"] .report-chart-row {
+  flex-direction: row-reverse;
+}
+
+[dir="rtl"] .report-chart-row > div {
+  text-align: right;
+}
+
+[dir="rtl"] .kpi-card {
+  text-align: right;
+}
+
+[dir="rtl"] .statement-filter-row,
+[dir="rtl"] .statement-topline {
+  flex-direction: row-reverse;
+}
+
+[dir="rtl"] .purchase-order-pagination {
+  flex-direction: row-reverse;
+}
+
+[dir="rtl"] .modal-header {
+  flex-direction: row-reverse;
+}
+
+[dir="rtl"] .modal-header > div {
+  text-align: right;
+}
+
+[dir="rtl"] .product-name-cell {
+  text-align: right;
+}
+
+[dir="rtl"] .stacked-meta {
+  text-align: right;
+}
+
+[dir="rtl"] .color-swatch-row {
+  flex-direction: row-reverse;
+}
+
+[dir="rtl"] .review-grid {
+  direction: rtl;
+  text-align: right;
+}
+
+[dir="rtl"] .section-copy {
+  text-align: right;
+}
+
+[dir="rtl"] .product-details-grid {
+  direction: rtl;
+}
+
+[dir="rtl"] .notifications-summary {
+  flex-direction: row-reverse;
+}
+
+[dir="rtl"] .inventory-product-card {
+  text-align: right;
+}
+
+[dir="rtl"] .product-inline-summary {
+  flex-direction: row-reverse;
+  text-align: right;
+}
+
+[dir="rtl"] .am-filters {
+  flex-direction: row-reverse;
+}
+
+[dir="rtl"] .account-manager-log-content h1,
+[dir="rtl"] .account-manager-orders-content h1,
+[dir="rtl"] .account-manager-pending-content h1 {
+  text-align: right;
+}
+
+[dir="rtl"] .seller-rank {
+  order: 1;
+}
+
+[dir="rtl"] .dashboard-thumb {
+  order: 0;
+}
+
+[dir="rtl"] .bulk-tabs,
+[dir="rtl"] .order-items-tabs,
+[dir="rtl"] .product-status-tabs {
+  flex-direction: row-reverse;
+}
+
+[dir="rtl"] input,
+[dir="rtl"] textarea,
+[dir="rtl"] select {
+  text-align: right;
+}

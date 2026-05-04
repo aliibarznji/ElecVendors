@@ -3,6 +3,7 @@
 import { Clipboard, Download, Eye } from "lucide-react";
 import Link from "next/link";
 import { Fragment, useEffect, useMemo, useState } from "react";
+import { useLang } from "./lang-context";
 import { CAMPAIGNS_KEY } from "./marketing-campaign-content";
 import {
   getCampaignRemaining,
@@ -74,6 +75,7 @@ function loadStoredCampaigns() {
 export function ExistingMarketingCampaignsContent() {
   const [stored, setStored] = useState<MarketingCampaign[]>([]);
   const [open, setOpen] = useState<string | null>(null);
+  const { t } = useLang();
 
   useEffect(() => {
     const refresh = () => setStored(loadStoredCampaigns());
@@ -88,7 +90,7 @@ export function ExistingMarketingCampaignsContent() {
     <div className="existing-marketing-content dashboard-content">
       <header className="page-title-row">
         <div>
-          <h1>Active Marketing Campaigns</h1>
+          <h1>{t("activeCampaigns")}</h1>
           <p className="dashboard-sub">
             Track campaign status, campaign code, countdown, and performance reports after completion.
           </p>

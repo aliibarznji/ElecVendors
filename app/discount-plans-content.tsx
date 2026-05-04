@@ -2,6 +2,7 @@
 
 import { CalendarDays, Plus, Save, Search, X } from "lucide-react";
 import { Fragment, useMemo, useState } from "react";
+import { useLang } from "./lang-context";
 import {
   discountPlans as initialPlans,
   formatIqd,
@@ -130,6 +131,7 @@ export function DiscountPlansContent() {
   const [query, setQuery] = useState("");
   const [creating, setCreating] = useState(false);
   const [openPlan, setOpenPlan] = useState<string | null>(null);
+  const { t } = useLang();
 
   const visible = useMemo(() => {
     const normalized = query.trim().toLowerCase();
@@ -150,10 +152,8 @@ export function DiscountPlansContent() {
     <div className="discount-plans-content dashboard-content">
       <header className="page-title-row">
         <div>
-          <h1>Discount Plans</h1>
-          <p className="dashboard-sub">
-            Create plans containing multiple products with start and end dates and track sales and quantities.
-          </p>
+          <h1>{t("discountPlans")}</h1>
+          <p className="dashboard-sub">{t("discountPlansSub")}</p>
         </div>
         <button
           className="discount-create-button"
@@ -161,7 +161,7 @@ export function DiscountPlansContent() {
           onClick={() => setCreating(true)}
         >
           <Plus aria-hidden="true" size={16} strokeWidth={2.4} />
-          <span>Create Discount Plan</span>
+          <span>{t("createDiscount")}</span>
         </button>
       </header>
 

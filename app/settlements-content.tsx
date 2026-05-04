@@ -2,6 +2,7 @@
 
 import { Eye, Printer, RotateCcw } from "lucide-react";
 import { Fragment, useMemo, useState } from "react";
+import { useLang } from "./lang-context";
 import {
   filterSettlements,
   formatIqd,
@@ -15,6 +16,7 @@ export function SettlementsContent() {
   const [date, setDate] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("all");
   const [open, setOpen] = useState<string | null>(null);
+  const { t } = useLang();
 
   const visible = useMemo(
     () => filterSettlements(settlements, date, paymentMethod),
@@ -31,11 +33,13 @@ export function SettlementsContent() {
     <div className="settlements-content account-statement-content">
       <header className="page-title-row">
         <div>
-          <h1>Settlements</h1>
-          <p className="dashboard-sub">
-            Track paid and remaining sales with invoice details for printing or viewing.
-          </p>
+          <h1>{t("settlements")}</h1>
+          <p className="dashboard-sub">{t("settlementsSub")}</p>
         </div>
+        <button className="export-button" type="button" onClick={() => window.print()}>
+          <Printer aria-hidden="true" size={18} strokeWidth={2.3} />
+          <span>{t("printStatement")}</span>
+        </button>
       </header>
 
       <section className="statement-summary-grid" aria-label="Settlements Summary">
@@ -62,17 +66,17 @@ export function SettlementsContent() {
             }}
           >
             <RotateCcw aria-hidden="true" size={15} strokeWidth={2.2} />
-            Reset
+            {t("reset")}
           </button>
         </div>
 
         <div className="statement-filter-row">
           <label className="order-items-date">
-            <span>Settlement Date</span>
+            <span>{t("paymentDate")}</span>
             <input type="date" value={date} onChange={(event) => setDate(event.target.value)} />
           </label>
           <label className="order-items-date">
-            <span>Payment Method</span>
+            <span>{t("paymentMethod")}</span>
             <select value={paymentMethod} onChange={(event) => setPaymentMethod(event.target.value)}>
               <option value="all">All Methods</option>
               {[...new Set(settlements.map((settlement) => settlement.paymentMethod))].map((method) => (
@@ -86,21 +90,21 @@ export function SettlementsContent() {
           <table className="statement-table purchase-order-table">
             <thead>
               <tr>
-                <th>Settlement Date</th>
-                <th>Invoice Number</th>
-                <th>Number of Products</th>
-                <th>Settlement Amount</th>
-                <th>Payment Method</th>
-                <th>Status</th>
-                <th>View</th>
-                <th>Print</th>
+                <th>{t("settlementMonth")}</th>
+                <th>{t("invoiceNumber")}</th>
+                <th>No. of Products</th>
+                <th>{t("amount")}</th>
+                <th>{t("paymentMethod")}</th>
+                <th>{t("settlementStatus")}</th>
+                <th>{t("view")}</th>
+                <th>{t("print")}</th>
               </tr>
             </thead>
             <tbody>
               {visible.length === 0 ? (
                 <tr>
                   <td colSpan={8} className="empty-cell">
-                    No matching settlements.
+                    {t("noSettlements")}
                   </td>
                 </tr>
               ) : (
@@ -132,7 +136,7 @@ export function SettlementsContent() {
                           }
                         >
                           <Eye aria-hidden="true" size={14} strokeWidth={2.4} />
-                          View
+                          {t("view")}
                         </button>
                       </td>
                       <td>
@@ -142,7 +146,7 @@ export function SettlementsContent() {
                           onClick={() => window.print()}
                         >
                           <Printer aria-hidden="true" size={14} strokeWidth={2.4} />
-                          Print
+                          {t("print")}
                         </button>
                       </td>
                     </tr>
@@ -153,15 +157,15 @@ export function SettlementsContent() {
                             <table className="purchase-order-table inner-table">
                               <thead>
                                 <tr>
-                                  <th>Image</th>
-                                  <th>Product</th>
-                                  <th>SKU</th>
-                                  <th>Order Number</th>
-                                  <th>Status</th>
-                                  <th>Date</th>
-                                  <th>Selling Price</th>
-                                  <th>Cost</th>
-                                  <th>Compensation/Discount</th>
+                                  <th>{t("image")}</th>
+                                  <th>{t("product")}</th>
+                                  <th>{t("sku")}</th>
+                                  <th>{t("orderNumber")}</th>
+                                  <th>{t("status")}</th>
+                                  <th>{t("colDate")}</th>
+                                  <th>{t("colSellingPrice")}</th>
+                                  <th>{t("colCostPrice")}</th>
+                                  <th>{t("commission")}</th>
                                 </tr>
                               </thead>
                               <tbody>

@@ -2,6 +2,7 @@
 
 import { AlertTriangle, Lock, RotateCcw, Save, Search } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
+import { useLang } from "./lang-context";
 import {
   formatIqd,
   products,
@@ -43,11 +44,12 @@ export function PricingContent() {
     ),
   );
   const [saved, setSaved] = useState<string | null>(null);
+  const { t } = useLang();
 
   useEffect(() => {
     if (!saved) return;
-    const t = setTimeout(() => setSaved(null), 4000);
-    return () => clearTimeout(t);
+    const timer = setTimeout(() => setSaved(null), 4000);
+    return () => clearTimeout(timer);
   }, [saved]);
 
   const visible = useMemo(() => {
@@ -72,18 +74,16 @@ export function PricingContent() {
     <div className="pricing-content dashboard-content">
       <header className="page-title-row">
         <div>
-          <h1>Instant Pricing</h1>
-          <p className="dashboard-sub">
-            Edit cost price, selling price, and commission percentage with special agreement warnings.
-          </p>
+          <h1>{t("instantPricing")}</h1>
+          <p className="dashboard-sub">{t("instantPricingSub")}</p>
         </div>
         <button
           className="discount-create-button"
           type="button"
-          onClick={() => setSaved("Prices without errors or restrictions have been saved.")}
+          onClick={() => setSaved(t("pricingSaved"))}
         >
           <Save aria-hidden="true" size={16} strokeWidth={2.4} />
-          <span>Save Changes</span>
+          <span>{t("saveChanges")}</span>
         </button>
       </header>
 
@@ -94,18 +94,18 @@ export function PricingContent() {
           <label className="order-items-search">
             <Search aria-hidden="true" size={16} strokeWidth={2.2} />
             <input
-              placeholder="Search by product name or code"
+              placeholder={t("searchPricing")}
               value={query}
               onChange={(event) => setQuery(event.target.value)}
             />
           </label>
           <label className="order-items-date">
-            <span>Discount Plan</span>
+            <span>{t("discountPlan")}</span>
             <select value={status} onChange={(event) => setStatus(event.target.value)}>
-              <option value="all">All Products</option>
+              <option value="all">{t("allProducts")}</option>
               <option value="none">No Discount</option>
-              <option value="active">Active Discount</option>
-              <option value="scheduled">Scheduled Discount</option>
+              <option value="active">{t("activeStatus")}</option>
+              <option value="scheduled">Scheduled</option>
             </select>
           </label>
           <button
@@ -118,7 +118,7 @@ export function PricingContent() {
             }}
           >
             <RotateCcw aria-hidden="true" size={15} strokeWidth={2.2} />
-            <span>Reset</span>
+            <span>{t("reset")}</span>
           </button>
         </div>
 
@@ -126,13 +126,13 @@ export function PricingContent() {
           <table className="purchase-order-table pricing-table">
             <thead>
               <tr>
-                <th>Product</th>
-                <th>Code</th>
-                <th>Status</th>
-                <th>Cost Price</th>
-                <th>Selling Price</th>
+                <th>{t("product")}</th>
+                <th>{t("sku")}</th>
+                <th>{t("status")}</th>
+                <th>{t("colCostPrice")}</th>
+                <th>{t("colSellingPrice")}</th>
                 <th>Commission %</th>
-                <th>Discount Plan</th>
+                <th>{t("discountPlan")}</th>
                 <th>Validation</th>
               </tr>
             </thead>
@@ -158,7 +158,7 @@ export function PricingContent() {
                           product.status === "published" ? "is-active" : "is-pending"
                         }`}
                       >
-                        {product.status === "published" ? "Published" : "Unpublished/Under Review"}
+                        {product.status === "published" ? t("published") : t("unpublished")}
                       </span>
                     </td>
                     <td>

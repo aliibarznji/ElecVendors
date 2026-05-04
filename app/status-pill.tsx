@@ -1,12 +1,7 @@
-import type { OrderStatus } from "./vendor-dashboard-data";
+"use client";
 
-const STATUS_LABEL: Record<OrderStatus, string> = {
-  new: "New Order",
-  ready: "Ready to Ship",
-  shipped: "Shipped",
-  delivered: "Delivered",
-  cancelled: "Cancelled",
-};
+import { useLang } from "./lang-context";
+import type { OrderStatus } from "./vendor-dashboard-data";
 
 const STATUS_CLASS: Record<OrderStatus, string> = {
   new: "is-pending",
@@ -23,14 +18,19 @@ export function StatusPill({
   status: OrderStatus;
   shortLabel?: boolean;
 }) {
-  const label = shortLabel
-    ? STATUS_LABEL[status].replace(" Order", "")
-    : STATUS_LABEL[status];
+  const { t } = useLang();
+  const labels: Record<OrderStatus, string> = {
+    new: shortLabel ? t("statusNew") : t("newOrders"),
+    ready: t("readyToShip"),
+    shipped: t("shipped"),
+    delivered: t("delivered"),
+    cancelled: t("statusCancelled"),
+  };
   return (
     <span className={`approved-status-badge ${STATUS_CLASS[status]}`}>
-      {label}
+      {labels[status]}
     </span>
   );
 }
 
-export { STATUS_LABEL as orderStatusLabel, STATUS_CLASS as orderStatusClass };
+export { STATUS_CLASS as orderStatusClass };

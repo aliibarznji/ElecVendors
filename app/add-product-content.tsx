@@ -12,6 +12,8 @@ import {
   UploadCloud,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
+import { useLang } from "./lang-context";
+import { getProduct } from "./vendor-dashboard-data";
 
 type SizeRow = {
   id: string;
@@ -90,70 +92,65 @@ function SelectBox({
   );
 }
 
-export function AddProductContent() {
-  const [nameAr, setNameAr] = useState("");
-  const [nameEn, setNameEn] = useState("");
-  const [highlights, setHighlights] = useState("");
-  const [description, setDescription] = useState("");
-  const [keywords, setKeywords] = useState("");
-  const [materialCode, setMaterialCode] = useState("");
-  const [sellingPrice, setSellingPrice] = useState("");
-  const [costPrice, setCostPrice] = useState("");
-  const [largeProduct, setLargeProduct] = useState(false);
-  const [category, setCategory] = useState(categories[0]);
-  const [brand, setBrand] = useState("");
-  const [barcode, setBarcode] = useState("");
-  const [vendorCode, setVendorCode] = useState("");
-  const [colors, setColors] = useState<ColorRow[]>([
-    {
-      id: "color-1",
-      code: "#c7ccd4",
-      name: "Silver",
-      sizes: [{ id: "size-1", size: "Standard", quantity: 1 }],
-    },
-  ]);
+export function AddProductContent({ editId }: { editId?: string }) {
+  const ep = editId ? getProduct(editId) : null;
+  const { t } = useLang();
+
+  const [nameAr, setNameAr] = useState(() => ep?.nameAr ?? "");
+  const [nameEn, setNameEn] = useState(() => ep?.nameEn ?? "");
+  const [highlights, setHighlights] = useState(() => ep?.highlights ?? "");
+  const [description, setDescription] = useState(() => ep?.description ?? "");
+  const [keywords, setKeywords] = useState(() => ep?.keywords.join(", ") ?? "");
+  const [materialCode, setMaterialCode] = useState(() => ep?.materialCode ?? "");
+  const [sellingPrice, setSellingPrice] = useState(() => ep ? String(ep.sellingPrice) : "");
+  const [costPrice, setCostPrice] = useState(() => ep ? String(ep.costPrice) : "");
+  const [largeProduct, setLargeProduct] = useState(() => ep?.largeProduct ?? false);
+  const [category, setCategory] = useState<string[]>(() => ep ? [...ep.categoryLevels] : categories[0]);
+  const [brand, setBrand] = useState(() => ep?.brand ?? "");
+  const [barcode, setBarcode] = useState(() => ep?.barcode ?? "");
+  const [vendorCode, setVendorCode] = useState(() => ep?.vendorCode ?? "");
+  const [colors, setColors] = useState<ColorRow[]>(() =>
+    ep
+      ? ep.colors.map((c, ci) => ({
+          id: `color-${ci}`,
+          code: c.code,
+          name: c.nameEn,
+          sizes: c.sizes.map((s, si) => ({ id: `size-${ci}-${si}`, size: s.size, quantity: s.quantity })),
+        }))
+      : [{ id: "color-1", code: "#c7ccd4", name: "Silver", sizes: [{ id: "size-1", size: "Standard", quantity: 1 }] }],
+  );
   const [submitted, setSubmitted] = useState(false);
   const [saved, setSaved] = useState(false);
 
   useEffect(() => {
     if (!saved) return;
-    const t = setTimeout(() => setSaved(false), 5000);
-    return () => clearTimeout(t);
+    const timer = setTimeout(() => setSaved(false), 5000);
+    return () => clearTimeout(timer);
   }, [saved]);
 
   const errors = useMemo(() => {
     const next: Record<string, string> = {};
-    if (!nameAr.trim()) next.nameAr = "Arabic Product Name is required.";
-    if (!nameEn.trim()) next.nameEn = "English Product Name is required.";
-    if (!materialCode.trim()) next.materialCode = "Product or Material Code is required.";
-    if (!brand.trim()) next.brand = "Brand is required.";
-    if (!barcode.trim()) next.barcode = "Barcode is required.";
-    if (!vendorCode.trim()) next.vendorCode = "Vendor Product Code is required.";
+    if (!nameAr.trim()) next.nameAr = t("errNameAr");
+    if (!nameEn.trim()) next.nameEn = t("errNameEn");
+    if (!materialCode.trim()) next.materialCode = t("errMaterialCode");
+    if (!brand.trim()) next.brand = t("errBrand");
+    if (!barcode.trim()) next.barcode = t("errBarcode");
+    if (!vendorCode.trim()) next.vendorCode = t("errVendorCode");
     const selling = Number(sellingPrice);
     const cost = Number(costPrice);
-    if (!selling || selling <= 0) next.sellingPrice = "Selling Price is required.";
-    if (!cost || cost <= 0) next.costPrice = "Cost Price is required.";
+    if (!selling || selling <= 0) next.sellingPrice = t("errSellingPrice");
+    if (!cost || cost <= 0) next.costPrice = t("errCostPrice");
     if (selling && cost && selling < cost) {
-      next.sellingPrice = "Selling Price must be higher than the Cost Price.";
+      next.sellingPrice = t("errPriceOrder");
     }
     if (colors.some((color) => !color.code || !color.name)) {
-      next.colors = "Every color needs a color code and a color name.";
+      next.colors = t("errColors");
     }
     if (colors.some((color) => color.sizes.some((size) => !size.size || size.quantity < 0))) {
-      next.sizes = "Every size row needs a size name and a valid quantity.";
+      next.sizes = t("errSizes");
     }
     return next;
-  }, [
-    barcode,
-    brand,
-    colors,
-    costPrice,
-    materialCode,
-    nameAr,
-    nameEn,
-    sellingPrice,
-    vendorCode,
-  ]);
+  }, [barcode, brand, colors, costPrice, materialCode, nameAr, nameEn, sellingPrice, vendorCode, t]);
 
   const updateColor = (id: string, patch: Partial<ColorRow>) => {
     setColors((current) =>
@@ -180,9 +177,9 @@ export function AddProductContent() {
     <div className="add-product-content">
       <header className="page-title-row">
         <div>
-          <h1>Add / Edit Product</h1>
+          <h1>{ep ? `${t("editProductTitle")}: ${ep.nameEn}` : t("addProductTitle")}</h1>
           <p className="dashboard-sub">
-            A single form covering product data, pricing, categories, images, colors, and sizes.
+            {ep ? t("editProductSub") : t("addProductSub")}
           </p>
         </div>
         <button
@@ -210,48 +207,46 @@ export function AddProductContent() {
           }}
         >
           <Save aria-hidden="true" size={16} strokeWidth={2.4} />
-          <span>Save Product</span>
+          <span>{ep ? t("updateProduct") : t("saveProduct")}</span>
         </button>
       </header>
 
       {saved ? (
         <div className="success-banner">
-          Product submitted for review. The data team will publish it after verification.
+          {ep ? t("productUpdated") : t("productSaved")}
         </div>
       ) : null}
 
       {submitted && Object.keys(errors).length > 0 ? (
-        <div className="warning-banner">
-          Please complete required fields and fix errors before saving the product.
-        </div>
+        <div className="warning-banner">{t("formErrors")}</div>
       ) : null}
 
       <section className="product-section">
-        <h2>Basic Information</h2>
+        <h2>{t("basicInfo")}</h2>
         <div className="product-details-grid">
           <div className="product-field-stack">
             <Field
-              label="Product Name in Arabic"
+              label={t("productNameAr")}
               value={nameAr}
               onChange={setNameAr}
               placeholder="Example: Hair Curling Iron"
               error={submitted ? errors.nameAr : undefined}
             />
             <Field
-              label="Product Name in English"
+              label={t("productNameEn")}
               value={nameEn}
               onChange={setNameEn}
               placeholder="Product English name"
               error={submitted ? errors.nameEn : undefined}
             />
             <Field
-              label="Highlights"
+              label={t("highlights")}
               value={highlights}
               onChange={setHighlights}
               placeholder="Fast heating, 1-year warranty, Silver color"
             />
             <Field
-              label="Keywords"
+              label={t("keywordsLabel")}
               value={keywords}
               onChange={setKeywords}
               placeholder="sheglam, beauty, hair iron"
@@ -259,28 +254,28 @@ export function AddProductContent() {
           </div>
           <div className="product-field-stack">
             <Field
-              label="Product / Material Code"
+              label={t("materialCode")}
               value={materialCode}
               onChange={setMaterialCode}
               placeholder="MAT-SG-CURL-400"
               error={submitted ? errors.materialCode : undefined}
             />
             <Field
-              label="Brand"
+              label={t("brandLabel")}
               value={brand}
               onChange={setBrand}
               placeholder="Sheglam"
               error={submitted ? errors.brand : undefined}
             />
             <Field
-              label="Barcode"
+              label={t("barcodeField")}
               value={barcode}
               onChange={setBarcode}
               placeholder="8901234567891"
               error={submitted ? errors.barcode : undefined}
             />
             <Field
-              label="Vendor Product Code"
+              label={t("vendorCodeField")}
               value={vendorCode}
               onChange={setVendorCode}
               placeholder="SG-CRL-400-SL"
@@ -289,7 +284,7 @@ export function AddProductContent() {
           </div>
         </div>
         <label className="product-form-field">
-          <span>Description</span>
+          <span>{t("descriptionLabel")}</span>
           <textarea
             className="product-textarea"
             value={description}
@@ -300,13 +295,13 @@ export function AddProductContent() {
       </section>
 
       <section className="product-section">
-        <h2>Classification and Pricing</h2>
+        <h2>{t("classificationPricing")}</h2>
         <div className="product-details-grid">
           <div className="product-field-stack">
             {[0, 1, 2, 3].map((level) => (
               <SelectBox
                 key={level}
-                label={`Category Level ${level + 1}`}
+                label={`${t("categoryLevel")} ${level + 1}`}
                 value={category[level]}
                 onChange={(value) =>
                   setCategory((current) =>
@@ -319,7 +314,7 @@ export function AddProductContent() {
           </div>
           <div className="product-field-stack">
             <Field
-              label="Selling Price IQD"
+              label={t("sellingPriceIqd")}
               type="number"
               value={sellingPrice}
               onChange={setSellingPrice}
@@ -327,7 +322,7 @@ export function AddProductContent() {
               error={submitted ? errors.sellingPrice : undefined}
             />
             <Field
-              label="Cost Price IQD"
+              label={t("costPriceIqd")}
               type="number"
               value={costPrice}
               onChange={setCostPrice}
@@ -342,7 +337,7 @@ export function AddProductContent() {
             >
               <span className={`toggle-switch${largeProduct ? " is-enabled" : ""}`} />
               <ToggleRight aria-hidden="true" size={18} strokeWidth={2.3} />
-              <strong>{largeProduct ? "Large Product" : "Small/Regular Product"}</strong>
+              <strong>{largeProduct ? t("largeProductLabel") : t("smallProductLabel")}</strong>
             </button>
           </div>
         </div>
@@ -350,20 +345,20 @@ export function AddProductContent() {
 
       <section className="product-section product-images-section">
         <div className="section-copy">
-          <h2>Product Images</h2>
-          <p>The first image is the main image. It is preferable to upload clear images with a white background.</p>
+          <h2>{t("productImages")}</h2>
+          <p>{t("productImagesSub")}</p>
         </div>
         <div className="image-dropzone">
           <UploadCloud aria-hidden="true" size={48} strokeWidth={2.2} />
-          <strong>Drag images here or click to upload</strong>
-          <span>PNG or JPG - up to 10 images</span>
+          <strong>{t("dragImages")}</strong>
+          <span>{t("imageFormats")}</span>
         </div>
       </section>
 
       <section className="product-section">
         <div className="section-copy">
-          <h2>Colors, Sizes, and Quantities</h2>
-          <p>More than one color can be added, and each color contains size and quantity rows.</p>
+          <h2>{t("colorsSizesQty")}</h2>
+          <p>{t("colorsSizesSub")}</p>
         </div>
         {submitted && (errors.colors || errors.sizes) ? (
           <em className="form-error">{errors.colors || errors.sizes}</em>
@@ -373,7 +368,7 @@ export function AddProductContent() {
             <article className="color-variant-card" key={color.id}>
               <div className="color-variant-header">
                 <label>
-                  <span>Color Code</span>
+                  <span>{t("colorCode")}</span>
                   <input
                     type="color"
                     value={color.code}
@@ -381,7 +376,7 @@ export function AddProductContent() {
                   />
                 </label>
                 <label>
-                  <span>Color Name</span>
+                  <span>{t("colorName")}</span>
                   <input
                     value={color.name}
                     onChange={(event) => updateColor(color.id, { name: event.target.value })}
@@ -390,7 +385,7 @@ export function AddProductContent() {
                 <button
                   className="row-action-btn reject-btn"
                   type="button"
-                  aria-label="Delete Color"
+                  aria-label={t("deleteColor")}
                   onClick={() =>
                     setColors((current) => current.filter((item) => item.id !== color.id))
                   }
@@ -402,7 +397,7 @@ export function AddProductContent() {
                 {color.sizes.map((size) => (
                   <div className="size-row" key={size.id}>
                     <label>
-                      <span>Size</span>
+                      <span>{t("sizeLabel")}</span>
                       <input
                         value={size.size}
                         onChange={(event) =>
@@ -411,7 +406,7 @@ export function AddProductContent() {
                       />
                     </label>
                     <label>
-                      <span>Quantity</span>
+                      <span>{t("quantityLabel")}</span>
                       <input
                         type="number"
                         value={size.quantity}
@@ -438,7 +433,7 @@ export function AddProductContent() {
                 }
               >
                 <Plus aria-hidden="true" size={16} strokeWidth={2.4} />
-                Add Size
+                {t("addSize")}
               </button>
             </article>
           ))}
@@ -459,17 +454,17 @@ export function AddProductContent() {
           }
         >
           <ImagePlus aria-hidden="true" size={16} strokeWidth={2.4} />
-          <span>Add Color</span>
+          <span>{t("addColor")}</span>
         </button>
       </section>
 
       <section className="product-section">
-        <h2>Review before Saving</h2>
+        <h2>{t("reviewBeforeSave")}</h2>
         <div className="review-grid">
-          <span><Tag aria-hidden="true" size={15} /> {nameAr || "Product Name"}</span>
-          <span><Barcode aria-hidden="true" size={15} /> {barcode || "Barcode"}</span>
+          <span><Tag aria-hidden="true" size={15} /> {nameAr || t("productNameAr")}</span>
+          <span><Barcode aria-hidden="true" size={15} /> {barcode || t("barcodeField")}</span>
           <span>{category.filter(Boolean).join(" / ")}</span>
-          <span>{colors.length} Colors / {colors.reduce((sum, color) => sum + color.sizes.length, 0)} Sizes</span>
+          <span>{colors.length} {t("colorsCount")} / {colors.reduce((sum, color) => sum + color.sizes.length, 0)} {t("sizesCount")}</span>
         </div>
       </section>
     </div>

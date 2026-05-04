@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Bell,
   Megaphone,
@@ -8,21 +10,24 @@ import {
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import Link from "next/link";
+import { useLang } from "./lang-context";
+import type { Translations } from "./translations";
 import {
   getUnreadNotifications,
   notifications,
   type NotificationKind,
 } from "./vendor-dashboard-data";
 
-const kindMeta: Record<NotificationKind, { label: string; icon: LucideIcon; tone: string }> = {
-  order: { label: "Order", icon: ShoppingBag, tone: "blue" },
-  campaign: { label: "Campaign", icon: Megaphone, tone: "green" },
-  settlement: { label: "Settlement", icon: Receipt, tone: "cyan" },
-  stock: { label: "Stock", icon: Package, tone: "amber" },
-  system: { label: "System", icon: Settings, tone: "gray" },
+const kindMeta: Record<NotificationKind, { labelKey: keyof Translations; icon: LucideIcon; tone: string }> = {
+  order: { labelKey: "kindOrder", icon: ShoppingBag, tone: "blue" },
+  campaign: { labelKey: "kindCampaign", icon: Megaphone, tone: "green" },
+  settlement: { labelKey: "kindSettlement", icon: Receipt, tone: "cyan" },
+  stock: { labelKey: "kindStock", icon: Package, tone: "amber" },
+  system: { labelKey: "kindSystem", icon: Settings, tone: "gray" },
 };
 
 export function NotificationsContent() {
+  const { t } = useLang();
   const unread = getUnreadNotifications();
   const sorted = [...notifications].sort((a, b) =>
     b.createdAt.localeCompare(a.createdAt),
@@ -32,17 +37,15 @@ export function NotificationsContent() {
     <div className="dashboard-content">
       <header className="page-title-row">
         <div>
-          <h1>Notifications</h1>
-          <p className="dashboard-sub">
-            Orders, campaigns, settlements and stock alerts in one feed.
-          </p>
+          <h1>{t("notifications")}</h1>
+          <p className="dashboard-sub">{t("notificationsSub")}</p>
         </div>
         <div className="notifications-summary">
           <span className="notifications-summary-pill">
             <Bell aria-hidden="true" size={16} strokeWidth={2.2} />
-            {unread} unread
+            {unread} {t("unread")}
           </span>
-          <span>{sorted.length} total</span>
+          <span>{sorted.length} {t("total")}</span>
         </div>
       </header>
 
@@ -63,7 +66,7 @@ export function NotificationsContent() {
               <div className="notification-body">
                 <div className="notification-row-top">
                   <strong>{notification.title}</strong>
-                  <span className="notification-kind">{meta.label}</span>
+                  <span className="notification-kind">{t(meta.labelKey)}</span>
                 </div>
                 <p>{notification.body}</p>
                 <small>{notification.createdAt}</small>

@@ -2,6 +2,7 @@
 
 import { Pencil, Plus, RotateCcw, Save, Search, Trash2 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
+import { useLang } from "./lang-context";
 import { deliveryPrices } from "./vendor-dashboard-data";
 
 type Row = {
@@ -17,10 +18,12 @@ export function DeliveryPricesContent() {
   const [editing, setEditing] = useState<string | null>(null);
   const [message, setMessage] = useState("");
 
+  const { t } = useLang();
+
   useEffect(() => {
     if (!message) return;
-    const t = setTimeout(() => setMessage(""), 4000);
-    return () => clearTimeout(t);
+    const timer = setTimeout(() => setMessage(""), 4000);
+    return () => clearTimeout(timer);
   }, [message]);
 
   const visible = useMemo(() => {
@@ -39,19 +42,17 @@ export function DeliveryPricesContent() {
     <div className="delivery-prices-content dashboard-content">
       <header className="page-title-row">
         <div>
-          <h1>Vendor Delivery Prices</h1>
-          <p className="dashboard-sub">
-            Set delivery prices for each province for small and large products and free delivery rules.
-          </p>
+          <h1>{t("deliveryPrices")}</h1>
+          <p className="dashboard-sub">{t("deliveryPricesSub")}</p>
         </div>
         <button
           className="discount-create-button"
           type="button"
           disabled={hasInvalid}
-          onClick={() => setMessage("Delivery prices have been saved.")}
+          onClick={() => setMessage(t("deliverySaved"))}
         >
           <Save aria-hidden="true" size={16} strokeWidth={2.4} />
-          <span>Save Prices</span>
+          <span>{t("saveDeliveryPrices")}</span>
         </button>
       </header>
 

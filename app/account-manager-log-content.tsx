@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useLang } from "./lang-context";
 
 const actions = [
   "Order Transfer",
@@ -56,6 +57,7 @@ const entries: Entry[] = [
 ];
 
 export function AccountManagerLogContent() {
+  const { t } = useLang();
   const [actionType, setActionType] = useState("All");
   const [user, setUser] = useState("");
   const [from, setFrom] = useState("");
@@ -71,7 +73,7 @@ export function AccountManagerLogContent() {
 
   return (
     <div className="account-manager-log-content">
-      <h1>Operations Log</h1>
+      <h1>{t("operationsLog")}</h1>
 
       <section className="account-manager-card">
         <div className="am-filters">
