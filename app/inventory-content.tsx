@@ -1,7 +1,7 @@
 "use client";
 
 import { AlertTriangle, PackageCheck, RotateCcw, Save, Search } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   formatIqd,
   products,
@@ -28,6 +28,12 @@ export function InventoryContent() {
     Object.fromEntries(products.map((product) => [product.id, product.quantity])),
   );
   const [message, setMessage] = useState("");
+
+  useEffect(() => {
+    if (!message) return;
+    const t = setTimeout(() => setMessage(""), 4000);
+    return () => clearTimeout(t);
+  }, [message]);
 
   const visible = useMemo(() => {
     const normalized = query.trim().toLowerCase();

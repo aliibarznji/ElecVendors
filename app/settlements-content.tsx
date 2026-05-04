@@ -136,7 +136,11 @@ export function SettlementsContent() {
                         </button>
                       </td>
                       <td>
-                        <button className="row-action-btn" type="button">
+                        <button
+                          className="row-action-btn"
+                          type="button"
+                          onClick={() => window.print()}
+                        >
                           <Printer aria-hidden="true" size={14} strokeWidth={2.4} />
                           Print
                         </button>

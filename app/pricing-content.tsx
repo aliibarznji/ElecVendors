@@ -1,7 +1,7 @@
 "use client";
 
 import { AlertTriangle, Lock, RotateCcw, Save, Search } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   formatIqd,
   products,
@@ -43,6 +43,12 @@ export function PricingContent() {
     ),
   );
   const [saved, setSaved] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!saved) return;
+    const t = setTimeout(() => setSaved(null), 4000);
+    return () => clearTimeout(t);
+  }, [saved]);
 
   const visible = useMemo(() => {
     const normalized = query.trim().toLowerCase();

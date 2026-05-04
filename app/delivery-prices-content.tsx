@@ -1,7 +1,7 @@
 "use client";
 
 import { Pencil, Plus, RotateCcw, Save, Search, Trash2 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { deliveryPrices } from "./vendor-dashboard-data";
 
 type Row = {
@@ -16,6 +16,12 @@ export function DeliveryPricesContent() {
   const [query, setQuery] = useState("");
   const [editing, setEditing] = useState<string | null>(null);
   const [message, setMessage] = useState("");
+
+  useEffect(() => {
+    if (!message) return;
+    const t = setTimeout(() => setMessage(""), 4000);
+    return () => clearTimeout(t);
+  }, [message]);
 
   const visible = useMemo(() => {
     const normalized = query.trim();

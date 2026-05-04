@@ -4,6 +4,21 @@ import { CheckCircle2, Download, FileSpreadsheet, UploadCloud } from "lucide-rea
 import { useMemo, useState } from "react";
 import { products, validateBulkUpdateRow } from "./vendor-dashboard-data";
 
+function downloadTemplate(mode: "prices" | "stock") {
+  const headers = mode === "prices" ? ["sku", "selling_price", "cost_price"] : ["sku", "quantity"];
+  const rows = products.map((p) =>
+    mode === "prices" ? [p.sku, p.sellingPrice, p.costPrice] : [p.sku, p.quantity],
+  );
+  const csv = [headers, ...rows].map((row) => row.map((v) => `"${v}"`).join(",")).join("\n");
+  const blob = new Blob([csv], { type: "text/csv" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `products-${mode}-template.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
 type Mode = "prices" | "stock";
 
 const steps = [
@@ -92,7 +107,11 @@ export function BulkOperationsContent() {
               <li key={step}>
                 <span>{step}</span>
                 {index === 0 ? (
-                  <button className="bulk-export-button" type="button">
+                  <button
+                    className="bulk-export-button"
+                    type="button"
+                    onClick={() => downloadTemplate(mode)}
+                  >
                     <Download aria-hidden="true" size={16} strokeWidth={2.4} />
                     Download current products file
                   </button>

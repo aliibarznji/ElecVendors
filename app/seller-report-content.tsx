@@ -10,6 +10,19 @@ import {
   salesByProvince,
 } from "./vendor-dashboard-data";
 
+function downloadCsv(filename: string, headers: string[], rows: (string | number)[][]) {
+  const csv = [headers, ...rows]
+    .map((row) => row.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(","))
+    .join("\n");
+  const blob = new Blob([csv], { type: "text/csv" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
 function Bar({ value, max }: { value: number; max: number }) {
   return (
     <div className="report-bar" aria-hidden="true">
@@ -115,9 +128,36 @@ export function SellerReportContent() {
             <RefreshCw aria-hidden="true" size={18} strokeWidth={2.3} />
             <span>Refresh Data</span>
           </button>
-          <button className="export-button" type="button">
+          <button
+            className="export-button"
+            type="button"
+            onClick={() => {
+              const headers = [
+                "Sale Date", "Order #", "Product", "SKU", "Color", "Size",
+                "Qty", "City", "Province", "Payment Method", "Price (incl. comm.)", "Commission",
+              ];
+              const rows = filteredOrders.map((order) => {
+                const product = getProduct(order.productId);
+                return [
+                  order.dateTime,
+                  order.orderNumber,
+                  product?.nameEn ?? "",
+                  product?.sku ?? "",
+                  order.color,
+                  order.size,
+                  order.quantity,
+                  order.city,
+                  order.province,
+                  order.paymentMethod,
+                  order.priceWithCommission,
+                  order.priceWithCommission - order.priceWithoutCommission,
+                ];
+              });
+              downloadCsv(`sales-report-${from}-to-${to}.csv`, headers, rows);
+            }}
+          >
             <Download aria-hidden="true" size={18} strokeWidth={2.3} />
-            <span>Export to Excel</span>
+            <span>Export to CSV</span>
           </button>
         </div>
       </header>

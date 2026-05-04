@@ -11,6 +11,30 @@ import {
   type MarketingCampaign,
 } from "./vendor-dashboard-data";
 
+function downloadCampaignReport(campaign: MarketingCampaign, pkgName: string) {
+  const headers = ["Metric", "Value"];
+  const rows: [string, string | number][] = [
+    ["Campaign Code", campaign.code],
+    ["Package", pkgName],
+    ["Status", campaign.status],
+    ["Purchase Date", campaign.purchasedAt],
+    ["Start Date", campaign.startsAt ?? "-"],
+    ["End Date", campaign.endsAt ?? "-"],
+    ["Views", campaign.views],
+    ["Clicks", campaign.clicks],
+    ["Sales Generated", campaign.sales],
+    ["Reach", campaign.reach],
+  ];
+  const csv = [headers, ...rows].map((row) => row.map((v) => `"${v}"`).join(",")).join("\n");
+  const blob = new Blob([csv], { type: "text/csv" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `campaign-report-${campaign.code}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
 function statusLabel(status: MarketingCampaign["status"]) {
   switch (status) {
     case "pending":
@@ -170,7 +194,13 @@ export function ExistingMarketingCampaignsContent() {
                                   <strong>{campaign.reach.toLocaleString("en-US")}</strong>
                                 </article>
                               </div>
-                              <button className="export-button" type="button">
+                              <button
+                                className="export-button"
+                                type="button"
+                                onClick={() =>
+                                  downloadCampaignReport(campaign, pkg?.name ?? campaign.packageId)
+                                }
+                              >
                                 <Download aria-hidden="true" size={16} strokeWidth={2.3} />
                                 <span>Download Report</span>
                               </button>

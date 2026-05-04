@@ -63,8 +63,9 @@ export function AccountManagerLogContent() {
 
   const visible = entries.filter((e) => {
     if (actionType !== "All" && e.action !== actionType) return false;
-    if (user && !e.user.toLowerCase().includes(user.toLowerCase()))
-      return false;
+    if (user && !e.user.toLowerCase().includes(user.toLowerCase())) return false;
+    if (from && e.timestamp.slice(0, 10) < from) return false;
+    if (to && e.timestamp.slice(0, 10) > to) return false;
     return true;
   });
 

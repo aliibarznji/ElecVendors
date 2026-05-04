@@ -11,7 +11,7 @@ import {
   Trash2,
   UploadCloud,
 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 type SizeRow = {
   id: string;
@@ -113,6 +113,13 @@ export function AddProductContent() {
     },
   ]);
   const [submitted, setSubmitted] = useState(false);
+  const [saved, setSaved] = useState(false);
+
+  useEffect(() => {
+    if (!saved) return;
+    const t = setTimeout(() => setSaved(false), 5000);
+    return () => clearTimeout(t);
+  }, [saved]);
 
   const errors = useMemo(() => {
     const next: Record<string, string> = {};
@@ -181,16 +188,35 @@ export function AddProductContent() {
         <button
           className="discount-create-button"
           type="button"
-          onClick={() => setSubmitted(true)}
+          onClick={() => {
+            setSubmitted(true);
+            if (Object.keys(errors).length === 0) {
+              setNameAr("");
+              setNameEn("");
+              setHighlights("");
+              setDescription("");
+              setKeywords("");
+              setMaterialCode("");
+              setSellingPrice("");
+              setCostPrice("");
+              setBrand("");
+              setBarcode("");
+              setVendorCode("");
+              setColors([{ id: "color-1", code: "#c7ccd4", name: "Silver", sizes: [{ id: "size-1", size: "Standard", quantity: 1 }] }]);
+              setLargeProduct(false);
+              setSubmitted(false);
+              setSaved(true);
+            }
+          }}
         >
           <Save aria-hidden="true" size={16} strokeWidth={2.4} />
           <span>Save Product</span>
         </button>
       </header>
 
-      {submitted && Object.keys(errors).length === 0 ? (
+      {saved ? (
         <div className="success-banner">
-          Data verified. In the real app, product is sent for review or publishing.
+          Product submitted for review. The data team will publish it after verification.
         </div>
       ) : null}
 

@@ -1,5 +1,7 @@
+"use client";
+
 import type { LucideIcon } from "lucide-react";
-import type { ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import {
   Activity,
   Award,
@@ -163,8 +165,17 @@ function MapFrame({ title }: { title: string }) {
 }
 
 export function ProfileContent() {
+  const [banner, setBanner] = useState("");
+
+  useEffect(() => {
+    if (!banner) return;
+    const t = setTimeout(() => setBanner(""), 4000);
+    return () => clearTimeout(t);
+  }, [banner]);
+
   return (
     <div className="profile-content">
+      {banner ? <div className="success-banner">{banner}</div> : null}
       <h1>Profile Details</h1>
 
       <div className="profile-card">
@@ -292,7 +303,11 @@ export function ProfileContent() {
             </div>
           </div>
           <div className="warehouse-action-row">
-            <button className="warehouse-button" type="button">
+            <button
+              className="warehouse-button"
+              type="button"
+              onClick={() => setBanner("Warehouse form available in the full platform. Contact your account manager to add a new warehouse location.")}
+            >
               <MapPin aria-hidden="true" size={17} strokeWidth={2.4} />
               <span>Add warehouse</span>
             </button>
@@ -387,7 +402,11 @@ export function ProfileContent() {
             </div>
 
             <div className="submit-row">
-              <button className="submit-all-button" type="button">
+              <button
+                className="submit-all-button"
+                type="button"
+                onClick={() => setBanner("Documents submitted successfully. The team will review them within 1–2 business days.")}
+              >
                 <Save aria-hidden="true" size={20} strokeWidth={2.3} />
                 <span>Submit All</span>
               </button>
@@ -432,7 +451,15 @@ export function ProfileContent() {
             points for marketing campaigns and platform services.
           </p>
           <div className="submit-row">
-            <button className="submit-all-button" type="button">
+            <button
+              className="submit-all-button"
+              type="button"
+              onClick={() => {
+                if (window.confirm("Redeem 100 points for marketing credits?")) {
+                  setBanner("100 points redeemed. Marketing credits have been added to your account.");
+                }
+              }}
+            >
               <Award aria-hidden="true" size={18} strokeWidth={2.3} />
               <span>Redeem Points</span>
             </button>

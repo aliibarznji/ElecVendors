@@ -1,7 +1,7 @@
 "use client";
 
 import { Eye, Pencil, Plus, Save, ShieldCheck, Trash2, X } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 type Warranty = {
   id: string;
@@ -151,9 +151,17 @@ export function WarrantyContent() {
   const [warranty, setWarranty] = useState<Warranty | null>(initialWarranty);
   const [editing, setEditing] = useState(false);
   const [preview, setPreview] = useState(false);
+  const [savedMsg, setSavedMsg] = useState("");
+
+  useEffect(() => {
+    if (!savedMsg) return;
+    const t = setTimeout(() => setSavedMsg(""), 4000);
+    return () => clearTimeout(t);
+  }, [savedMsg]);
 
   return (
     <div className="warranty-content">
+      {savedMsg ? <div className="success-banner">{savedMsg}</div> : null}
       <header className="page-title-row">
         <div>
           <h1>Warranty</h1>
@@ -191,6 +199,7 @@ export function WarrantyContent() {
           onSave={(next) => {
             setWarranty(next);
             setEditing(false);
+            setSavedMsg("Warranty saved successfully.");
           }}
         />
       ) : (
