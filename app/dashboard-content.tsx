@@ -2,15 +2,14 @@ import {
   AlertTriangle,
   BarChart3,
   CalendarDays,
-  CheckCircle2,
   Download,
   MapPin,
-  Package,
   ShoppingCart,
   TrendingUp,
   Wallet,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import { StatusPill } from "./status-pill";
 import {
   bestSellingProducts,
   formatIqd,
@@ -26,22 +25,6 @@ import {
 } from "./vendor-dashboard-data";
 
 const quickRanges = ["Last 7 Days", "Last 30 Days", "This Month", "Last Month"];
-
-const statusLabel = {
-  new: "New Order",
-  ready: "Ready to Ship",
-  shipped: "Shipped",
-  delivered: "Delivered",
-  cancelled: "Cancelled",
-};
-
-const statusClass = {
-  new: "is-pending",
-  ready: "is-active",
-  shipped: "is-info",
-  delivered: "is-completed",
-  cancelled: "is-rejected",
-};
 
 function KpiCard({
   label,
@@ -97,6 +80,54 @@ function BarChart({
           </div>
         );
       })}
+    </div>
+  );
+}
+
+function LineChart({
+  data,
+  valueFormatter,
+}: {
+  data: { label: string; value: number }[];
+  valueFormatter?: (value: number) => string;
+}) {
+  const max = Math.max(...data.map((item) => item.value), 1);
+  const width = 100;
+  const height = 100;
+  const stepX = data.length > 1 ? width / (data.length - 1) : 0;
+  const points = data.map((item, index) => {
+    const x = index * stepX;
+    const y = height - (item.value / max) * (height - 12) - 4;
+    return { x, y };
+  });
+  const path = points
+    .map((point, index) => `${index === 0 ? "M" : "L"} ${point.x.toFixed(2)} ${point.y.toFixed(2)}`)
+    .join(" ");
+  const area = `${path} L ${width} ${height} L 0 ${height} Z`;
+
+  return (
+    <div className="dashboard-line-chart" aria-label="Monthly trend">
+      <svg viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="none" role="img">
+        <path className="dashboard-line-area" d={area} />
+        <path className="dashboard-line-stroke" d={path} />
+        {points.map((point, index) => (
+          <circle
+            key={data[index].label}
+            cx={point.x}
+            cy={point.y}
+            r={1.4}
+            className="dashboard-line-dot"
+          />
+        ))}
+      </svg>
+      <div className="dashboard-line-labels">
+        {data.map((item) => (
+          <span key={item.label}>
+            <small>{item.label}</small>
+            <strong>{valueFormatter ? valueFormatter(item.value) : item.value}</strong>
+          </span>
+        ))}
+      </div>
     </div>
   );
 }
@@ -198,7 +229,7 @@ export function DashboardContent() {
             </div>
             <strong>{formatIqd(monthlySales)}</strong>
           </div>
-          <BarChart data={salesByMonth()} valueFormatter={(value) => `${Math.round(value / 1000)}k`} />
+          <LineChart data={salesByMonth()} valueFormatter={(value) => `${Math.round(value / 1000)}k`} />
         </article>
 
         <article className="dashboard-panel dashboard-analytics-panel">
@@ -260,49 +291,6 @@ export function DashboardContent() {
         </article>
       </section>
 
-      <section className="dashboard-health-grid" aria-label="Operating Status">
-        <article className="dashboard-health-card health-green">
-          <span>
-            <CheckCircle2 aria-hidden="true" size={18} strokeWidth={2.25} />
-          </span>
-          <div>
-            <p>Completion Rate</p>
-            <strong>75%</strong>
-            <small>Ready, shipped or delivered</small>
-          </div>
-        </article>
-        <article className="dashboard-health-card health-orange">
-          <span>
-            <Package aria-hidden="true" size={18} strokeWidth={2.25} />
-          </span>
-          <div>
-            <p>Inventory Alerts</p>
-            <strong>1 SKU</strong>
-            <small>One product out of stock</small>
-          </div>
-        </article>
-        <article className="dashboard-health-card health-cyan">
-          <span>
-            <TrendingUp aria-hidden="true" size={18} strokeWidth={2.25} />
-          </span>
-          <div>
-            <p>Active Discount Plans</p>
-            <strong>1</strong>
-            <small>Two products in the plan</small>
-          </div>
-        </article>
-        <article className="dashboard-health-card">
-          <span>
-            <Wallet aria-hidden="true" size={18} strokeWidth={2.25} />
-          </span>
-          <div>
-            <p>Upcoming Settlement</p>
-            <strong>{formatIqd(185000)}</strong>
-            <small>Pending Payment</small>
-          </div>
-        </article>
-      </section>
-
       <section className="dashboard-panel table-panel table-panel-large">
         <div className="panel-heading">
           <h2>Recent Orders</h2>
@@ -325,13 +313,11 @@ export function DashboardContent() {
                 return (
                   <tr key={order.id}>
                     <td>{order.orderNumber}</td>
-                    <td>{product?.nameAr ?? order.productId}</td>
+                    <td>{product?.nameEn ?? order.productId}</td>
                     <td>{order.dateTime}</td>
                     <td>{formatIqd(order.priceWithCommission * order.quantity)}</td>
                     <td>
-                      <span className={`approved-status-badge ${statusClass[order.status]}`}>
-                        {statusLabel[order.status]}
-                      </span>
+                      <StatusPill status={order.status} />
                     </td>
                     <td>{order.deliveryStatus}</td>
                   </tr>

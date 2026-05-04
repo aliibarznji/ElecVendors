@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell($src = \"c:\\\\Users\\\\LENOVO\\\\Desktop\\\\elecV\\\\ElecVendors\\\\Dashboard-Recommendations.html\"; $dst = \"c:\\\\Users\\\\LENOVO\\\\Desktop\\\\elecV\\\\ElecVendors\\\\Dashboard-Recommendations.docx\"; $word = New-Object -ComObject Word.Application; $word.Visible = $false; $doc = $word.Documents.Open\\($src\\); $doc.SaveAs2\\([ref]$dst, [ref]16\\); $doc.Close\\(\\); $word.Quit\\(\\); [System.Runtime.Interopservices.Marshal]::ReleaseComObject\\($word\\) | Out-Null; Remove-Item $src; if \\(Test-Path $dst\\) { \"OK $\\(\\(Get-Item $dst\\).Length\\) bytes\" } else { \"FAIL\" })"
+    ]
+  }
+}

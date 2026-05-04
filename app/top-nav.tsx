@@ -1,8 +1,10 @@
-import { Globe2, LogOut } from "lucide-react";
+import { Bell, Globe2, LogOut } from "lucide-react";
 import Link from "next/link";
-import { vendorProfile } from "./vendor-dashboard-data";
+import { getUnreadNotifications, vendorProfile } from "./vendor-dashboard-data";
 
 export function TopNav() {
+  const unread = getUnreadNotifications();
+
   return (
     <header className="top-nav">
       <Link className="brand" href="/" aria-label="ElecMall Vendors Dashboard">
@@ -12,6 +14,22 @@ export function TopNav() {
 
       <nav className="nav-actions" aria-label="User navigation">
         <span className="user-name">{vendorProfile.name}</span>
+        <Link
+          className="nav-action nav-bell"
+          href="/notifications"
+          aria-label={
+            unread > 0
+              ? `Notifications, ${unread} unread`
+              : "Notifications"
+          }
+        >
+          <Bell aria-hidden="true" size={22} strokeWidth={2.1} />
+          {unread > 0 ? (
+            <span className="nav-bell-badge" aria-hidden="true">
+              {unread}
+            </span>
+          ) : null}
+        </Link>
         <button className="nav-action" type="button" aria-label="Change language">
           <Globe2 aria-hidden="true" size={24} strokeWidth={2.1} />
           <span>English</span>

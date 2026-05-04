@@ -2,6 +2,7 @@
 
 import {
   BarChart3,
+  Bell,
   ChevronLeft,
   ChevronRight,
   ClipboardCheck,
@@ -31,32 +32,50 @@ const sidebarSections = [
     title: "Dashboard",
     links: [
       { label: "Home", href: "/", icon: Home },
+      { label: "Notifications", href: "/notifications", icon: Bell },
     ],
   },
   {
-    title: "Product Management",
-    links: [
-      { label: "Add Product", href: "/products/add", icon: PlusSquare },
-      { label: "Product List", href: "/products", icon: List },
-      { label: "Quick Pricing", href: "/pricing", icon: CreditCard },
-      { label: "Inventory Management", href: "/inventory", icon: Package },
-      { label: "Bulk Updates", href: "/products/bulk", icon: Layers },
-      { label: "Discount Plans", href: "/products/discounts", icon: Tag },
-    ],
-  },
-  {
-    title: "Orders",
+    title: "Store",
     links: [
       { label: "Order Items", href: "/orders", icon: ShoppingBag },
+      { label: "Inventory Management", href: "/inventory", icon: Package },
+      { label: "Instant Pricing", href: "/pricing", icon: CreditCard },
+      { label: "Product List", href: "/products", icon: List },
+      { label: "Add Product", href: "/products/add", icon: PlusSquare },
+      { label: "Bulk Updates", href: "/products/bulk", icon: Layers },
     ],
   },
   {
-    title: "Vendor Information",
+    title: "Discounts & Offers",
+    links: [
+      { label: "Discount Plans", href: "/products/discounts", icon: Tag },
+      { label: "Delivery Prices", href: "/delivery-prices", icon: Truck },
+    ],
+  },
+  {
+    title: "Reports",
+    links: [
+      { label: "Sales Report", href: "/seller-report", icon: BarChart3 },
+      { label: "Settlements", href: "/settlements", icon: Receipt },
+    ],
+  },
+  {
+    title: "Marketing",
+    links: [
+      { label: "New Campaign", href: "/marketing/new", icon: Megaphone },
+      {
+        label: "Active Campaigns",
+        href: "/marketing/campaigns",
+        icon: PackageCheck,
+      },
+    ],
+  },
+  {
+    title: "Vendor Profile",
     links: [
       { label: "Vendor Profile", href: "/profile", icon: User },
       { label: "Warranty", href: "/warranty", icon: ShieldCheck },
-      { label: "Sales Report", href: "/seller-report", icon: BarChart3 },
-      { label: "Delivery Prices", href: "/delivery-prices", icon: Truck },
     ],
   },
   {
@@ -69,26 +88,6 @@ const sidebarSections = [
         icon: ClipboardCheck,
       },
       { label: "Operations Log", href: "/account-manager/log", icon: History },
-    ],
-  },
-  {
-    title: "Settlements",
-    links: [
-      { label: "Settlements", href: "/settlements", icon: Receipt },
-    ],
-  },
-  {
-    title: "Marketing Campaigns",
-    links: [
-      { label: "New Campaign",
-        href: "/marketing/new",
-        icon: Megaphone,
-      },
-      {
-        label: "Active Campaigns",
-        href: "/marketing/campaigns",
-        icon: PackageCheck,
-      },
     ],
   },
 ];

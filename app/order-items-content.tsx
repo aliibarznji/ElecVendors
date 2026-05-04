@@ -8,7 +8,9 @@ import {
   RotateCcw,
   Search,
 } from "lucide-react";
-import { Fragment, useMemo, useState } from "react";
+import Link from "next/link";
+import { useMemo, useState } from "react";
+import { StatusPill } from "./status-pill";
 import {
   filterOrders,
   formatIqd,
@@ -29,22 +31,6 @@ const tabs: { id: OrderStatus | "all"; label: string }[] = [
   { id: "shipped", label: "Shipped" },
   { id: "delivered", label: "Delivered" },
 ];
-
-const statusLabel: Record<OrderStatus, string> = {
-  new: "New",
-  ready: "Ready to Ship",
-  shipped: "Shipped",
-  delivered: "Delivered",
-  cancelled: "Cancelled",
-};
-
-const statusClass: Record<OrderStatus, string> = {
-  new: "is-pending",
-  ready: "is-active",
-  shipped: "is-info",
-  delivered: "is-completed",
-  cancelled: "is-rejected",
-};
 
 function OrderStat({
   label,
@@ -82,7 +68,6 @@ export function OrderItemsContent() {
   const [from, setFrom] = useState("2026-05-01");
   const [to, setTo] = useState("2026-05-04");
   const [sort, setSort] = useState<"newest" | "oldest" | "amount">("newest");
-  const [expanded, setExpanded] = useState<string | null>(null);
 
   const filtered = useMemo(
     () => filterOrders(orders, activeTab, search, from, to, sort),
@@ -189,71 +174,30 @@ export function OrderItemsContent() {
                 filtered.map((order) => {
                   const product = getProduct(order.productId);
                   return (
-                    <Fragment key={order.id}>
-                      <tr className="product-list-data-row">
-                        <td>{order.orderNumber}</td>
-                        <td>{order.dateTime}</td>
-                        <td>
-                          <ProductThumb order={order} />
-                        </td>
-                        <td>{product?.sku}</td>
-                        <td>{order.color}</td>
-                        <td>{order.quantity}</td>
-                        <td>{formatIqd(order.priceWithoutCommission)}</td>
-                        <td>{formatIqd(order.priceWithCommission)}</td>
-                        <td>
-                          <span className={`approved-status-badge ${statusClass[order.status]}`}>
-                            {statusLabel[order.status]}
-                          </span>
-                        </td>
-                        <td>
-                          <button
-                            className="row-action-btn"
-                            type="button"
-                            onClick={() =>
-                              setExpanded((current) =>
-                                current === order.id ? null : order.id,
-                              )
-                            }
-                          >
-                            <Eye aria-hidden="true" size={14} strokeWidth={2.4} />
-                            <span>View</span>
-                          </button>
-                        </td>
-                      </tr>
-                      {expanded === order.id ? (
-                        <tr key={`${order.id}-detail`} className="row-details-row">
-                          <td colSpan={10}>
-                            <div className="row-details">
-                              <div>
-                                <span>Product</span>
-                                <strong>{product?.nameAr}</strong>
-                              </div>
-                              <div>
-                                <span>Product Code</span>
-                                <strong>{product?.vendorCode}</strong>
-                              </div>
-                              <div>
-                                <span>Customer</span>
-                                <strong>{order.customerName}</strong>
-                              </div>
-                              <div>
-                                <span>Address</span>
-                                <strong>{order.customerAddress}</strong>
-                              </div>
-                              <div>
-                                <span>Phone</span>
-                                <strong>{order.customerPhone}</strong>
-                              </div>
-                              <div>
-                                <span>Payment</span>
-                                <strong>{order.paymentMethod}</strong>
-                              </div>
-                            </div>
-                          </td>
-                        </tr>
-                      ) : null}
-                    </Fragment>
+                    <tr className="product-list-data-row" key={order.id}>
+                      <td>{order.orderNumber}</td>
+                      <td>{order.dateTime}</td>
+                      <td>
+                        <ProductThumb order={order} />
+                      </td>
+                      <td>{product?.sku}</td>
+                      <td>{order.color}</td>
+                      <td>{order.quantity}</td>
+                      <td>{formatIqd(order.priceWithoutCommission)}</td>
+                      <td>{formatIqd(order.priceWithCommission)}</td>
+                      <td>
+                        <StatusPill status={order.status} shortLabel />
+                      </td>
+                      <td>
+                        <Link
+                          className="row-action-btn"
+                          href={`/orders/${order.orderNumber}`}
+                        >
+                          <Eye aria-hidden="true" size={14} strokeWidth={2.4} />
+                          <span>View</span>
+                        </Link>
+                      </td>
+                    </tr>
                   );
                 })
               )}

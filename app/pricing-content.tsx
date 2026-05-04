@@ -66,7 +66,7 @@ export function PricingContent() {
     <div className="pricing-content dashboard-content">
       <header className="page-title-row">
         <div>
-          <h1>Quick Pricing</h1>
+          <h1>Instant Pricing</h1>
           <p className="dashboard-sub">
             Edit cost price, selling price, and commission percentage with special agreement warnings.
           </p>

@@ -2,6 +2,17 @@ export type ProductStatus = "published" | "unpublished" | "review";
 export type OrderStatus = "new" | "ready" | "shipped" | "delivered" | "cancelled";
 export type DiscountStatus = "active" | "scheduled" | "inactive";
 export type CampaignStatus = "pending" | "active" | "completed" | "rejected";
+export type NotificationKind = "order" | "campaign" | "settlement" | "stock" | "system";
+
+export type VendorNotification = {
+  id: string;
+  kind: NotificationKind;
+  title: string;
+  body: string;
+  createdAt: string;
+  read: boolean;
+  href?: string;
+};
 
 export const todayIso = "2026-05-04";
 
@@ -512,6 +523,58 @@ export const marketingCampaigns: MarketingCampaign[] = [
     reach: 142300,
   },
 ];
+
+export const notifications: VendorNotification[] = [
+  {
+    id: "ntf-1",
+    kind: "order",
+    title: "New order received",
+    body: "Order ORD-100214 from Mariam K. is awaiting confirmation.",
+    createdAt: "2026-05-04 09:20",
+    read: false,
+    href: "/orders/ORD-100214",
+  },
+  {
+    id: "ntf-2",
+    kind: "campaign",
+    title: "Marketing campaign approved",
+    body: "Silver Package campaign EM-SIL-2401 is now active.",
+    createdAt: "2026-05-02 14:05",
+    read: false,
+    href: "/marketing/campaigns",
+  },
+  {
+    id: "ntf-3",
+    kind: "stock",
+    title: "Low stock warning",
+    body: "Braun Mini Trimmer - Red is down to 5 units.",
+    createdAt: "2026-05-02 08:11",
+    read: false,
+    href: "/inventory",
+  },
+  {
+    id: "ntf-4",
+    kind: "settlement",
+    title: "Settlement scheduled",
+    body: "Settlement SET-2026-00042 of 113,540 IQD is queued for May 5.",
+    createdAt: "2026-05-01 17:30",
+    read: true,
+    href: "/settlements",
+  },
+  {
+    id: "ntf-5",
+    kind: "system",
+    title: "Profile update reminder",
+    body: "Add a backup warehouse to keep delivery cover during peak season.",
+    createdAt: "2026-04-29 11:00",
+    read: true,
+    href: "/profile",
+  },
+];
+
+export function getUnreadNotifications(source = notifications) {
+  return source.filter((notification) => !notification.read).length;
+}
 
 export const deliveryPrices = [
   { province: "Baghdad", small: 3000, large: 7000, freeRule: "Free for orders over 150,000 IQD" },

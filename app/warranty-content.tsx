@@ -7,7 +7,8 @@ type Warranty = {
   id: string;
   title: string;
   duration: string;
-  phone: string;
+  maintenanceNumber: string;
+  maintenancePhone: string;
   location: string;
   terms: string;
   active: boolean;
@@ -17,7 +18,8 @@ const initialWarranty: Warranty = {
   id: "war-1",
   title: "Hair Care Devices Warranty",
   duration: "12 months",
-  phone: "+964 750 493 0644",
+  maintenanceNumber: "9229-972-7704",
+  maintenancePhone: "+964 750 493 0644",
   location: "Erbil Service Center - Street 100",
   terms: "Covers manufacturing defects. Does not cover breakage, misuse, or liquid damage.",
   active: true,
@@ -34,7 +36,11 @@ function WarrantyForm({
 }) {
   const [draft, setDraft] = useState(warranty);
   const [submitted, setSubmitted] = useState(false);
-  const hasError = !draft.duration.trim() || !draft.phone.trim() || !draft.location.trim();
+  const hasError =
+    !draft.duration.trim() ||
+    !draft.maintenanceNumber.trim() ||
+    !draft.maintenancePhone.trim() ||
+    !draft.location.trim();
 
   return (
     <section className="warranty-form-card" aria-label="Warranty Form">
@@ -46,7 +52,10 @@ function WarrantyForm({
         </button>
       </div>
       {submitted && hasError ? (
-        <div className="warning-banner">Warranty duration, phone, and service center location are required.</div>
+        <div className="warning-banner">
+          Warranty duration, maintenance number, hotline, and maintenance
+          center location are required.
+        </div>
       ) : null}
       <div className="warranty-main-grid">
         <label className="warranty-field">
@@ -68,16 +77,30 @@ function WarrantyForm({
           </div>
         </label>
         <label className="warranty-field">
-          <span>Service Phone</span>
+          <span>Maintenance Number</span>
           <div className="warranty-field-box">
             <input
-              value={draft.phone}
-              onChange={(event) => setDraft({ ...draft, phone: event.target.value })}
+              value={draft.maintenanceNumber}
+              onChange={(event) =>
+                setDraft({ ...draft, maintenanceNumber: event.target.value })
+              }
+              placeholder="e.g. 9229-972-7704"
             />
           </div>
         </label>
         <label className="warranty-field">
-          <span>Service Center Location</span>
+          <span>Maintenance Hotline</span>
+          <div className="warranty-field-box">
+            <input
+              value={draft.maintenancePhone}
+              onChange={(event) =>
+                setDraft({ ...draft, maintenancePhone: event.target.value })
+              }
+            />
+          </div>
+        </label>
+        <label className="warranty-field">
+          <span>Maintenance Center Location</span>
           <div className="warranty-field-box">
             <input
               value={draft.location}
@@ -157,7 +180,8 @@ export function WarrantyContent() {
               id: "war-new",
               title: "",
               duration: "",
-              phone: "",
+              maintenanceNumber: "",
+              maintenancePhone: "",
               location: "",
               terms: "",
               active: true,
@@ -192,11 +216,15 @@ export function WarrantyContent() {
                   <strong>{warranty.duration}</strong>
                 </article>
                 <article>
-                  <span>Service Phone</span>
-                  <strong>{warranty.phone}</strong>
+                  <span>Maintenance Number</span>
+                  <strong>{warranty.maintenanceNumber}</strong>
                 </article>
                 <article>
-                  <span>Service Center</span>
+                  <span>Maintenance Hotline</span>
+                  <strong>{warranty.maintenancePhone}</strong>
+                </article>
+                <article>
+                  <span>Maintenance Center</span>
                   <strong>{warranty.location}</strong>
                 </article>
               </div>
@@ -227,7 +255,7 @@ export function WarrantyContent() {
           ) : (
             <div className="warranty-empty-state">
               <h2>No warranty data found</h2>
-              <p>Add warranty duration, service phone, and center location to display to the customer.</p>
+              <p>Add warranty duration, maintenance number, hotline, and center location to display to the customer.</p>
             </div>
           )}
         </section>
@@ -247,8 +275,9 @@ export function WarrantyContent() {
             </header>
             <div className="modal-body">
               <p>Warranty Duration: {warranty.duration}</p>
-              <p>Contact Service: {warranty.phone}</p>
-              <p>Center: {warranty.location}</p>
+              <p>Maintenance Number: {warranty.maintenanceNumber}</p>
+              <p>Maintenance Hotline: {warranty.maintenancePhone}</p>
+              <p>Maintenance Center: {warranty.location}</p>
               <p>{warranty.terms}</p>
             </div>
           </div>
