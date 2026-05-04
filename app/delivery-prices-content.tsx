@@ -1,205 +1,183 @@
 "use client";
 
-import { Plus, Save, Wand2 } from "lucide-react";
-import { useState } from "react";
-
-const iraqiProvinces = [
-  "Baghdad",
-  "Basra",
-  "Erbil",
-  "Mosul",
-  "Najaf",
-  "Karbala",
-  "Sulaymaniyah",
-  "Duhok",
-  "Kirkuk",
-  "Anbar",
-  "Diyala",
-  "Babil",
-  "Wasit",
-  "Maysan",
-  "Dhi Qar",
-  "Muthanna",
-  "Qadisiyyah",
-  "Salah ad-Din",
-  "Halabja",
-];
+import { Pencil, Plus, RotateCcw, Save, Search, Trash2 } from "lucide-react";
+import { useMemo, useState } from "react";
+import { deliveryPrices } from "./vendor-dashboard-data";
 
 type Row = {
   province: string;
   small: number;
   large: number;
-  free: boolean;
+  freeRule: string;
 };
 
-const initial: Row[] = iraqiProvinces.map((province) => ({
-  province,
-  small: 3000,
-  large: 7000,
-  free: false,
-}));
-
 export function DeliveryPricesContent() {
-  const [rows, setRows] = useState<Row[]>(initial);
-  const [selected, setSelected] = useState<string[]>([]);
-  const [bulkSmall, setBulkSmall] = useState(0);
-  const [bulkLarge, setBulkLarge] = useState(0);
-  const [showBulk, setShowBulk] = useState(false);
+  const [rows, setRows] = useState<Row[]>(deliveryPrices);
+  const [query, setQuery] = useState("");
+  const [editing, setEditing] = useState<string | null>(null);
+  const [message, setMessage] = useState("");
+
+  const visible = useMemo(() => {
+    const normalized = query.trim();
+    return rows.filter((row) => !normalized || row.province.includes(normalized));
+  }, [query, rows]);
 
   const update = (province: string, patch: Partial<Row>) =>
-    setRows((all) =>
-      all.map((r) => (r.province === province ? { ...r, ...patch } : r)),
+    setRows((current) =>
+      current.map((row) => (row.province === province ? { ...row, ...patch } : row)),
     );
 
-  const toggleSelect = (province: string) =>
-    setSelected((all) =>
-      all.includes(province)
-        ? all.filter((p) => p !== province)
-        : [...all, province],
-    );
-
-  const applyBulk = () => {
-    setRows((all) =>
-      all.map((r) =>
-        selected.includes(r.province)
-          ? { ...r, small: bulkSmall, large: bulkLarge }
-          : r,
-      ),
-    );
-    setShowBulk(false);
-    setSelected([]);
-  };
-
-  const addProvince = () => {
-    const name = prompt("New province name");
-    if (!name) return;
-    setRows((all) => [...all, { province: name, small: 0, large: 0, free: false }]);
-  };
+  const hasInvalid = rows.some((row) => row.small < 0 || row.large < 0 || row.large < row.small);
 
   return (
-    <div className="delivery-prices-content">
-      <h1>Seller Delivery Prices</h1>
-      <p className="dashboard-sub">
-        Set delivery prices per province for small and large products. Toggle
-        free delivery where applicable.
-      </p>
+    <div className="delivery-prices-content dashboard-content">
+      <header className="page-title-row">
+        <div>
+          <h1>أسعار توصيل البائع</h1>
+          <p className="dashboard-sub">
+            تحديد أسعار التوصيل لكل محافظة للمنتجات الصغيرة والكبيرة وحالات التوصيل المجاني.
+          </p>
+        </div>
+        <button
+          className="discount-create-button"
+          type="button"
+          disabled={hasInvalid}
+          onClick={() => setMessage("تم حفظ أسعار التوصيل.")}
+        >
+          <Save aria-hidden="true" size={16} strokeWidth={2.4} />
+          <span>حفظ الأسعار</span>
+        </button>
+      </header>
 
-      <section className="delivery-prices-card">
-        <div className="discount-plans-toolbar">
+      {message ? <div className="success-banner">{message}</div> : null}
+      {hasInvalid ? (
+        <div className="warning-banner">
+          تأكد أن الأسعار ليست سالبة وأن سعر المنتج الكبير لا يقل عن سعر المنتج الصغير.
+        </div>
+      ) : null}
+
+      <section className="delivery-prices-card product-list-card">
+        <div className="order-items-filters">
+          <label className="order-items-search">
+            <Search aria-hidden="true" size={16} strokeWidth={2.2} />
+            <input
+              placeholder="بحث بالمحافظة"
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+            />
+          </label>
           <button
-            className="discount-create-button"
+            className="purchase-order-reset"
             type="button"
-            onClick={() => setShowBulk((v) => !v)}
-            disabled={selected.length === 0}
+            onClick={() => {
+              setQuery("");
+              setMessage("");
+            }}
           >
-            <Wand2 aria-hidden="true" size={16} strokeWidth={2.4} />
-            <span>Bulk Update ({selected.length})</span>
+            <RotateCcw aria-hidden="true" size={15} strokeWidth={2.2} />
+            <span>إعادة ضبط</span>
           </button>
           <button
             className="discount-create-button"
             type="button"
-            onClick={addProvince}
+            onClick={() =>
+              setRows((current) => [
+                ...current,
+                { province: "محافظة جديدة", small: 0, large: 0, freeRule: "" },
+              ])
+            }
           >
             <Plus aria-hidden="true" size={16} strokeWidth={2.4} />
-            <span>Add Province</span>
+            <span>إضافة محافظة</span>
           </button>
         </div>
-
-        {showBulk ? (
-          <div className="bulk-update-row">
-            <label>
-              <span>Small (IQD)</span>
-              <input
-                type="number"
-                value={bulkSmall}
-                onChange={(e) => setBulkSmall(Number(e.target.value))}
-              />
-            </label>
-            <label>
-              <span>Large (IQD)</span>
-              <input
-                type="number"
-                value={bulkLarge}
-                onChange={(e) => setBulkLarge(Number(e.target.value))}
-              />
-            </label>
-            <button
-              className="modal-primary"
-              type="button"
-              onClick={applyBulk}
-            >
-              Apply to {selected.length}
-            </button>
-          </div>
-        ) : null}
 
         <div className="purchase-order-table-wrap">
           <table className="purchase-order-table">
             <thead>
               <tr>
-                <th />
-                <th>Province</th>
-                <th>Small (IQD)</th>
-                <th>Large (IQD)</th>
-                <th>Free Delivery</th>
+                <th>المحافظة</th>
+                <th>منتجات صغيرة</th>
+                <th>منتجات كبيرة</th>
+                <th>قاعدة التوصيل المجاني</th>
+                <th>الحالة</th>
+                <th>الإجراءات</th>
               </tr>
             </thead>
             <tbody>
-              {rows.map((row) => (
-                <tr key={row.province} className="product-list-data-row">
-                  <td>
-                    <input
-                      type="checkbox"
-                      checked={selected.includes(row.province)}
-                      onChange={() => toggleSelect(row.province)}
-                      aria-label={`Select ${row.province}`}
-                    />
-                  </td>
-                  <td>{row.province}</td>
-                  <td>
-                    <input
-                      className="edit-table-input"
-                      type="number"
-                      value={row.small}
-                      onChange={(e) =>
-                        update(row.province, { small: Number(e.target.value) })
-                      }
-                    />
-                  </td>
-                  <td>
-                    <input
-                      className="edit-table-input"
-                      type="number"
-                      value={row.large}
-                      onChange={(e) =>
-                        update(row.province, { large: Number(e.target.value) })
-                      }
-                    />
-                  </td>
-                  <td>
-                    <button
-                      className="modal-toggle"
-                      type="button"
-                      onClick={() => update(row.province, { free: !row.free })}
-                      aria-pressed={row.free}
-                    >
-                      <span
-                        className={`toggle-switch${row.free ? " is-enabled" : ""}`}
+              {visible.map((row) => {
+                const isEditing = editing === row.province;
+                const invalid = row.small < 0 || row.large < 0 || row.large < row.small;
+                return (
+                  <tr className="product-list-data-row" key={row.province}>
+                    <td>
+                      {isEditing ? (
+                        <input
+                          className="edit-table-input"
+                          value={row.province}
+                          onChange={(event) => update(row.province, { province: event.target.value })}
+                        />
+                      ) : (
+                        row.province
+                      )}
+                    </td>
+                    <td>
+                      <input
+                        className="edit-table-input"
+                        type="number"
+                        value={row.small}
+                        disabled={!isEditing}
+                        onChange={(event) => update(row.province, { small: Number(event.target.value) })}
                       />
-                      <strong>{row.free ? "Free" : "Paid"}</strong>
-                    </button>
-                  </td>
-                </tr>
-              ))}
+                    </td>
+                    <td>
+                      <input
+                        className="edit-table-input"
+                        type="number"
+                        value={row.large}
+                        disabled={!isEditing}
+                        onChange={(event) => update(row.province, { large: Number(event.target.value) })}
+                      />
+                    </td>
+                    <td>
+                      <input
+                        className="edit-table-input delivery-rule-input"
+                        value={row.freeRule}
+                        disabled={!isEditing}
+                        placeholder="مثال: مجاني فوق 150,000 د.ع"
+                        onChange={(event) => update(row.province, { freeRule: event.target.value })}
+                      />
+                    </td>
+                    <td>
+                      <span className={`approved-status-badge ${invalid ? "is-rejected" : "is-active"}`}>
+                        {invalid ? "يحتاج تصحيح" : row.freeRule ? "يتضمن مجاني" : "مدفوع"}
+                      </span>
+                    </td>
+                    <td>
+                      <div className="row-actions">
+                        <button
+                          className="row-action-btn"
+                          type="button"
+                          onClick={() => setEditing(isEditing ? null : row.province)}
+                        >
+                          <Pencil aria-hidden="true" size={14} strokeWidth={2.4} />
+                          {isEditing ? "إنهاء" : "تعديل"}
+                        </button>
+                        <button
+                          className="row-action-btn reject-btn"
+                          type="button"
+                          onClick={() => setRows((current) => current.filter((item) => item.province !== row.province))}
+                        >
+                          <Trash2 aria-hidden="true" size={14} strokeWidth={2.4} />
+                          حذف
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
-        </div>
-
-        <div className="delivery-save-row">
-          <button className="save-warranty-button" type="button">
-            <Save aria-hidden="true" size={18} strokeWidth={2.4} />
-            <span>Save All Changes</span>
-          </button>
         </div>
       </section>
     </div>

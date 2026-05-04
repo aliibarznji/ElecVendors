@@ -1,238 +1,123 @@
 "use client";
 
-import { Plus, Save, Search, Tag, Trash2, X } from "lucide-react";
-import { useState } from "react";
+import { CalendarDays, Plus, Save, Search, X } from "lucide-react";
+import { Fragment, useMemo, useState } from "react";
+import {
+  discountPlans as initialPlans,
+  formatIqd,
+  getDiscountStatus,
+  getProduct,
+  type DiscountPlan,
+  type DiscountStatus,
+} from "./vendor-dashboard-data";
 
-type Plan = {
-  id: string;
-  name: string;
-  start: string;
-  end: string;
-  status: "Active" | "Inactive";
-  type: "Percentage" | "Fixed Amount";
-  value: number;
-  productSkus: string[];
-  itemsSold: number;
+const statusLabel: Record<DiscountStatus | "all", string> = {
+  all: "كل الخطط",
+  active: "نشطة",
+  scheduled: "مجدولة",
+  inactive: "غير نشطة",
 };
 
-const samplePlans: Plan[] = [
-  {
-    id: "p1",
-    name: "Spring Beauty 10%",
-    start: "2026-04-15",
-    end: "2026-05-15",
-    status: "Active",
-    type: "Percentage",
-    value: 10,
-    productSkus: ["sv2411203071322707", "em-curl-22-bk"],
-    itemsSold: 42,
-  },
-  {
-    id: "p2",
-    name: "Eid Bundle Fixed",
-    start: "2026-03-01",
-    end: "2026-03-20",
-    status: "Inactive",
-    type: "Fixed Amount",
-    value: 5000,
-    productSkus: ["br-trim-09-rd"],
-    itemsSold: 18,
-  },
-];
+const statusClass: Record<DiscountStatus, string> = {
+  active: "is-active",
+  scheduled: "is-pending",
+  inactive: "is-completed",
+};
 
-const productCatalog = [
-  { sku: "sv2411203071322707", name: "Sheglam Curling Iron 400W Silver" },
-  { sku: "em-curl-22-bk", name: "Electromall Curl Pro Black" },
-  { sku: "br-trim-09-rd", name: "Braun Trimmer Mini Red" },
-  { sku: "ph-shav-44-bl", name: "Philips OneBlade Pro Blue" },
-  { sku: "or-buds-12-wh", name: "Oraimo Wireless Buds White" },
-];
-
-function PlanForm({
+function CreatePlanForm({
   onCancel,
   onSave,
 }: {
   onCancel: () => void;
-  onSave: (plan: Plan) => void;
+  onSave: (plan: DiscountPlan) => void;
 }) {
   const [name, setName] = useState("");
-  const [start, setStart] = useState("");
-  const [end, setEnd] = useState("");
-  const [type, setType] = useState<"Percentage" | "Fixed Amount">("Percentage");
-  const [value, setValue] = useState(10);
-  const [search, setSearch] = useState("");
-  const [picked, setPicked] = useState<string[]>([]);
-
-  const matches = productCatalog.filter(
-    (p) =>
-      !picked.includes(p.sku) &&
-      (!search ||
-        p.sku.toLowerCase().includes(search.toLowerCase()) ||
-        p.name.toLowerCase().includes(search.toLowerCase())),
-  );
+  const [startDate, setStartDate] = useState("2026-05-10");
+  const [endDate, setEndDate] = useState("2026-05-20");
+  const [productIds, setProductIds] = useState(["prod-1"]);
 
   return (
-    <section
-      className="warranty-form-card"
-      aria-label="Create discount plan"
-    >
+    <section className="warranty-form-card" aria-label="إنشاء خطة خصم">
       <div className="warranty-form-header">
-        <h2>Create Discount Plan</h2>
-        <button
-          className="warranty-cancel-outline"
-          type="button"
-          onClick={onCancel}
-        >
+        <h2>إنشاء خطة خصم</h2>
+        <button className="warranty-cancel-outline" type="button" onClick={onCancel}>
           <X aria-hidden="true" size={16} strokeWidth={2.4} />
-          <span>Cancel</span>
+          <span>إلغاء</span>
         </button>
       </div>
-
       <div className="warranty-main-grid">
         <label className="warranty-field">
-          <span>Plan Name:</span>
+          <span>اسم الخطة</span>
           <div className="warranty-field-box">
             <input
-              placeholder="Spring Beauty 10%"
               value={name}
-              onChange={(e) => setName(e.target.value)}
+              placeholder="خصم نهاية الأسبوع"
+              onChange={(event) => setName(event.target.value)}
             />
-            <Tag aria-hidden="true" size={21} strokeWidth={2.1} />
           </div>
         </label>
         <label className="warranty-field">
-          <span>Discount Type:</span>
+          <span>تاريخ البداية</span>
+          <div className="warranty-field-box">
+            <input
+              type="date"
+              value={startDate}
+              onChange={(event) => setStartDate(event.target.value)}
+            />
+          </div>
+        </label>
+        <label className="warranty-field">
+          <span>تاريخ النهاية</span>
+          <div className="warranty-field-box">
+            <input
+              type="date"
+              value={endDate}
+              onChange={(event) => setEndDate(event.target.value)}
+            />
+          </div>
+        </label>
+        <label className="warranty-field">
+          <span>المنتجات</span>
           <div className="warranty-field-box">
             <select
-              value={type}
-              onChange={(e) =>
-                setType(e.target.value as "Percentage" | "Fixed Amount")
+              multiple
+              value={productIds}
+              onChange={(event) =>
+                setProductIds(
+                  Array.from(event.target.selectedOptions).map((option) => option.value),
+                )
               }
             >
-              <option>Percentage</option>
-              <option>Fixed Amount</option>
+              {["prod-1", "prod-2", "prod-3", "prod-4"].map((id) => (
+                <option key={id} value={id}>
+                  {getProduct(id)?.nameAr}
+                </option>
+              ))}
             </select>
           </div>
         </label>
-        <label className="warranty-field">
-          <span>Start Date:</span>
-          <div className="warranty-field-box">
-            <input
-              type="date"
-              value={start}
-              onChange={(e) => setStart(e.target.value)}
-            />
-          </div>
-        </label>
-        <label className="warranty-field">
-          <span>End Date:</span>
-          <div className="warranty-field-box">
-            <input
-              type="date"
-              value={end}
-              onChange={(e) => setEnd(e.target.value)}
-            />
-          </div>
-        </label>
-        <label className="warranty-field">
-          <span>Value{type === "Percentage" ? " (%)" : " (IQD)"}:</span>
-          <div className="warranty-field-box">
-            <input
-              type="number"
-              value={value}
-              onChange={(e) => setValue(Number(e.target.value))}
-            />
-          </div>
-        </label>
       </div>
-
-      <div className="discount-products-block">
-        <h3>Products in Plan</h3>
-        <label className="discount-product-search">
-          <Search aria-hidden="true" size={15} strokeWidth={2.2} />
-          <input
-            placeholder="Search by SKU or name"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-        </label>
-
-        {search ? (
-          <ul className="discount-product-results">
-            {matches.length === 0 ? (
-              <li className="empty-cell">No matches</li>
-            ) : (
-              matches.map((p) => (
-                <li key={p.sku}>
-                  <div>
-                    <strong>{p.name}</strong>
-                    <span>{p.sku}</span>
-                  </div>
-                  <button
-                    type="button"
-                    className="row-action-btn"
-                    onClick={() => {
-                      setPicked((v) => [...v, p.sku]);
-                      setSearch("");
-                    }}
-                  >
-                    <Plus aria-hidden="true" size={14} strokeWidth={2.4} />
-                  </button>
-                </li>
-              ))
-            )}
-          </ul>
-        ) : null}
-
-        <div className="discount-chip-row">
-          {picked.length === 0 ? (
-            <span className="empty-cell">No products added yet</span>
-          ) : (
-            picked.map((sku) => (
-              <span key={sku} className="discount-chip">
-                {sku}
-                <button
-                  type="button"
-                  aria-label={`Remove ${sku}`}
-                  onClick={() =>
-                    setPicked((v) => v.filter((s) => s !== sku))
-                  }
-                >
-                  <X aria-hidden="true" size={12} strokeWidth={2.5} />
-                </button>
-              </span>
-            ))
-          )}
-        </div>
-      </div>
-
       <div className="warranty-actions">
-        <button
-          className="warranty-cancel-button"
-          type="button"
-          onClick={onCancel}
-        >
-          Cancel
+        <button className="warranty-cancel-button" type="button" onClick={onCancel}>
+          إلغاء
         </button>
         <button
           className="save-warranty-button"
           type="button"
           onClick={() =>
             onSave({
-              id: `p${Date.now()}`,
-              name: name || "Untitled Plan",
-              start,
-              end,
-              status: "Active",
-              type,
-              value,
-              productSkus: picked,
-              itemsSold: 0,
+              id: `disc-${Date.now()}`,
+              name: name || "خطة خصم جديدة",
+              startDate,
+              endDate,
+              productIds,
+              sales: 0,
+              itemsSold: Object.fromEntries(productIds.map((id) => [id, 0])),
             })
           }
         >
           <Save aria-hidden="true" size={18} strokeWidth={2.4} />
-          <span>Save Plan</span>
+          <span>حفظ الخطة</span>
         </button>
       </div>
     </section>
@@ -240,207 +125,183 @@ function PlanForm({
 }
 
 export function DiscountPlansContent() {
-  const [plans, setPlans] = useState(samplePlans);
-  const [filter, setFilter] = useState<"All" | "Active" | "Inactive">("All");
+  const [plans, setPlans] = useState(initialPlans);
+  const [filter, setFilter] = useState<DiscountStatus | "all">("all");
+  const [query, setQuery] = useState("");
   const [creating, setCreating] = useState(false);
   const [openPlan, setOpenPlan] = useState<string | null>(null);
 
-  const visible = plans.filter((p) =>
-    filter === "All" ? true : p.status === filter,
-  );
+  const visible = useMemo(() => {
+    const normalized = query.trim().toLowerCase();
+    return plans.filter((plan) => {
+      const status = getDiscountStatus(plan);
+      if (filter !== "all" && status !== filter) return false;
+      if (!normalized) return true;
+      return plan.name.toLowerCase().includes(normalized);
+    });
+  }, [filter, plans, query]);
+
+  const active = plans.filter((plan) => getDiscountStatus(plan) === "active").length;
+  const scheduled = plans.filter((plan) => getDiscountStatus(plan) === "scheduled").length;
+  const inactive = plans.filter((plan) => getDiscountStatus(plan) === "inactive").length;
+  const sales = plans.reduce((sum, plan) => sum + plan.sales, 0);
 
   return (
-    <div className="discount-plans-content">
-      <h1>Discount Plans</h1>
+    <div className="discount-plans-content dashboard-content">
+      <header className="page-title-row">
+        <div>
+          <h1>خطط الخصم</h1>
+          <p className="dashboard-sub">
+            إنشاء خطط تحتوي عدة منتجات مع تاريخ بداية ونهاية ومتابعة المبيعات والكميات.
+          </p>
+        </div>
+        <button
+          className="discount-create-button"
+          type="button"
+          onClick={() => setCreating(true)}
+        >
+          <Plus aria-hidden="true" size={16} strokeWidth={2.4} />
+          <span>إنشاء خطة خصم</span>
+        </button>
+      </header>
 
       {creating ? (
-        <PlanForm
+        <CreatePlanForm
           onCancel={() => setCreating(false)}
           onSave={(plan) => {
-            setPlans((v) => [plan, ...v]);
+            setPlans((current) => [plan, ...current]);
             setCreating(false);
           }}
         />
       ) : (
-        <section
-          className="discount-plans-card"
-          aria-label="Discount plans list"
-        >
-          <div className="discount-plans-toolbar">
-            <button
-              className="discount-create-button"
-              type="button"
-              onClick={() => setCreating(true)}
-            >
-              <Plus aria-hidden="true" size={16} strokeWidth={2.4} />
-              <span>Create Discount Plan</span>
-            </button>
-            <div className="discount-filter-chips">
-              {(["All", "Active", "Inactive"] as const).map((c) => (
-                <button
-                  className={`filter-chip${filter === c ? " is-on" : ""}`}
-                  key={c}
-                  type="button"
-                  onClick={() => setFilter(c)}
-                >
-                  {c}
-                </button>
-              ))}
-            </div>
-          </div>
+        <>
+          <section className="kpi-grid" aria-label="ملخص خطط الخصم">
+            <article className="kpi-card kpi-green">
+              <p>خطط نشطة</p>
+              <strong>{active}</strong>
+            </article>
+            <article className="kpi-card kpi-blue">
+              <p>خطط مجدولة</p>
+              <strong>{scheduled}</strong>
+            </article>
+            <article className="kpi-card kpi-amber">
+              <p>خطط غير نشطة</p>
+              <strong>{inactive}</strong>
+            </article>
+            <article className="kpi-card kpi-cyan">
+              <p>مبيعات منتجات مخفضة</p>
+              <strong>{formatIqd(sales)}</strong>
+            </article>
+          </section>
 
-          <div className="purchase-order-table-wrap">
-            <table className="purchase-order-table">
-              <thead>
-                <tr>
-                  <th>Plan Name</th>
-                  <th>Start</th>
-                  <th>End</th>
-                  <th># Products</th>
-                  <th>Status</th>
-                  <th>Items Sold</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {visible.length === 0 ? (
+          <section className="discount-plans-card" aria-label="قائمة خطط الخصم">
+            <div className="order-items-filters">
+              <label className="order-items-search">
+                <Search aria-hidden="true" size={16} strokeWidth={2.2} />
+                <input
+                  placeholder="بحث باسم الخطة"
+                  value={query}
+                  onChange={(event) => setQuery(event.target.value)}
+                />
+              </label>
+              <div className="discount-filter-chips">
+                {(["all", "active", "scheduled", "inactive"] as const).map((item) => (
+                  <button
+                    className={`filter-chip${filter === item ? " is-on" : ""}`}
+                    key={item}
+                    type="button"
+                    onClick={() => setFilter(item)}
+                  >
+                    {statusLabel[item]}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="purchase-order-table-wrap">
+              <table className="purchase-order-table">
+                <thead>
                   <tr>
-                    <td colSpan={7} className="empty-cell">
-                      No plans for this filter
-                    </td>
+                    <th>اسم الخطة</th>
+                    <th>البداية</th>
+                    <th>النهاية</th>
+                    <th>عدد المنتجات</th>
+                    <th>المبيعات</th>
+                    <th>القطع المباعة</th>
+                    <th>الحالة</th>
+                    <th>عرض</th>
                   </tr>
-                ) : (
-                  visible.map((plan) => (
-                    <>
-                      <tr key={plan.id} className="product-list-data-row">
-                        <td>{plan.name}</td>
-                        <td>{plan.start}</td>
-                        <td>{plan.end}</td>
-                        <td>{plan.productSkus.length}</td>
-                        <td>
-                          <span
-                            className={`approved-status-badge ${
-                              plan.status === "Active"
-                                ? "is-active"
-                                : "is-completed"
-                            }`}
-                          >
-                            {plan.status}
-                          </span>
-                        </td>
-                        <td>{plan.itemsSold}</td>
-                        <td>
-                          <div className="row-actions">
-                            <button
-                              className="row-action-btn"
-                              type="button"
-                              onClick={() =>
-                                setOpenPlan((v) =>
-                                  v === plan.id ? null : plan.id,
-                                )
-                              }
-                            >
-                              View
-                            </button>
-                            {plan.status === "Active" ? (
+                </thead>
+                <tbody>
+                  {visible.length === 0 ? (
+                    <tr>
+                      <td colSpan={8} className="empty-cell">
+                        لا توجد خطط ضمن هذا الفلتر.
+                      </td>
+                    </tr>
+                  ) : (
+                    visible.map((plan) => {
+                      const status = getDiscountStatus(plan);
+                      const sold = Object.values(plan.itemsSold).reduce((sum, value) => sum + value, 0);
+                      return (
+                        <Fragment key={plan.id}>
+                          <tr className="product-list-data-row">
+                            <td>{plan.name}</td>
+                            <td>{plan.startDate}</td>
+                            <td>{plan.endDate}</td>
+                            <td>{plan.productIds.length}</td>
+                            <td>{formatIqd(plan.sales)}</td>
+                            <td>{sold}</td>
+                            <td>
+                              <span className={`approved-status-badge ${statusClass[status]}`}>
+                                {statusLabel[status]}
+                              </span>
+                            </td>
+                            <td>
                               <button
                                 className="row-action-btn"
                                 type="button"
                                 onClick={() =>
-                                  setPlans((all) =>
-                                    all.map((p) =>
-                                      p.id === plan.id
-                                        ? { ...p, status: "Inactive" }
-                                        : p,
-                                    ),
+                                  setOpenPlan((current) =>
+                                    current === plan.id ? null : plan.id,
                                   )
                                 }
                               >
-                                End Plan
+                                <CalendarDays aria-hidden="true" size={14} strokeWidth={2.4} />
+                                تفاصيل
                               </button>
-                            ) : (
-                              <button
-                                className="row-action-btn"
-                                type="button"
-                                onClick={() =>
-                                  setPlans((all) =>
-                                    all.filter((p) => p.id !== plan.id),
-                                  )
-                                }
-                              >
-                                <Trash2
-                                  aria-hidden="true"
-                                  size={14}
-                                  strokeWidth={2.4}
-                                />
-                              </button>
-                            )}
-                          </div>
-                        </td>
-                      </tr>
-                      {openPlan === plan.id ? (
-                        <tr
-                          key={`${plan.id}-detail`}
-                          className="row-details-row"
-                        >
-                          <td colSpan={7}>
-                            <div className="discount-plan-detail">
-                              <h4>Included Products</h4>
-                              <table className="purchase-order-table inner-table">
-                                <thead>
-                                  <tr>
-                                    <th>Thumb</th>
-                                    <th>Name</th>
-                                    <th>SKU</th>
-                                    <th>Original</th>
-                                    <th>Discounted</th>
-                                    <th>Sold During Plan</th>
-                                  </tr>
-                                </thead>
-                                <tbody>
-                                  {plan.productSkus.map((sku) => {
-                                    const product = productCatalog.find(
-                                      (p) => p.sku === sku,
-                                    );
-                                    const original = 50000;
-                                    const discounted =
-                                      plan.type === "Percentage"
-                                        ? Math.round(
-                                            original * (1 - plan.value / 100),
-                                          )
-                                        : original - plan.value;
+                            </td>
+                          </tr>
+                          {openPlan === plan.id ? (
+                            <tr key={`${plan.id}-detail`} className="row-details-row">
+                              <td colSpan={8}>
+                                <div className="discount-plan-detail">
+                                  {plan.productIds.map((productId) => {
+                                    const product = getProduct(productId);
                                     return (
-                                      <tr key={sku}>
-                                        <td>
-                                          <div className="sample-product-thumb">
-                                            <span />
-                                          </div>
-                                        </td>
-                                        <td>{product?.name ?? sku}</td>
-                                        <td>{sku}</td>
-                                        <td>{original.toLocaleString()} IQD</td>
-                                        <td>
-                                          {discounted.toLocaleString()} IQD
-                                        </td>
-                                        <td>
-                                          {Math.floor(plan.itemsSold / Math.max(plan.productSkus.length, 1))}
-                                        </td>
-                                      </tr>
+                                      <article className="best-seller-row" key={productId}>
+                                        <span className="seller-rank">%</span>
+                                        <div>
+                                          <strong>{product?.nameAr}</strong>
+                                          <span>{product?.sku}</span>
+                                        </div>
+                                        <b>{plan.itemsSold[productId] ?? 0} قطعة</b>
+                                      </article>
                                     );
                                   })}
-                                </tbody>
-                              </table>
-                            </div>
-                          </td>
-                        </tr>
-                      ) : null}
-                    </>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-        </section>
+                                </div>
+                              </td>
+                            </tr>
+                          ) : null}
+                        </Fragment>
+                      );
+                    })
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </section>
+        </>
       )}
     </div>
   );

@@ -1,7 +1,13 @@
 "use client";
 
-import { ArrowRightLeft, Send, UserPlus, X } from "lucide-react";
-import { useState } from "react";
+import { ArrowRightLeft, Check, Megaphone, Send, UserPlus, X } from "lucide-react";
+import { Fragment, useState } from "react";
+import {
+  marketingCampaigns,
+  marketingPackages,
+  todayIso,
+  type MarketingCampaign,
+} from "./vendor-dashboard-data";
 
 const vendors = ["Sheglam Iraq", "Electromall Direct", "Braun Distributor", "Philips Iraq"];
 const agents = ["Agent Sara", "Agent Hussein", "Agent Lina", "Agent Omar"];
@@ -199,6 +205,7 @@ function TransferAgentModal({
 
 export function AccountManagerOrdersContent() {
   const [orders, setOrders] = useState(sample);
+  const [campaigns, setCampaigns] = useState<MarketingCampaign[]>(marketingCampaigns);
   const [vendorFilter, setVendorFilter] = useState<string[]>([]);
   const [statusFilter, setStatusFilter] = useState("All");
   const [from, setFrom] = useState("");
@@ -298,8 +305,8 @@ export function AccountManagerOrdersContent() {
             </thead>
             <tbody>
               {visible.map((o) => (
-                <>
-                  <tr key={o.id} className="product-list-data-row">
+                <Fragment key={o.id}>
+                  <tr className="product-list-data-row">
                     <td>{o.orderNumber}</td>
                     <td>{o.vendor}</td>
                     <td>{o.customer}</td>
@@ -405,8 +412,80 @@ export function AccountManagerOrdersContent() {
                       </div>
                     </td>
                   </tr>
-                </>
+                </Fragment>
               ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section className="account-manager-card campaign-approval-card">
+        <div className="panel-heading">
+          <h2>موافقات الحملات التسويقية</h2>
+        </div>
+        <div className="purchase-order-table-wrap">
+          <table className="purchase-order-table">
+            <thead>
+              <tr>
+                <th>الكود</th>
+                <th>الباقة</th>
+                <th>المورد</th>
+                <th>تاريخ الشراء</th>
+                <th>الحالة</th>
+                <th>اعتماد</th>
+              </tr>
+            </thead>
+            <tbody>
+              {campaigns.map((campaign) => {
+                const pkg = marketingPackages.find((item) => item.id === campaign.packageId);
+                return (
+                  <tr className="product-list-data-row" key={campaign.id}>
+                    <td>{campaign.code}</td>
+                    <td>{pkg?.name}</td>
+                    <td>{campaign.vendorId}</td>
+                    <td>{campaign.purchasedAt}</td>
+                    <td>
+                      <span
+                        className={`approved-status-badge ${
+                          campaign.status === "pending" ? "is-pending" : "is-active"
+                        }`}
+                      >
+                        {campaign.status === "pending" ? "بانتظار الموافقة" : campaign.status}
+                      </span>
+                    </td>
+                    <td>
+                      {campaign.status === "pending" ? (
+                        <button
+                          className="row-action-btn approve-btn"
+                          type="button"
+                          onClick={() =>
+                            setCampaigns((current) =>
+                              current.map((item) =>
+                                item.id === campaign.id
+                                  ? {
+                                      ...item,
+                                      status: "active",
+                                      startsAt: todayIso,
+                                      endsAt: "2026-05-18",
+                                    }
+                                  : item,
+                              ),
+                            )
+                          }
+                        >
+                          <Check aria-hidden="true" size={14} strokeWidth={2.4} />
+                          اعتماد وإرسال الكود
+                        </button>
+                      ) : (
+                        <span className="row-action-btn">
+                          <Megaphone aria-hidden="true" size={14} strokeWidth={2.4} />
+                          تم الإرسال
+                        </span>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>

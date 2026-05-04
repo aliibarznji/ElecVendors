@@ -1,455 +1,451 @@
 "use client";
 
 import {
-  Bold,
-  Calculator,
+  Barcode,
   ChevronDown,
-  Code2,
-  Copy,
-  ExternalLink,
-  Gift,
-  Info,
-  Italic,
-  List,
-  ListOrdered,
-  Lock,
+  ImagePlus,
   Plus,
-  RefreshCw,
   Save,
-  Search,
-  Strikethrough,
   Tag,
-  Underline,
+  ToggleRight,
+  Trash2,
   UploadCloud,
 } from "lucide-react";
-import type { ReactNode } from "react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
-function TextField({
+type SizeRow = {
+  id: string;
+  size: string;
+  quantity: number;
+};
+
+type ColorRow = {
+  id: string;
+  code: string;
+  name: string;
+  sizes: SizeRow[];
+};
+
+const categories = [
+  ["الجمال", "العناية بالشعر", "أجهزة الشعر", "مكاوي التجعيد"],
+  ["الإلكترونيات", "الصوت", "سماعات", "لاسلكية"],
+  ["الإلكترونيات", "العناية الشخصية", "حلاقة", "ماكينات تهذيب"],
+];
+
+function Field({
   label,
-  placeholder,
   value,
-  disabled = false,
-  icon,
+  onChange,
+  placeholder,
+  type = "text",
+  error,
 }: {
   label: string;
+  value: string | number;
+  onChange: (value: string) => void;
   placeholder?: string;
-  value?: string;
-  disabled?: boolean;
-  icon?: ReactNode;
+  type?: string;
+  error?: string;
 }) {
   return (
     <label className="product-form-field">
       <span>{label}</span>
-      <div className={`product-input-box${disabled ? " is-disabled" : ""}`}>
-        <input disabled={disabled} placeholder={placeholder} defaultValue={value} />
-        {icon ? <span className="product-field-icon">{icon}</span> : null}
+      <div className={`product-input-box${error ? " has-error" : ""}`}>
+        <input
+          type={type}
+          value={value}
+          placeholder={placeholder}
+          onChange={(event) => onChange(event.target.value)}
+        />
       </div>
+      {error ? <em className="form-error">{error}</em> : null}
     </label>
   );
 }
 
-function SelectField({
+function SelectBox({
   label,
-  placeholder = "",
-  withAdd = false,
+  value,
+  onChange,
+  options,
 }: {
   label: string;
-  placeholder?: string;
-  withAdd?: boolean;
+  value: string;
+  onChange: (value: string) => void;
+  options: string[];
 }) {
   return (
-    <div className="product-form-field">
+    <label className="product-form-field">
       <span>{label}</span>
-      <div className="product-inline-control">
-        <div className="product-input-box">
-          <input readOnly placeholder={placeholder} />
-          <ChevronDown aria-hidden="true" size={18} strokeWidth={2.1} />
-        </div>
-        {withAdd ? (
-          <button className="square-add-button" type="button" aria-label={`Add ${label}`}>
-            <Plus aria-hidden="true" size={16} strokeWidth={2.5} />
-          </button>
-        ) : null}
-      </div>
-    </div>
-  );
-}
-
-function MoneyField({
-  label,
-  placeholder,
-  icon,
-  error,
-}: {
-  label: string;
-  placeholder: string;
-  icon: ReactNode;
-  error?: string;
-}) {
-  return (
-    <label className="money-field">
-      <span>{label}</span>
-      <div className="money-input">
-        <span>IQD</span>
-        <input placeholder={placeholder} />
-        {icon}
-      </div>
-      {error ? <em>{error}</em> : null}
-    </label>
-  );
-}
-
-function ProductEditor() {
-  const editorIcons = [
-    Bold,
-    Italic,
-    Underline,
-    Strikethrough,
-    Code2,
-    ListOrdered,
-    List,
-  ];
-
-  return (
-    <section className="product-section product-description-section">
-      <h2>Product Description</h2>
-      <div className="product-editor">
-        <div className="editor-toolbar" aria-label="Product description toolbar">
-          {editorIcons.map((Icon, index) => (
-            <button key={index} type="button" aria-label={`Format option ${index + 1}`}>
-              <Icon aria-hidden="true" size={16} strokeWidth={2.4} />
-            </button>
+      <div className="product-input-box">
+        <select value={value} onChange={(event) => onChange(event.target.value)}>
+          <option value="">اختر</option>
+          {options.map((option) => (
+            <option key={option}>{option}</option>
           ))}
-          <button className="editor-style-button" type="button">
-            Normal
-            <ChevronDown aria-hidden="true" size={14} strokeWidth={2.1} />
-          </button>
-        </div>
-        <textarea placeholder="Enter product description" />
+        </select>
+        <ChevronDown aria-hidden="true" size={18} strokeWidth={2.1} />
       </div>
-    </section>
+    </label>
   );
 }
 
-function ProductRegistrationForm() {
-  return (
-    <div className="product-registration">
-      <div className="product-form-topbar">
-        <nav className="product-navigation" aria-label="Product navigation">
-          {["Product Details", "Pricing and Stock", "Warranty", "Delivery"].map(
-            (item) => (
-              <button key={item} type="button">
-                {item}
-                <Info aria-hidden="true" size={14} strokeWidth={2.5} />
-              </button>
-            ),
-          )}
-          <button className="is-active" type="button">
-            Product Logs
-          </button>
-        </nav>
+export function AddProductContent() {
+  const [nameAr, setNameAr] = useState("");
+  const [nameEn, setNameEn] = useState("");
+  const [highlights, setHighlights] = useState("");
+  const [description, setDescription] = useState("");
+  const [keywords, setKeywords] = useState("");
+  const [materialCode, setMaterialCode] = useState("");
+  const [sellingPrice, setSellingPrice] = useState("");
+  const [costPrice, setCostPrice] = useState("");
+  const [largeProduct, setLargeProduct] = useState(false);
+  const [category, setCategory] = useState(categories[0]);
+  const [brand, setBrand] = useState("");
+  const [barcode, setBarcode] = useState("");
+  const [vendorCode, setVendorCode] = useState("");
+  const [colors, setColors] = useState<ColorRow[]>([
+    {
+      id: "color-1",
+      code: "#c7ccd4",
+      name: "فضي",
+      sizes: [{ id: "size-1", size: "قياسي", quantity: 1 }],
+    },
+  ]);
+  const [submitted, setSubmitted] = useState(false);
 
-        <div className="product-save-actions">
-          <button className="new-status-button" type="button">
-            New
-          </button>
-          <button className="link-action-button" type="button">
-            <Save aria-hidden="true" size={15} strokeWidth={2.2} />
-            Save
-          </button>
-          <button className="duplicate-action-button" type="button">
-            <Copy aria-hidden="true" size={15} strokeWidth={2.2} />
-            Save and Duplicate
-          </button>
+  const errors = useMemo(() => {
+    const next: Record<string, string> = {};
+    if (!nameAr.trim()) next.nameAr = "اسم المنتج بالعربية مطلوب.";
+    if (!nameEn.trim()) next.nameEn = "اسم المنتج بالإنجليزية مطلوب.";
+    if (!materialCode.trim()) next.materialCode = "كود المنتج أو المادة مطلوب.";
+    if (!brand.trim()) next.brand = "العلامة التجارية مطلوبة.";
+    if (!barcode.trim()) next.barcode = "الباركود مطلوب.";
+    if (!vendorCode.trim()) next.vendorCode = "كود المنتج لدى التاجر مطلوب.";
+    const selling = Number(sellingPrice);
+    const cost = Number(costPrice);
+    if (!selling || selling <= 0) next.sellingPrice = "سعر البيع مطلوب.";
+    if (!cost || cost <= 0) next.costPrice = "سعر الكلفة مطلوب.";
+    if (selling && cost && selling < cost) {
+      next.sellingPrice = "سعر البيع يجب أن يكون أعلى من الكلفة.";
+    }
+    if (colors.some((color) => !color.code || !color.name)) {
+      next.colors = "كل لون يحتاج كود لون واسم لون.";
+    }
+    if (colors.some((color) => color.sizes.some((size) => !size.size || size.quantity < 0))) {
+      next.sizes = "كل صف حجم يحتاج اسم حجم وكمية صحيحة.";
+    }
+    return next;
+  }, [
+    barcode,
+    brand,
+    colors,
+    costPrice,
+    materialCode,
+    nameAr,
+    nameEn,
+    sellingPrice,
+    vendorCode,
+  ]);
+
+  const updateColor = (id: string, patch: Partial<ColorRow>) => {
+    setColors((current) =>
+      current.map((color) => (color.id === id ? { ...color, ...patch } : color)),
+    );
+  };
+
+  const updateSize = (colorId: string, sizeId: string, patch: Partial<SizeRow>) => {
+    setColors((current) =>
+      current.map((color) =>
+        color.id === colorId
+          ? {
+              ...color,
+              sizes: color.sizes.map((size) =>
+                size.id === sizeId ? { ...size, ...patch } : size,
+              ),
+            }
+          : color,
+      ),
+    );
+  };
+
+  return (
+    <div className="add-product-content">
+      <header className="page-title-row">
+        <div>
+          <h1>إضافة / تعديل منتج</h1>
+          <p className="dashboard-sub">
+            نموذج واحد يغطي بيانات المنتج، التسعير، التصنيفات، الصور، الألوان، والأحجام.
+          </p>
         </div>
-      </div>
+        <button
+          className="discount-create-button"
+          type="button"
+          onClick={() => setSubmitted(true)}
+        >
+          <Save aria-hidden="true" size={16} strokeWidth={2.4} />
+          <span>حفظ المنتج</span>
+        </button>
+      </header>
+
+      {submitted && Object.keys(errors).length === 0 ? (
+        <div className="success-banner">
+          تم التحقق من البيانات. في التطبيق الحقيقي يتم إرسال المنتج للمراجعة أو النشر.
+        </div>
+      ) : null}
+
+      {submitted && Object.keys(errors).length > 0 ? (
+        <div className="warning-banner">
+          يرجى إكمال الحقول المطلوبة وتصحيح الأخطاء قبل حفظ المنتج.
+        </div>
+      ) : null}
 
       <section className="product-section">
-        <h2>Product Details</h2>
+        <h2>المعلومات الأساسية</h2>
         <div className="product-details-grid">
           <div className="product-field-stack">
-            <SelectField label="Product Category" placeholder="Select" withAdd />
-            <SelectField label="Brand" withAdd />
-            <TextField label="SKU:" placeholder="Write the SKU or model number here" />
-            <TextField label="Barcode:" placeholder="Write the barcode here" />
-            <TextField
-              label="Minimum Quantity Allowed in Shopping Cart"
-              value="1"
-              icon={<Info aria-hidden="true" size={20} strokeWidth={2.4} />}
+            <Field
+              label="اسم المنتج بالعربية"
+              value={nameAr}
+              onChange={setNameAr}
+              placeholder="مثال: مكواة تجعيد الشعر"
+              error={submitted ? errors.nameAr : undefined}
+            />
+            <Field
+              label="اسم المنتج بالإنجليزية"
+              value={nameEn}
+              onChange={setNameEn}
+              placeholder="Product English name"
+              error={submitted ? errors.nameEn : undefined}
+            />
+            <Field
+              label="النقاط البارزة"
+              value={highlights}
+              onChange={setHighlights}
+              placeholder="سريع التسخين، ضمان سنة، لون فضي"
+            />
+            <Field
+              label="الكلمات المفتاحية"
+              value={keywords}
+              onChange={setKeywords}
+              placeholder="sheglam, beauty, مكواة شعر"
             />
           </div>
-
           <div className="product-field-stack">
-            <TextField
-              disabled
-              label="Product Name"
-              value="This will be auto generated"
+            <Field
+              label="كود المنتج / المادة"
+              value={materialCode}
+              onChange={setMaterialCode}
+              placeholder="MAT-SG-CURL-400"
+              error={submitted ? errors.materialCode : undefined}
             />
-            <TextField
-              label="Product Title (English)"
-              placeholder="Write a short description of the product in English"
+            <Field
+              label="العلامة التجارية"
+              value={brand}
+              onChange={setBrand}
+              placeholder="Sheglam"
+              error={submitted ? errors.brand : undefined}
             />
-            <TextField
-              label="Product Title (Arabic)"
-              placeholder="Write a short description of the product in Arabic"
+            <Field
+              label="الباركود"
+              value={barcode}
+              onChange={setBarcode}
+              placeholder="8901234567891"
+              error={submitted ? errors.barcode : undefined}
             />
-            <SelectField label="Color" withAdd />
-            <div className="product-form-field">
-              <span>Packaging Dimensions</span>
-              <div className="dimension-grid">
-                <input placeholder="Width (cm)" />
-                <input placeholder="Depth (cm)" />
-                <input placeholder="Height (cm)" />
-              </div>
-            </div>
+            <Field
+              label="كود المنتج لدى التاجر"
+              value={vendorCode}
+              onChange={setVendorCode}
+              placeholder="SG-CRL-400-SL"
+              error={submitted ? errors.vendorCode : undefined}
+            />
           </div>
         </div>
+        <label className="product-form-field">
+          <span>الوصف</span>
+          <textarea
+            className="product-textarea"
+            value={description}
+            placeholder="اكتب وصف المنتج وشروط الاستخدام المهمة."
+            onChange={(event) => setDescription(event.target.value)}
+          />
+        </label>
       </section>
 
-      <ProductEditor />
-
-      <section className="product-section gift-product-section">
-        <div className="section-copy">
-          <h2>Gift Product</h2>
-          <p>Assign a free gift product to be included with this item</p>
-        </div>
-        <div className="gift-search">
-          <input placeholder="Search Gift Product by SKU or Name" />
-          <Search aria-hidden="true" size={22} strokeWidth={2.2} />
-        </div>
-        <div className="gift-empty-state">
-          <Gift aria-hidden="true" size={48} strokeWidth={2} />
-          <span>No gift products assigned yet</span>
+      <section className="product-section">
+        <h2>التصنيف والسعر</h2>
+        <div className="product-details-grid">
+          <div className="product-field-stack">
+            {[0, 1, 2, 3].map((level) => (
+              <SelectBox
+                key={level}
+                label={`مستوى التصنيف ${level + 1}`}
+                value={category[level]}
+                onChange={(value) =>
+                  setCategory((current) =>
+                    current.map((item, index) => (index === level ? value : item)),
+                  )
+                }
+                options={[...new Set(categories.map((item) => item[level]))]}
+              />
+            ))}
+          </div>
+          <div className="product-field-stack">
+            <Field
+              label="سعر البيع IQD"
+              type="number"
+              value={sellingPrice}
+              onChange={setSellingPrice}
+              placeholder="49000"
+              error={submitted ? errors.sellingPrice : undefined}
+            />
+            <Field
+              label="سعر الكلفة IQD"
+              type="number"
+              value={costPrice}
+              onChange={setCostPrice}
+              placeholder="45085"
+              error={submitted ? errors.costPrice : undefined}
+            />
+            <button
+              className="modal-toggle product-large-toggle"
+              type="button"
+              aria-pressed={largeProduct}
+              onClick={() => setLargeProduct((value) => !value)}
+            >
+              <span className={`toggle-switch${largeProduct ? " is-enabled" : ""}`} />
+              <ToggleRight aria-hidden="true" size={18} strokeWidth={2.3} />
+              <strong>{largeProduct ? "منتج كبير" : "منتج صغير/عادي"}</strong>
+            </button>
+          </div>
         </div>
       </section>
 
       <section className="product-section product-images-section">
         <div className="section-copy">
-          <h2>Product Images</h2>
-          <p>Drag images to reorder. First image is the main product image</p>
+          <h2>صور المنتج</h2>
+          <p>الصورة الأولى هي الصورة الرئيسية. يفضل رفع صور واضحة بخلفية بيضاء.</p>
         </div>
         <div className="image-dropzone">
           <UploadCloud aria-hidden="true" size={48} strokeWidth={2.2} />
-          <strong>Drop images here or click to browse</strong>
-          <span>Up to 10 images - Max 5MB each - JPEG or PNG</span>
-        </div>
-        <div className="image-guidelines">
-          <Info aria-hidden="true" size={22} strokeWidth={2.4} />
-          <p>
-            Please note that at least one image must be on a white background,
-            and individual images should not exceed 500kb. For our full
-            guidelines on images, please visit the following link:
-            <a href="#"> Image Guidelines PDF</a>
-          </p>
-          <ExternalLink aria-hidden="true" size={17} strokeWidth={2.2} />
+          <strong>اسحب الصور هنا أو اضغط للرفع</strong>
+          <span>PNG أو JPG - حتى 10 صور</span>
         </div>
       </section>
 
-      <section className="product-section pricing-section">
-        <h2>Pricing and Stock</h2>
-        <div className="stock-grid">
-          <SelectField label="Stock Status" />
-          <TextField label="Quantity Available" />
+      <section className="product-section">
+        <div className="section-copy">
+          <h2>الألوان والأحجام والكميات</h2>
+          <p>يمكن إضافة أكثر من لون، وكل لون يحتوي صفوف حجم وكمية.</p>
         </div>
-
-        <div className="pricing-grid">
-          <div className="price-column">
-            <div className="currency-row">
-              <span>Currency</span>
-              <label>
-                <input type="radio" defaultChecked name="currency" />
-                Iraqi Dinar
-              </label>
-              <label>
-                <input type="radio" name="currency" />
-                US Dollar
-              </label>
-            </div>
-
-            <h3>Price in IQD</h3>
-            <div className="price-panel">
-              <MoneyField
-                label="Your selling price"
-                placeholder="Your price to the customer"
-                icon={<Tag aria-hidden="true" size={22} strokeWidth={2.3} />}
-                error="Price is required."
-              />
-              <p>You will receive payment in Iraqi Dinars.</p>
-              <div className="prices-linked">
-                <Lock aria-hidden="true" size={20} strokeWidth={2.3} />
-                <strong>Prices are linked</strong>
-              </div>
-              <MoneyField
-                label="Your cost price"
-                placeholder="Your net price from selling this product"
-                icon={<Tag aria-hidden="true" size={22} strokeWidth={2.3} />}
-                error="Cost price is required."
-              />
-              <p>You will receive payment in Iraqi Dinars.</p>
-            </div>
-
-            <div className="tier-pricing">
-              <h3>
-                Tier Pricing <span>(Optional - Set different prices for bulk quantities)</span>
-              </h3>
-              <div>
-                <button type="button">
-                  <Plus aria-hidden="true" size={20} strokeWidth={2.4} />
-                  Add Tier
+        {submitted && (errors.colors || errors.sizes) ? (
+          <em className="form-error">{errors.colors || errors.sizes}</em>
+        ) : null}
+        <div className="color-variant-stack">
+          {colors.map((color) => (
+            <article className="color-variant-card" key={color.id}>
+              <div className="color-variant-header">
+                <label>
+                  <span>كود اللون</span>
+                  <input
+                    type="color"
+                    value={color.code}
+                    onChange={(event) => updateColor(color.id, { code: event.target.value })}
+                  />
+                </label>
+                <label>
+                  <span>اسم اللون</span>
+                  <input
+                    value={color.name}
+                    onChange={(event) => updateColor(color.id, { name: event.target.value })}
+                  />
+                </label>
+                <button
+                  className="row-action-btn reject-btn"
+                  type="button"
+                  aria-label="حذف اللون"
+                  onClick={() =>
+                    setColors((current) => current.filter((item) => item.id !== color.id))
+                  }
+                >
+                  <Trash2 aria-hidden="true" size={14} strokeWidth={2.4} />
                 </button>
-                <span>Maximum 4 tiers allowed</span>
               </div>
-            </div>
-          </div>
-
-          <div className="price-column">
-            <div className="section-copy">
-              <h3>Promotional Price</h3>
-              <p>
-                Items with special or promotional prices are listed in our
-                special offers section and generally attract a higher level of
-                demand
-              </p>
-            </div>
-            <MoneyField
-              label=""
-              placeholder="Promotional Price"
-              icon={<Tag aria-hidden="true" size={21} strokeWidth={2.3} />}
-            />
-            <MoneyField
-              label="Promotional Cost Price"
-              placeholder="Amount you want to receive"
-              icon={<Calculator aria-hidden="true" size={21} strokeWidth={2.3} />}
-            />
-          </div>
+              <div className="size-row-grid">
+                {color.sizes.map((size) => (
+                  <div className="size-row" key={size.id}>
+                    <label>
+                      <span>الحجم</span>
+                      <input
+                        value={size.size}
+                        onChange={(event) =>
+                          updateSize(color.id, size.id, { size: event.target.value })
+                        }
+                      />
+                    </label>
+                    <label>
+                      <span>الكمية</span>
+                      <input
+                        type="number"
+                        value={size.quantity}
+                        onChange={(event) =>
+                          updateSize(color.id, size.id, {
+                            quantity: Number(event.target.value),
+                          })
+                        }
+                      />
+                    </label>
+                  </div>
+                ))}
+              </div>
+              <button
+                className="small-outline-button"
+                type="button"
+                onClick={() =>
+                  updateColor(color.id, {
+                    sizes: [
+                      ...color.sizes,
+                      { id: `size-${Date.now()}`, size: "", quantity: 0 },
+                    ],
+                  })
+                }
+              >
+                <Plus aria-hidden="true" size={16} strokeWidth={2.4} />
+                إضافة حجم
+              </button>
+            </article>
+          ))}
         </div>
+        <button
+          className="discount-create-button"
+          type="button"
+          onClick={() =>
+            setColors((current) => [
+              ...current,
+              {
+                id: `color-${Date.now()}`,
+                code: "#000000",
+                name: "",
+                sizes: [{ id: `size-${Date.now()}`, size: "", quantity: 0 }],
+              },
+            ])
+          }
+        >
+          <ImagePlus aria-hidden="true" size={16} strokeWidth={2.4} />
+          <span>إضافة لون</span>
+        </button>
       </section>
 
-      <section className="product-section warranty-picker-section">
-        <h2>Warranty Details</h2>
-        <h3>Select Warranty</h3>
-        <div className="warranty-option-row">
-          <SelectField label="Warranty Option *:" />
-          <button className="small-outline-button is-green" type="button">
-            <Plus aria-hidden="true" size={18} strokeWidth={2.5} />
-          </button>
-          <button className="small-outline-button" type="button">
-            <RefreshCw aria-hidden="true" size={17} strokeWidth={2.4} />
-          </button>
+      <section className="product-section">
+        <h2>مراجعة قبل الحفظ</h2>
+        <div className="review-grid">
+          <span><Tag aria-hidden="true" size={15} /> {nameAr || "اسم المنتج"}</span>
+          <span><Barcode aria-hidden="true" size={15} /> {barcode || "باركود"}</span>
+          <span>{category.filter(Boolean).join(" / ")}</span>
+          <span>{colors.length} لون / {colors.reduce((sum, color) => sum + color.sizes.length, 0)} حجم</span>
         </div>
       </section>
-
-      <section className="product-section delivery-section">
-        <h2>Delivery Details</h2>
-        <div className="delivery-copy">
-          <h3>Ready for pick-up within</h3>
-          <p>
-            The amount of time required to prepare the item for collection if
-            ordered. If the items are available for immediate pick-up, please
-            enter 0.
-          </p>
-        </div>
-        <div className="days-input">
-          <input defaultValue="0" />
-          <span>days</span>
-        </div>
-        <em>Pick Up Time is required.</em>
-      </section>
-
-      <section className="product-section product-logs-section">
-        <h2>Product Logs</h2>
-        <p>Below is a list of all product log actions.</p>
-        <div className="product-log-table-wrap">
-          <table className="product-log-table">
-            <thead>
-              <tr>
-                <th>Created Time</th>
-                <th>User</th>
-                <th>Action Type</th>
-                <th>Details</th>
-              </tr>
-            </thead>
-          </table>
-        </div>
-        <div className="log-pagination">
-          <span>Items per page:</span>
-          <button type="button">
-            20
-            <ChevronDown aria-hidden="true" size={16} strokeWidth={2.1} />
-          </button>
-          <span>0 of 0</span>
-          <button type="button" aria-label="Previous page" disabled>
-            &lt;
-          </button>
-          <button type="button" aria-label="Next page" disabled>
-            &gt;
-          </button>
-        </div>
-      </section>
-    </div>
-  );
-}
-
-function ProductSearchStart({
-  onRegisterNewProduct,
-}: {
-  onRegisterNewProduct: () => void;
-}) {
-  return (
-    <section className="add-product-card" aria-label="Add product">
-      <p>
-        Simply select an existing product from our store to start selling, or,
-        if the product does not exist, register the product.
-      </p>
-
-      <div className="product-search-area">
-        <label className="product-search-field">
-          <span>Search for an existing product</span>
-          <input
-            type="search"
-            placeholder="Enter product name or description"
-            aria-label="Search for an existing product"
-          />
-        </label>
-
-        <div className="product-action-row">
-          <button className="seller-register-button" type="button">
-            Product found, let me register as a seller for this item
-          </button>
-          <button
-            className="new-product-button"
-            type="button"
-            onClick={onRegisterNewProduct}
-          >
-            Product not found? Click here to register a new product
-          </button>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-export function AddProductContent() {
-  const [isRegisteringNewProduct, setIsRegisteringNewProduct] = useState(true);
-
-  return (
-    <div className="add-product-content">
-      <h1>Add Product</h1>
-
-      {isRegisteringNewProduct ? (
-        <>
-          <p className="add-product-intro">
-            Simply select an existing product from our store to start selling, or,
-            if the product does not exist, register the product.
-          </p>
-          <ProductRegistrationForm />
-        </>
-      ) : (
-        <ProductSearchStart
-          onRegisterNewProduct={() => setIsRegisteringNewProduct(true)}
-        />
-      )}
     </div>
   );
 }

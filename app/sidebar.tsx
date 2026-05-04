@@ -2,14 +2,10 @@
 
 import {
   BarChart3,
-  Box,
   ChevronLeft,
   ChevronRight,
   ClipboardCheck,
-  ClipboardList,
   CreditCard,
-  FileClock,
-  FileText,
   History,
   Home,
   Layers,
@@ -17,10 +13,8 @@ import {
   Megaphone,
   Package,
   PackageCheck,
-  Percent,
   PlusSquare,
   Receipt,
-  RotateCcw,
   ShieldCheck,
   ShoppingBag,
   Tag,
@@ -34,64 +28,64 @@ import { useEffect, useRef, useState } from "react";
 
 const sidebarSections = [
   {
-    title: "DASHBOARD",
+    title: "لوحة التحكم",
     links: [
-      { label: "Dashboard", href: "/", icon: Home },
+      { label: "الرئيسية", href: "/", icon: Home },
     ],
   },
   {
-    title: "PRODUCT MANAGEMENT",
+    title: "إدارة المنتجات",
     links: [
-      { label: "Add Product", href: "/products/add", icon: PlusSquare },
-      { label: "Product List", href: "/products", icon: List },
-      { label: "Express Pricing", href: "/pricing", icon: CreditCard },
-      { label: "Stock Management", href: "/inventory", icon: Package },
-      { label: "Items Updates", href: "/products/bulk", icon: Layers },
-      { label: "Discount Plan", href: "/products/discounts", icon: Tag },
+      { label: "إضافة منتج", href: "/products/add", icon: PlusSquare },
+      { label: "قائمة المنتجات", href: "/products", icon: List },
+      { label: "التسعير السريع", href: "/pricing", icon: CreditCard },
+      { label: "إدارة المخزون", href: "/inventory", icon: Package },
+      { label: "تحديثات المنتجات", href: "/products/bulk", icon: Layers },
+      { label: "خطط الخصم", href: "/products/discounts", icon: Tag },
     ],
   },
   {
-    title: "ORDER ITEMS PAGE",
+    title: "الطلبات",
     links: [
-      { label: "Order Items", href: "/orders", icon: ShoppingBag },
+      { label: "عناصر الطلبات", href: "/orders", icon: ShoppingBag },
     ],
   },
   {
-    title: "SELLER INFORMATION",
+    title: "معلومات البائع",
     links: [
-      { label: "Vendor Profile", href: "/profile", icon: User },
-      { label: "Warranty", href: "/warranty", icon: ShieldCheck },
-      { label: "Seller Report", href: "/seller-report", icon: BarChart3 },
-      { label: "Seller Delivery Prices", href: "/delivery-prices", icon: Truck },
+      { label: "ملف المورد", href: "/profile", icon: User },
+      { label: "الضمان", href: "/warranty", icon: ShieldCheck },
+      { label: "تقرير المبيعات", href: "/seller-report", icon: BarChart3 },
+      { label: "أسعار التوصيل", href: "/delivery-prices", icon: Truck },
     ],
   },
   {
-    title: "ACCOUNT MANAGER PAGE",
+    title: "مدير الحساب",
     links: [
-      { label: "Vendor Orders", href: "/account-manager/orders", icon: Users },
+      { label: "طلبات الموردين", href: "/account-manager/orders", icon: Users },
       {
-        label: "Pending Products",
+        label: "منتجات قيد المراجعة",
         href: "/account-manager/pending-products",
         icon: ClipboardCheck,
       },
-      { label: "Operations Log", href: "/account-manager/log", icon: History },
+      { label: "سجل العمليات", href: "/account-manager/log", icon: History },
     ],
   },
   {
-    title: "SETTLEMENTS",
+    title: "التسويات",
     links: [
-      { label: "Settlements", href: "/settlements", icon: Receipt },
+      { label: "التسويات", href: "/settlements", icon: Receipt },
     ],
   },
   {
-    title: "MARKETING CAMPAIGNS PAGE",
+    title: "الحملات التسويقية",
     links: [
-      { label: "New Marketing Campaign",
+      { label: "حملة جديدة",
         href: "/marketing/new",
         icon: Megaphone,
       },
       {
-        label: "Existing Marketing Campaigns",
+        label: "الحملات الحالية",
         href: "/marketing/campaigns",
         icon: PackageCheck,
       },
@@ -130,7 +124,7 @@ export function Sidebar() {
       <button
         className="sidebar-toggle"
         type="button"
-        aria-label={isCollapsed ? "Open sidebar" : "Collapse sidebar"}
+        aria-label={isCollapsed ? "فتح القائمة الجانبية" : "طي القائمة الجانبية"}
         aria-expanded={!isCollapsed}
         onClick={() => setIsCollapsed((current) => !current)}
       >

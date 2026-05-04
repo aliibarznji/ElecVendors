@@ -539,6 +539,775 @@ a {
   box-shadow: var(--shadow);
 }
 
+/* Arabic RTL dashboard enhancement layer */
+:root {
+  --brand: #d71920;
+  --brand-dark: #a90f17;
+  --brand-soft: #fff0f1;
+  --brand-tint: #fff7f7;
+  --shadow-ring: 0 0 0 4px rgba(215,25,32,0.12);
+}
+
+body {
+  direction: rtl;
+}
+
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+textarea {
+  resize: vertical;
+}
+
+.dashboard-body,
+.dashboard-stage,
+.dashboard-content,
+.product-list-content,
+.add-product-content,
+.bulk-content,
+.warranty-content,
+.account-manager-orders-content,
+.account-manager-pending-content,
+.account-manager-log-content,
+.existing-marketing-content {
+  direction: rtl;
+}
+
+.top-nav {
+  direction: rtl;
+}
+
+.sidebar {
+  border-right: 0;
+  border-left: 1px solid var(--border);
+}
+
+.sidebar-toggle {
+  right: auto;
+  left: -15px;
+}
+
+.sidebar-link.is-active {
+  background: linear-gradient(270deg, var(--brand-soft), rgba(255, 240, 241, 0.35));
+}
+
+.sidebar-link.is-active::before {
+  right: 0;
+  left: auto;
+  border-radius: 3px 0 0 3px;
+}
+
+.sidebar-collapsed .sidebar-section-title,
+.sidebar-collapsed .sidebar-link-label {
+  transform: translateX(6px);
+}
+
+.dashboard-sub {
+  margin: 7px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.page-title-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.page-title-row h1 {
+  margin: 0;
+}
+
+.discount-create-button,
+.save-warranty-button,
+.submit-all-button,
+.marketing-package-buy-button,
+.bulk-export-button,
+.apply-filter-button,
+.edit-product-button,
+.modal-primary {
+  border: 0;
+  background: linear-gradient(135deg, #e02a31 0%, #b8131b 100%);
+  color: #ffffff;
+  box-shadow: 0 6px 14px rgba(184, 19, 27, 0.18);
+}
+
+.discount-create-button:hover,
+.save-warranty-button:hover,
+.submit-all-button:hover,
+.marketing-package-buy-button:hover,
+.bulk-export-button:hover,
+.apply-filter-button:hover,
+.edit-product-button:hover,
+.modal-primary:hover {
+  background: linear-gradient(135deg, #c9141d 0%, #9d0e15 100%);
+}
+
+.discount-create-button:disabled,
+.save-warranty-button:disabled,
+.marketing-package-buy-button:disabled,
+.modal-primary:disabled {
+  background: #d6dce8;
+  color: #6b7280;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.success-banner,
+.warning-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 13px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.success-banner {
+  border: 1px solid #bfe7d2;
+  background: #f0fbf5;
+  color: #17603a;
+}
+
+.warning-banner {
+  border: 1px solid #ffd0b8;
+  background: #fff6f0;
+  color: #9a3b13;
+}
+
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.kpi-grid-3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.kpi-card {
+  display: grid;
+  align-content: center;
+  gap: 8px;
+  min-height: 116px;
+  padding: 18px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow: var(--shadow-sm);
+}
+
+.kpi-card p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.kpi-card strong {
+  color: var(--text);
+  font-size: 22px;
+  line-height: 1.15;
+}
+
+.kpi-blue { border-top: 4px solid #4164bd; }
+.kpi-green { border-top: 4px solid #25a66a; }
+.kpi-cyan { border-top: 4px solid #1b9fba; }
+.kpi-amber { border-top: 4px solid #f2a51a; }
+.kpi-pink { border-top: 4px solid #d9467e; }
+
+.dashboard-bars {
+  grid-template-columns: repeat(auto-fit, minmax(54px, 1fr));
+}
+
+.chart-value-label {
+  color: #43516a;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.dashboard-ranked-list .fulfillment-step {
+  grid-template-columns: minmax(100px, 0.7fr) minmax(150px, 1fr) minmax(86px, 0.5fr);
+}
+
+.best-seller-list {
+  display: grid;
+  gap: 12px;
+}
+
+.best-seller-row {
+  display: grid;
+  grid-template-columns: 32px 48px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.best-seller-row div {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.best-seller-row strong,
+.product-inline-summary strong {
+  color: #17233c;
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+.best-seller-row span,
+.product-inline-summary span,
+.stacked-meta span {
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+.best-seller-row b {
+  color: #17233c;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.seller-rank {
+  display: inline-grid;
+  width: 28px;
+  height: 28px;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--brand-soft);
+  color: var(--brand);
+  font-weight: 800;
+}
+
+.dashboard-thumb {
+  width: 42px;
+  height: 42px;
+}
+
+.table-panel th,
+.table-panel td,
+.dashboard-table th,
+.dashboard-table td,
+.purchase-order-table th,
+.purchase-order-table td,
+.product-list-table th,
+.product-list-table td {
+  text-align: right;
+}
+
+.approved-status-badge.is-active {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.approved-status-badge.is-pending {
+  background: #fff7d6;
+  color: #b45309;
+}
+
+.approved-status-badge.is-info {
+  background: #e0f2fe;
+  color: #0369a1;
+}
+
+.approved-status-badge.is-completed {
+  background: #eef2f7;
+  color: #475569;
+}
+
+.approved-status-badge.is-rejected {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.product-status-tabs {
+  display: flex;
+  gap: 0;
+  margin: -4px -4px 18px;
+  overflow-x: auto;
+  border-bottom: 1px solid var(--border);
+}
+
+.product-management-filters {
+  grid-template-columns: minmax(280px, 1.4fr) minmax(180px, 0.7fr) minmax(220px, 0.9fr);
+  margin-bottom: 18px;
+}
+
+.product-list-filter select,
+.product-input-box select,
+.warranty-field-box select {
+  width: 100%;
+  min-height: 38px;
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  outline: 0;
+  appearance: none;
+  padding: 0 10px;
+}
+
+.product-management-table {
+  min-width: 1420px;
+}
+
+.product-management-table .product-name-cell {
+  display: grid;
+  gap: 4px;
+  min-width: 220px;
+}
+
+.product-management-table .product-name-cell strong {
+  color: #17233c;
+}
+
+.product-management-table .product-name-cell span {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.product-image-thumb {
+  width: 48px;
+  height: 48px;
+}
+
+.stacked-meta {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.color-swatch-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.color-swatch-row span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 7px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: #4b5563;
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.color-swatch-row i {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border: 1px solid rgba(15, 23, 42, 0.14);
+  border-radius: 50%;
+}
+
+.row-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.row-action-btn {
+  display: inline-flex;
+  min-height: 30px;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 0 9px;
+  border: 1px solid #d8dfeb;
+  border-radius: 7px;
+  background: #ffffff;
+  color: #26304d;
+  cursor: pointer;
+  font: inherit;
+  font-size: 11px;
+  text-decoration: none;
+}
+
+.row-action-btn:hover,
+.row-action-btn:focus-visible {
+  border-color: rgba(215, 25, 32, 0.3);
+  background: var(--brand-tint);
+  color: var(--brand);
+}
+
+.approve-btn {
+  border-color: #bbf7d0;
+  color: #15803d;
+}
+
+.reject-btn {
+  border-color: #fecaca;
+  color: #b91c1c;
+}
+
+.product-inline-summary {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 240px;
+}
+
+.product-inline-summary div {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.modal-wide {
+  width: min(760px, calc(100vw - 32px));
+}
+
+.product-detail-modal {
+  display: grid;
+  grid-template-columns: 88px 1fr;
+  gap: 16px;
+}
+
+.product-input-box.has-error,
+.money-input.has-error {
+  border-color: #fca5a5;
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.08);
+}
+
+.form-error {
+  color: #b91c1c;
+  font-size: 11px;
+  font-style: normal;
+}
+
+.product-textarea {
+  min-height: 118px;
+  padding: 12px;
+  border: 1px solid #d3d7de;
+  border-radius: 4px;
+  color: var(--text);
+}
+
+.product-large-toggle {
+  justify-content: flex-start;
+  min-height: 46px;
+  padding: 0 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.color-variant-stack {
+  display: grid;
+  gap: 14px;
+}
+
+.color-variant-card {
+  display: grid;
+  gap: 14px;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #fafbfd;
+}
+
+.color-variant-header,
+.size-row {
+  display: grid;
+  grid-template-columns: minmax(120px, 0.4fr) minmax(160px, 1fr) auto;
+  gap: 12px;
+  align-items: end;
+}
+
+.color-variant-header label,
+.size-row label {
+  display: grid;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.color-variant-header input:not([type="color"]),
+.size-row input {
+  min-height: 36px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0 10px;
+}
+
+.size-row-grid {
+  display: grid;
+  gap: 10px;
+}
+
+.size-row {
+  grid-template-columns: minmax(160px, 1fr) minmax(120px, 0.45fr);
+}
+
+.review-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.review-grid span {
+  display: inline-flex;
+  min-height: 42px;
+  align-items: center;
+  gap: 7px;
+  padding: 0 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #fafbfd;
+  color: #43516a;
+  font-size: 12px;
+}
+
+.validation-stack {
+  display: grid;
+  gap: 5px;
+}
+
+.validation-error,
+.validation-warning,
+.validation-ok {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+.validation-error {
+  color: #b91c1c;
+}
+
+.validation-warning {
+  color: #b45309;
+}
+
+.validation-ok {
+  color: #15803d;
+}
+
+.pricing-table {
+  min-width: 1180px;
+}
+
+.inventory-product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 14px;
+}
+
+.inventory-product-card {
+  display: grid;
+  gap: 13px;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow: var(--shadow-sm);
+}
+
+.inventory-context {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.empty-state-panel {
+  display: grid;
+  min-height: 180px;
+  place-items: center;
+  border: 1px dashed var(--border-strong);
+  border-radius: 8px;
+  color: var(--muted);
+}
+
+.csv-portal-card .bulk-tab-body {
+  display: grid;
+  gap: 22px;
+}
+
+.csv-upload-zone {
+  min-height: 82px;
+  border: 1px dashed #b8c4d8;
+  border-radius: 8px;
+  background: #fafbfd;
+  cursor: pointer;
+  color: #526178;
+}
+
+.validation-review {
+  overflow-x: auto;
+}
+
+.report-range-panel {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  padding: 18px;
+}
+
+.report-total-card {
+  min-width: 260px;
+  margin-inline-start: auto;
+}
+
+.report-mini-chart {
+  display: grid;
+  gap: 12px;
+}
+
+.report-chart-row {
+  display: grid;
+  grid-template-columns: minmax(130px, 0.7fr) minmax(160px, 1fr) minmax(96px, auto);
+  align-items: center;
+  gap: 12px;
+}
+
+.report-chart-row div {
+  display: grid;
+  gap: 3px;
+}
+
+.report-chart-row strong,
+.report-chart-row b {
+  color: #17233c;
+  font-size: 12px;
+}
+
+.report-chart-row span {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.report-detail-table {
+  min-width: 1500px;
+}
+
+.warranty-info-card {
+  display: grid;
+  gap: 18px;
+  min-height: 0;
+  padding: 24px;
+}
+
+.warranty-card-heading {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.warranty-card-heading h2 {
+  margin: 0 0 7px;
+  color: #17233c;
+  font-size: 18px;
+}
+
+.warranty-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.warranty-detail-grid article,
+.warranty-terms-box {
+  display: grid;
+  gap: 6px;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #fafbfd;
+}
+
+.warranty-detail-grid span {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.warranty-detail-grid strong {
+  color: #17233c;
+  font-size: 14px;
+}
+
+.warranty-terms-box p {
+  margin: 0;
+  color: #43516a;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.warranty-textarea-box textarea {
+  width: 100%;
+  min-height: 120px;
+  border: 0;
+  background: transparent;
+  outline: 0;
+}
+
+.warranty-card-actions {
+  justify-content: flex-end;
+}
+
+.delivery-rule-input {
+  min-width: 240px;
+}
+
+.campaign-approval-card {
+  margin-top: 18px;
+}
+
+@media (max-width: 900px) {
+  .page-title-row,
+  .dashboard-header {
+    display: grid;
+  }
+
+  .kpi-grid,
+  .kpi-grid-3,
+  .review-grid,
+  .warranty-detail-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .product-management-filters,
+  .color-variant-header,
+  .size-row,
+  .report-chart-row,
+  .dashboard-ranked-list .fulfillment-step {
+    grid-template-columns: 1fr;
+  }
+
+  .report-total-card {
+    width: 100%;
+    margin-inline-start: 0;
+  }
+
+  .best-seller-row {
+    grid-template-columns: 28px 42px minmax(0, 1fr);
+  }
+
+  .best-seller-row b {
+    grid-column: 3;
+  }
+
+  .product-detail-modal {
+    grid-template-columns: 1fr;
+  }
+}
+
 .dashboard-kpi-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -8779,4 +9548,41 @@ button:not(:disabled):active {
     gap: 12px;
     padding: 18px 0 0;
   }
+}
+
+/* Final RTL and brand overrides after legacy dashboard styles */
+body,
+.dashboard-stage {
+  direction: rtl;
+}
+
+.sidebar {
+  border-right: 0;
+  border-left: 1px solid var(--border);
+}
+
+.sidebar-toggle {
+  right: auto;
+  left: -15px;
+}
+
+.discount-create-button,
+.save-warranty-button,
+.marketing-package-buy-button,
+.bulk-export-button,
+.apply-filter-button,
+.modal-primary,
+.submit-all-button {
+  border: 0;
+  background: linear-gradient(135deg, #e02a31 0%, #b8131b 100%);
+  color: #ffffff;
+}
+
+.purchase-order-table th,
+.purchase-order-table td,
+.product-list-table th,
+.product-list-table td,
+.dashboard-table th,
+.dashboard-table td {
+  text-align: right;
 }

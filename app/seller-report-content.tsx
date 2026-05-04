@@ -1,266 +1,245 @@
 "use client";
 
-import { Download, FileText } from "lucide-react";
-import { useState } from "react";
+import { Download, Eye, RefreshCw } from "lucide-react";
+import { useMemo, useState } from "react";
+import {
+  bestSellingProducts,
+  formatIqd,
+  getProduct,
+  orders,
+  salesByProvince,
+} from "./vendor-dashboard-data";
 
-const quickRanges = [
-  "Last 7 Days",
-  "Last 30 Days",
-  "This Month",
-  "Last Month",
-];
-
-const itemRows = [
-  { sku: "sv2411203071322707", name: "Sheglam Curling Iron Silver", units: 42, revenue: 2058000 },
-  { sku: "em-curl-22-bk", name: "Electromall Curl Pro Black", units: 31, revenue: 1178000 },
-  { sku: "br-trim-09-rd", name: "Braun Trimmer Mini Red", units: 24, revenue: 504000 },
-  { sku: "ph-shav-44-bl", name: "Philips OneBlade Pro Blue", units: 17, revenue: 731000 },
-];
-
-const provinceRows = [
-  { province: "Baghdad", orders: 58, revenue: 2870000 },
-  { province: "Erbil", orders: 32, revenue: 1530000 },
-  { province: "Basra", orders: 21, revenue: 980000 },
-  { province: "Najaf", orders: 14, revenue: 612000 },
-  { province: "Karbala", orders: 9, revenue: 410000 },
-];
-
-const brandRows = [
-  { brand: "Sheglam", units: 42, revenue: 2058000 },
-  { brand: "Electromall", units: 31, revenue: 1178000 },
-  { brand: "Braun", units: 24, revenue: 504000 },
-  { brand: "Philips", units: 17, revenue: 731000 },
-];
-
-const trend = [12, 18, 22, 19, 28, 31, 36, 33, 40, 45, 51, 49];
-
-function fmt(n: number) {
-  return `${n.toLocaleString()} IQD`;
-}
-
-function MaxBar({ value, max }: { value: number; max: number }) {
-  const pct = max === 0 ? 0 : Math.round((value / max) * 100);
+function Bar({ value, max }: { value: number; max: number }) {
   return (
-    <div className="report-bar">
-      <span style={{ width: `${pct}%` }} />
+    <div className="report-bar" aria-hidden="true">
+      <span style={{ width: `${Math.max((value / Math.max(max, 1)) * 100, 4)}%` }} />
     </div>
-  );
-}
-
-function TrendChart({ data }: { data: number[] }) {
-  const max = Math.max(...data);
-  const points = data
-    .map((v, i) => {
-      const x = (i / (data.length - 1)) * 300;
-      const y = 80 - (v / max) * 70;
-      return `${x},${y}`;
-    })
-    .join(" ");
-  return (
-    <svg
-      viewBox="0 0 300 90"
-      className="trend-chart"
-      role="img"
-      aria-label="Sales trend"
-    >
-      <polyline
-        fill="none"
-        stroke="var(--brand)"
-        strokeWidth="2.4"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        points={points}
-      />
-    </svg>
   );
 }
 
 export function SellerReportContent() {
   const [from, setFrom] = useState("2026-04-01");
-  const [to, setTo] = useState("2026-04-30");
-  const [active, setActive] = useState("Last 30 Days");
+  const [to, setTo] = useState("2026-05-04");
+  const [lastUpdated, setLastUpdated] = useState("2026-05-04 12:00");
+  const [detail, setDetail] = useState<string | null>(null);
 
-  const totalSales = itemRows.reduce((s, r) => s + r.revenue, 0);
-  const totalOrders = provinceRows.reduce((s, r) => s + r.orders, 0);
-  const itemsSold = itemRows.reduce((s, r) => s + r.units, 0);
-  const aov = Math.round(totalSales / Math.max(totalOrders, 1));
+  const filteredOrders = useMemo(
+    () =>
+      orders.filter((order) => {
+        const date = order.dateTime.slice(0, 10);
+        return date >= from && date <= to && order.status !== "cancelled";
+      }),
+    [from, to],
+  );
 
-  const itemMax = Math.max(...itemRows.map((r) => r.revenue));
-  const provMax = Math.max(...provinceRows.map((r) => r.revenue));
-  const brandMax = Math.max(...brandRows.map((r) => r.revenue));
+  const totalSales = filteredOrders.reduce(
+    (sum, order) => sum + order.priceWithCommission * order.quantity,
+    0,
+  );
+
+  const itemRows = bestSellingProducts(filteredOrders).map(({ product, sold }) => ({
+    label: product.nameAr,
+    sub: product.sku,
+    value: sold,
+    sales: filteredOrders
+      .filter((order) => order.productId === product.id)
+      .reduce((sum, order) => sum + order.priceWithCommission * order.quantity, 0),
+  }));
+  const provinceRows = salesByProvince(filteredOrders).map((row) => ({
+    label: row.province,
+    sub: `${row.orders} طلب`,
+    value: row.orders,
+    sales: row.sales,
+  }));
+  const brandRows = Object.values(
+    filteredOrders.reduce<Record<string, { label: string; sub: string; value: number; sales: number }>>(
+      (map, order) => {
+        const product = getProduct(order.productId);
+        if (!product) return map;
+        const current = map[product.brand] ?? {
+          label: product.brand,
+          sub: "علامة تجارية",
+          value: 0,
+          sales: 0,
+        };
+        current.value += order.quantity;
+        current.sales += order.priceWithCommission * order.quantity;
+        map[product.brand] = current;
+        return map;
+      },
+      {},
+    ),
+  );
+  const categoryRows = Object.values(
+    filteredOrders.reduce<Record<string, { label: string; sub: string; value: number; sales: number }>>(
+      (map, order) => {
+        const product = getProduct(order.productId);
+        if (!product) return map;
+        const category = product.categoryLevels[0];
+        const current = map[category] ?? {
+          label: category,
+          sub: "تصنيف رئيسي",
+          value: 0,
+          sales: 0,
+        };
+        current.value += order.quantity;
+        current.sales += order.priceWithCommission * order.quantity;
+        map[category] = current;
+        return map;
+      },
+      {},
+    ),
+  );
+
+  const panels = [
+    { id: "items", title: "المبيعات حسب المنتج", rows: itemRows },
+    { id: "province", title: "المبيعات حسب المحافظة/المدينة", rows: provinceRows },
+    { id: "brand", title: "المبيعات حسب العلامة", rows: brandRows },
+    { id: "category", title: "المبيعات حسب التصنيف", rows: categoryRows },
+  ];
 
   return (
     <div className="seller-report-content dashboard-content">
       <header className="dashboard-header">
-        <h1>Seller Report</h1>
-        <div className="dashboard-controls">
-          <div className="primary-controls">
-            <button className="export-button" type="button">
-              <Download aria-hidden="true" size={20} strokeWidth={2.2} />
-              <span>Export PDF</span>
-            </button>
-            <button className="export-button" type="button">
-              <FileText aria-hidden="true" size={20} strokeWidth={2.2} />
-              <span>Export Excel</span>
-            </button>
-          </div>
-          <div className="quick-ranges">
-            {quickRanges.map((r) => (
-              <button
-                key={r}
-                type="button"
-                className={`range-button${active === r ? " is-active" : ""}`}
-                onClick={() => setActive(r)}
-              >
-                {r}
-              </button>
-            ))}
-          </div>
+        <div>
+          <h1>تقرير البائع</h1>
+          <p className="dashboard-sub">آخر تحديث: {lastUpdated}</p>
+        </div>
+        <div className="primary-controls">
+          <button
+            className="export-button"
+            type="button"
+            onClick={() => setLastUpdated("2026-05-04 12:15")}
+          >
+            <RefreshCw aria-hidden="true" size={18} strokeWidth={2.3} />
+            <span>تحديث البيانات</span>
+          </button>
+          <button className="export-button" type="button">
+            <Download aria-hidden="true" size={18} strokeWidth={2.3} />
+            <span>تصدير Excel</span>
+          </button>
         </div>
       </header>
 
       <section className="dashboard-panel report-range-panel">
         <label className="order-items-date">
-          <span>From</span>
-          <input
-            type="date"
-            value={from}
-            onChange={(e) => setFrom(e.target.value)}
-          />
+          <span>من</span>
+          <input type="date" value={from} onChange={(event) => setFrom(event.target.value)} />
         </label>
         <label className="order-items-date">
-          <span>To</span>
-          <input
-            type="date"
-            value={to}
-            onChange={(e) => setTo(e.target.value)}
-          />
+          <span>إلى</span>
+          <input type="date" value={to} onChange={(event) => setTo(event.target.value)} />
         </label>
-        <button className="apply-filter-button" type="button">
-          Apply
-        </button>
-      </section>
-
-      <section className="kpi-grid">
-        <article className="kpi-card kpi-blue">
-          <p>Total Sales</p>
-          <strong>{fmt(totalSales)}</strong>
-        </article>
-        <article className="kpi-card kpi-green">
-          <p>Total Orders</p>
-          <strong>{totalOrders}</strong>
-        </article>
-        <article className="kpi-card kpi-cyan">
-          <p>Average Order Value</p>
-          <strong>{fmt(aov)}</strong>
-        </article>
-        <article className="kpi-card kpi-amber">
-          <p>Items Sold</p>
-          <strong>{itemsSold}</strong>
+        <article className="kpi-card kpi-green report-total-card">
+          <p>إجمالي المبيعات للفترة</p>
+          <strong>{formatIqd(totalSales)}</strong>
         </article>
       </section>
 
       <div className="report-grid">
-        <section className="dashboard-panel report-panel">
-          <div className="panel-heading">
-            <h2>Sales by Item</h2>
-          </div>
-          <table className="purchase-order-table">
-            <thead>
-              <tr>
-                <th>Thumb</th>
-                <th>Name</th>
-                <th>SKU</th>
-                <th>Units</th>
-                <th>Revenue</th>
-              </tr>
-            </thead>
-            <tbody>
-              {itemRows.map((r) => (
-                <tr key={r.sku}>
-                  <td>
-                    <div className="sample-product-thumb"><span /></div>
-                  </td>
-                  <td>{r.name}</td>
-                  <td>{r.sku}</td>
-                  <td>{r.units}</td>
-                  <td>
-                    <div className="bar-cell">
-                      <span>{fmt(r.revenue)}</span>
-                      <MaxBar value={r.revenue} max={itemMax} />
+        {panels.map((panel) => {
+          const max = Math.max(...panel.rows.map((row) => row.sales), 1);
+          return (
+            <section className="dashboard-panel report-panel" key={panel.id}>
+              <div className="panel-heading">
+                <h2>{panel.title}</h2>
+                <button
+                  className="row-action-btn"
+                  type="button"
+                  onClick={() => setDetail(detail === panel.id ? null : panel.id)}
+                >
+                  <Eye aria-hidden="true" size={14} strokeWidth={2.4} />
+                  تفاصيل
+                </button>
+              </div>
+              <div className="report-mini-chart">
+                {panel.rows.length === 0 ? (
+                  <div className="empty-cell">لا توجد بيانات</div>
+                ) : (
+                  panel.rows.map((row) => (
+                    <div className="report-chart-row" key={`${panel.id}-${row.label}`}>
+                      <div>
+                        <strong>{row.label}</strong>
+                        <span>{row.sub}</span>
+                      </div>
+                      <Bar value={row.sales} max={max} />
+                      <b>{formatIqd(row.sales)}</b>
                     </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </section>
-
-        <section className="dashboard-panel report-panel">
-          <div className="panel-heading">
-            <h2>Sales by Province</h2>
-          </div>
-          <table className="purchase-order-table">
-            <thead>
-              <tr>
-                <th>Province</th>
-                <th>Orders</th>
-                <th>Revenue</th>
-              </tr>
-            </thead>
-            <tbody>
-              {provinceRows.map((r) => (
-                <tr key={r.province}>
-                  <td>{r.province}</td>
-                  <td>{r.orders}</td>
-                  <td>
-                    <div className="bar-cell">
-                      <span>{fmt(r.revenue)}</span>
-                      <MaxBar value={r.revenue} max={provMax} />
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </section>
-
-        <section className="dashboard-panel report-panel">
-          <div className="panel-heading">
-            <h2>Sales by Brand</h2>
-          </div>
-          <table className="purchase-order-table">
-            <thead>
-              <tr>
-                <th>Brand</th>
-                <th>Units</th>
-                <th>Revenue</th>
-              </tr>
-            </thead>
-            <tbody>
-              {brandRows.map((r) => (
-                <tr key={r.brand}>
-                  <td>{r.brand}</td>
-                  <td>{r.units}</td>
-                  <td>
-                    <div className="bar-cell">
-                      <span>{fmt(r.revenue)}</span>
-                      <MaxBar value={r.revenue} max={brandMax} />
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </section>
-
-        <section className="dashboard-panel report-panel">
-          <div className="panel-heading">
-            <h2>Sales Trend</h2>
-          </div>
-          <TrendChart data={trend} />
-        </section>
+                  ))
+                )}
+              </div>
+            </section>
+          );
+        })}
       </div>
+
+      {detail ? (
+        <section className="dashboard-panel report-panel">
+          <div className="panel-heading">
+            <h2>تفاصيل {panels.find((panel) => panel.id === detail)?.title}</h2>
+          </div>
+          <p className="dashboard-sub">
+            يتم فتح التفاصيل هنا في النسخة الحالية، ويمكن ربطها لاحقا بصفحة Drill-down.
+          </p>
+        </section>
+      ) : null}
+
+      <section className="dashboard-panel report-panel">
+        <div className="panel-heading">
+          <h2>جدول تقرير المبيعات الشهري</h2>
+        </div>
+        <div className="purchase-order-table-wrap">
+          <table className="purchase-order-table report-detail-table">
+            <thead>
+              <tr>
+                <th>تاريخ البيع</th>
+                <th>اسم المنتج</th>
+                <th>الصورة</th>
+                <th>الباركود</th>
+                <th>اللون</th>
+                <th>رقم الطلب</th>
+                <th>كود المنتج</th>
+                <th>المدينة</th>
+                <th>مندوب التوصيل</th>
+                <th>حالة الشحنة</th>
+                <th>طريقة الدفع</th>
+                <th>الحجم</th>
+                <th>السعر</th>
+                <th>العمولة</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredOrders.map((order) => {
+                const product = getProduct(order.productId);
+                const commission = order.priceWithCommission - order.priceWithoutCommission;
+                return (
+                  <tr className="product-list-data-row" key={order.id}>
+                    <td>{order.dateTime}</td>
+                    <td>{product?.nameAr}</td>
+                    <td>
+                      <div className="sample-product-thumb" style={{ background: product?.imageTone }}>
+                        <span>{product?.brand.slice(0, 2).toUpperCase()}</span>
+                      </div>
+                    </td>
+                    <td>{product?.barcode}</td>
+                    <td>{order.color}</td>
+                    <td>{order.orderNumber}</td>
+                    <td>{product?.sku}</td>
+                    <td>{order.city}</td>
+                    <td>{order.deliveryAgent}</td>
+                    <td>{order.deliveryStatus}</td>
+                    <td>{order.paymentMethod}</td>
+                    <td>{order.size}</td>
+                    <td>{formatIqd(order.priceWithCommission)}</td>
+                    <td>{formatIqd(commission)}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </section>
     </div>
   );
 }

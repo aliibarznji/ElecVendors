@@ -1,131 +1,83 @@
 "use client";
 
-import { ChevronLeft, ChevronRight } from "lucide-react";
-import { useState } from "react";
-
-type Row = {
-  id: string;
-  thumbnail: string;
-  orderNumber: string;
-  product: string;
-  sku: string;
-  selling: number;
-  commission: number;
-  net: number;
-  status: "Paid" | "Pending";
-  date: string;
-};
-
-const sample: Row[] = [
-  {
-    id: "s1",
-    thumbnail: "SG",
-    orderNumber: "ORD-100190",
-    product: "Sheglam Curling Iron Silver",
-    sku: "sv2411203071322707",
-    selling: 49000,
-    commission: 3920,
-    net: 45080,
-    status: "Paid",
-    date: "2026-04-30",
-  },
-  {
-    id: "s2",
-    thumbnail: "EM",
-    orderNumber: "ORD-100214",
-    product: "Electromall Curl Pro Black",
-    sku: "em-curl-22-bk",
-    selling: 38000,
-    commission: 3040,
-    net: 34960,
-    status: "Pending",
-    date: "—",
-  },
-  {
-    id: "s3",
-    thumbnail: "BR",
-    orderNumber: "ORD-100222",
-    product: "Braun Trimmer Mini Red",
-    sku: "br-trim-09-rd",
-    selling: 21000,
-    commission: 1680,
-    net: 19320,
-    status: "Pending",
-    date: "—",
-  },
-];
-
-function fmt(n: number) {
-  return `${n.toLocaleString()} IQD`;
-}
+import { Eye, Printer, RotateCcw } from "lucide-react";
+import { Fragment, useMemo, useState } from "react";
+import {
+  filterSettlements,
+  formatIqd,
+  getProduct,
+  orders,
+  settlementAmount,
+  settlements,
+} from "./vendor-dashboard-data";
 
 export function SettlementsContent() {
-  const [status, setStatus] = useState<"All" | "Paid" | "Pending">("All");
   const [date, setDate] = useState("");
+  const [paymentMethod, setPaymentMethod] = useState("all");
+  const [open, setOpen] = useState<string | null>(null);
 
-  const visible = sample.filter((r) => {
-    if (status !== "All" && r.status !== status) return false;
-    if (date && r.date !== date) return false;
-    return true;
-  });
-
-  const paid = sample
-    .filter((r) => r.status === "Paid")
-    .reduce((s, r) => s + r.net, 0);
-  const pending = sample
-    .filter((r) => r.status === "Pending")
-    .reduce((s, r) => s + r.net, 0);
+  const visible = useMemo(
+    () => filterSettlements(settlements, date, paymentMethod),
+    [date, paymentMethod],
+  );
+  const paid = settlements
+    .filter((settlement) => settlement.status === "paid")
+    .reduce((sum, settlement) => sum + settlementAmount(settlement), 0);
+  const remaining = settlements
+    .filter((settlement) => settlement.status === "remaining")
+    .reduce((sum, settlement) => sum + settlementAmount(settlement), 0);
 
   return (
     <div className="settlements-content account-statement-content">
-      <h1>Settlements</h1>
+      <header className="page-title-row">
+        <div>
+          <h1>التسويات</h1>
+          <p className="dashboard-sub">
+            متابعة المبيعات المدفوعة والمتبقية مع تفاصيل الفاتورة للطباعة أو العرض.
+          </p>
+        </div>
+      </header>
 
-      <section className="statement-summary-grid" aria-label="Settlement totals">
+      <section className="statement-summary-grid" aria-label="ملخص التسويات">
         <article className="statement-summary-card statement-summary-green">
-          <p>Total Paid Sales</p>
-          <strong>{fmt(paid)}</strong>
+          <p>إجمالي المبيعات المدفوعة</p>
+          <strong>{formatIqd(paid)}</strong>
         </article>
         <article className="statement-summary-card statement-summary-blue">
-          <p>Total Remaining Sales</p>
-          <strong>{fmt(pending)}</strong>
+          <p>إجمالي المبيعات المتبقية</p>
+          <strong>{formatIqd(remaining)}</strong>
         </article>
       </section>
 
       <section className="account-statement-card">
         <div className="statement-topline">
-          <p>Per-order settlement breakdown.</p>
+          <p>فلاتر التسوية حسب التاريخ وطريقة الدفع.</p>
           <button
             className="statement-reset"
             type="button"
             onClick={() => {
               setDate("");
-              setStatus("All");
+              setPaymentMethod("all");
+              setOpen(null);
             }}
           >
-            Reset Filters
+            <RotateCcw aria-hidden="true" size={15} strokeWidth={2.2} />
+            إعادة ضبط
           </button>
         </div>
 
         <div className="statement-filter-row">
           <label className="order-items-date">
-            <span>Date</span>
-            <input
-              type="date"
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
-            />
+            <span>تاريخ التسوية</span>
+            <input type="date" value={date} onChange={(event) => setDate(event.target.value)} />
           </label>
           <label className="order-items-date">
-            <span>Status</span>
-            <select
-              value={status}
-              onChange={(e) =>
-                setStatus(e.target.value as "All" | "Paid" | "Pending")
-              }
-            >
-              <option>All</option>
-              <option>Paid</option>
-              <option>Pending</option>
+            <span>طريقة الدفع</span>
+            <select value={paymentMethod} onChange={(event) => setPaymentMethod(event.target.value)}>
+              <option value="all">كل الطرق</option>
+              {[...new Set(settlements.map((settlement) => settlement.paymentMethod))].map((method) => (
+                <option key={method}>{method}</option>
+              ))}
             </select>
           </label>
         </div>
@@ -134,66 +86,114 @@ export function SettlementsContent() {
           <table className="statement-table purchase-order-table">
             <thead>
               <tr>
-                <th>Thumb</th>
-                <th>Order #</th>
-                <th>Product</th>
-                <th>SKU</th>
-                <th>Selling</th>
-                <th>Commission</th>
-                <th>Net</th>
-                <th>Status</th>
-                <th>Settlement Date</th>
+                <th>تاريخ التسوية</th>
+                <th>رقم الفاتورة</th>
+                <th>عدد المنتجات</th>
+                <th>مبلغ التسوية</th>
+                <th>طريقة الدفع</th>
+                <th>الحالة</th>
+                <th>عرض</th>
+                <th>طباعة</th>
               </tr>
             </thead>
             <tbody>
               {visible.length === 0 ? (
                 <tr>
-                  <td colSpan={9} className="empty-cell">
-                    No settlements
+                  <td colSpan={8} className="empty-cell">
+                    لا توجد تسويات مطابقة.
                   </td>
                 </tr>
               ) : (
-                visible.map((r) => (
-                  <tr key={r.id} className="product-list-data-row">
-                    <td>
-                      <div className="sample-product-thumb">
-                        <span>{r.thumbnail}</span>
-                      </div>
-                    </td>
-                    <td>{r.orderNumber}</td>
-                    <td>{r.product}</td>
-                    <td>{r.sku}</td>
-                    <td>{fmt(r.selling)}</td>
-                    <td>{fmt(r.commission)}</td>
-                    <td>{fmt(r.net)}</td>
-                    <td>
-                      <span
-                        className={`approved-status-badge ${
-                          r.status === "Paid" ? "is-active" : "is-pending"
-                        }`}
-                      >
-                        {r.status}
-                      </span>
-                    </td>
-                    <td>{r.date}</td>
-                  </tr>
+                visible.map((settlement) => (
+                  <Fragment key={settlement.id}>
+                    <tr className="product-list-data-row">
+                      <td>{settlement.date}</td>
+                      <td>{settlement.settlementNumber}</td>
+                      <td>{settlement.itemIds.length}</td>
+                      <td>{formatIqd(settlementAmount(settlement))}</td>
+                      <td>{settlement.paymentMethod}</td>
+                      <td>
+                        <span
+                          className={`approved-status-badge ${
+                            settlement.status === "paid" ? "is-active" : "is-pending"
+                          }`}
+                        >
+                          {settlement.status === "paid" ? "مدفوعة" : "متبقية"}
+                        </span>
+                      </td>
+                      <td>
+                        <button
+                          className="row-action-btn"
+                          type="button"
+                          onClick={() =>
+                            setOpen((current) =>
+                              current === settlement.id ? null : settlement.id,
+                            )
+                          }
+                        >
+                          <Eye aria-hidden="true" size={14} strokeWidth={2.4} />
+                          عرض
+                        </button>
+                      </td>
+                      <td>
+                        <button className="row-action-btn" type="button">
+                          <Printer aria-hidden="true" size={14} strokeWidth={2.4} />
+                          طباعة
+                        </button>
+                      </td>
+                    </tr>
+                    {open === settlement.id ? (
+                      <tr key={`${settlement.id}-detail`} className="row-details-row">
+                        <td colSpan={8}>
+                          <div className="purchase-order-table-wrap">
+                            <table className="purchase-order-table inner-table">
+                              <thead>
+                                <tr>
+                                  <th>الصورة</th>
+                                  <th>المنتج</th>
+                                  <th>كود المنتج</th>
+                                  <th>رقم الطلب</th>
+                                  <th>الحالة</th>
+                                  <th>التاريخ</th>
+                                  <th>سعر البيع</th>
+                                  <th>الكلفة</th>
+                                  <th>تعويض/خصم</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {settlement.itemIds.map((orderId) => {
+                                  const order = orders.find((item) => item.id === orderId);
+                                  const product = order ? getProduct(order.productId) : undefined;
+                                  if (!order || !product) return null;
+                                  return (
+                                    <tr key={orderId}>
+                                      <td>
+                                        <div className="sample-product-thumb" style={{ background: product.imageTone }}>
+                                          <span>{product.brand.slice(0, 2).toUpperCase()}</span>
+                                        </div>
+                                      </td>
+                                      <td>{product.nameAr}</td>
+                                      <td>{product.sku}</td>
+                                      <td>{order.orderNumber}</td>
+                                      <td>{order.deliveryStatus}</td>
+                                      <td>{order.dateTime}</td>
+                                      <td>{formatIqd(order.priceWithCommission)}</td>
+                                      <td>{formatIqd(product.costPrice)}</td>
+                                      <td>{formatIqd(order.priceWithCommission - order.priceWithoutCommission)}</td>
+                                    </tr>
+                                  );
+                                })}
+                              </tbody>
+                            </table>
+                          </div>
+                        </td>
+                      </tr>
+                    ) : null}
+                  </Fragment>
                 ))
               )}
             </tbody>
           </table>
-        </div>
-
-        <div className="statement-pagination">
-          <span>Items per page 20</span>
-          <span>
-            {visible.length} of {sample.length}
-          </span>
-          <button type="button" aria-label="Previous page" disabled>
-            <ChevronLeft aria-hidden="true" size={22} strokeWidth={2.1} />
-          </button>
-          <button type="button" aria-label="Next page" disabled>
-            <ChevronRight aria-hidden="true" size={22} strokeWidth={2.1} />
-          </button>
         </div>
       </section>
     </div>
