@@ -7863,6 +7863,332 @@ button:not(:disabled):active {
   outline-offset: 2px;
 }
 
+.purchase-requisition-logs-page {
+  display: grid;
+  gap: 19px;
+  padding: 18px 24px 40px;
+  animation: dashboard-fade-in 360ms var(--ease-out) both;
+}
+
+.purchase-requisition-logs-page h1 {
+  margin: 0;
+  color: #1e2a45;
+  font-size: 18px;
+  font-weight: 500;
+  letter-spacing: 0;
+  line-height: 1.25;
+}
+
+.purchase-requisition-logs-panel {
+  min-height: 539px;
+  padding: 16px 16px 22px;
+  border-radius: 4px;
+  background: #ffffff;
+  box-shadow: 0 3px 8px rgba(19, 28, 54, 0.08);
+}
+
+.purchase-requisition-logs-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.purchase-requisition-logs-header p {
+  margin: 2px 0 0;
+  color: #4d5e7a;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.purchase-requisition-logs-reset {
+  display: inline-flex;
+  min-height: 32px;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 999px;
+  background: #ff8195;
+  color: #ffffff;
+  cursor: pointer;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+  padding: 0 16px;
+  transition: background var(--transition-fast), transform var(--transition-fast);
+  white-space: nowrap;
+}
+
+.purchase-requisition-logs-reset:hover,
+.purchase-requisition-logs-reset:focus-visible {
+  background: #ff6e85;
+  transform: translateY(-1px);
+}
+
+.purchase-requisition-logs-reset:focus-visible {
+  outline: 2px solid #8293ff;
+  outline-offset: 2px;
+}
+
+.purchase-requisition-logs-filters {
+  display: grid;
+  grid-template-columns: minmax(260px, 0.34fr) minmax(320px, 0.34fr) minmax(320px, 0.34fr);
+  gap: 14px;
+  align-items: end;
+  margin-top: 34px;
+  padding: 0 14px;
+}
+
+.purchase-requisition-logs-filter {
+  display: grid;
+  gap: 9px;
+  min-width: 0;
+  color: #4f5d73;
+  font-size: 10px;
+  line-height: 1;
+}
+
+.purchase-requisition-logs-filter input,
+.purchase-requisition-logs-select,
+.purchase-requisition-logs-date-input {
+  min-height: 30px;
+  border: 1px solid #d6dce7;
+  border-radius: 3px;
+  background: #ffffff;
+  color: #1e2a45;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.purchase-requisition-logs-filter input {
+  width: 100%;
+  padding: 0 9px;
+  font-size: 12px;
+}
+
+.purchase-requisition-logs-filter input::placeholder {
+  color: #5c6b82;
+  opacity: 1;
+}
+
+.purchase-requisition-logs-select,
+.purchase-requisition-logs-date-input {
+  display: flex;
+  align-items: center;
+}
+
+.purchase-requisition-logs-select select {
+  width: 100%;
+  min-height: 28px;
+  border: 0;
+  background: transparent;
+  color: #53647c;
+  font: inherit;
+  font-size: 12px;
+  outline: 0;
+  padding: 0 8px;
+  appearance: none;
+}
+
+.purchase-requisition-logs-select svg,
+.purchase-requisition-logs-date-input svg {
+  flex: 0 0 auto;
+  margin-right: 9px;
+  color: #767f8a;
+  pointer-events: none;
+}
+
+.purchase-requisition-logs-date-input input {
+  min-height: 28px;
+  border: 0;
+  background: transparent;
+  color: #111827;
+  font-size: 12px;
+  outline: 0;
+}
+
+.purchase-requisition-logs-filter input:focus,
+.purchase-requisition-logs-select:focus-within,
+.purchase-requisition-logs-date-input:focus-within {
+  border-color: #8fa1d9;
+  box-shadow: 0 0 0 3px rgba(61, 95, 182, 0.1);
+  outline: 0;
+}
+
+.purchase-requisition-logs-tools {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 35px;
+  padding: 0 2px;
+}
+
+.purchase-requisition-logs-tools button {
+  display: inline-flex;
+  min-height: 23px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #111827;
+  border-radius: 2px;
+  background: #ffffff;
+  color: #0f1c38;
+  cursor: pointer;
+  font: inherit;
+  font-size: 10px;
+  line-height: 1;
+  padding: 0 18px;
+  transition: background var(--transition-fast), transform var(--transition-fast);
+}
+
+.purchase-requisition-logs-tools button:hover,
+.purchase-requisition-logs-tools button:focus-visible {
+  background: #f7f9fd;
+  transform: translateY(-1px);
+}
+
+.purchase-requisition-logs-tools button:focus-visible {
+  outline: 2px solid #8293ff;
+  outline-offset: 2px;
+}
+
+.purchase-requisition-logs-table-wrap {
+  position: relative;
+  min-height: 258px;
+  margin-top: 6px;
+  overflow-x: auto;
+}
+
+.purchase-requisition-logs-table {
+  width: 100%;
+  min-width: 1120px;
+  border-collapse: collapse;
+  color: #000000;
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.purchase-requisition-logs-table thead {
+  background: #3f62ad;
+  color: #ffffff;
+}
+
+.purchase-requisition-logs-table th {
+  height: 41px;
+  padding: 0 8px;
+  font-size: 10px;
+  font-weight: 700;
+  text-align: left;
+  vertical-align: middle;
+}
+
+.purchase-requisition-logs-table th:nth-child(1) {
+  width: 8%;
+}
+
+.purchase-requisition-logs-table th:nth-child(2) {
+  width: 13.5%;
+}
+
+.purchase-requisition-logs-table th:nth-child(3) {
+  width: 12%;
+}
+
+.purchase-requisition-logs-table th:nth-child(4) {
+  width: 8%;
+}
+
+.purchase-requisition-logs-table th:nth-child(5) {
+  width: 8%;
+}
+
+.purchase-requisition-logs-table th:nth-child(6) {
+  width: 17%;
+}
+
+.purchase-requisition-logs-table th:nth-child(7) {
+  width: 17%;
+}
+
+.purchase-requisition-logs-table th:nth-child(8) {
+  width: 16.5%;
+}
+
+.purchase-requisition-logs-empty {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  padding-top: 70px;
+  color: #79859a;
+  text-align: center;
+}
+
+.purchase-requisition-logs-empty svg {
+  color: #c7c8cc;
+}
+
+.purchase-requisition-logs-empty h2 {
+  margin: 6px 0 0;
+  color: #1e2a45;
+  font-size: 18px;
+  font-weight: 500;
+  letter-spacing: 0;
+  line-height: 1.2;
+}
+
+.purchase-requisition-logs-empty p {
+  margin: 0;
+  color: #61708a;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.purchase-requisition-logs-pagination {
+  display: flex;
+  min-height: 32px;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 18px;
+  padding: 2px 14px 0;
+  color: #4e5b70;
+  font-size: 10px;
+  line-height: 1;
+}
+
+.purchase-requisition-logs-pagination button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+  padding: 0;
+}
+
+.purchase-requisition-logs-page-size {
+  gap: 24px;
+  min-width: 47px;
+  min-height: 25px;
+  border-bottom: 1px solid #9aa4b5 !important;
+  color: #1e2a45 !important;
+}
+
+.purchase-requisition-logs-pagination button:not(.purchase-requisition-logs-page-size) {
+  width: 14px;
+  height: 25px;
+  color: #b9bec8;
+}
+
+.purchase-requisition-logs-pagination button:disabled {
+  color: #c4c8d0;
+  cursor: default;
+}
+
+.purchase-requisition-logs-pagination button:focus-visible {
+  outline: 2px solid #8293ff;
+  outline-offset: 2px;
+}
+
 @media (max-width: 760px) {
   .track-shipments-content {
     gap: 18px;
@@ -7998,6 +8324,39 @@ button:not(:disabled):active {
   }
 
   .purchase-order-logs-pagination {
+    justify-content: center;
+    gap: 12px;
+    padding: 18px 0 0;
+  }
+
+  .purchase-requisition-logs-page {
+    padding: 18px 16px 30px;
+  }
+
+  .purchase-requisition-logs-panel {
+    min-height: 0;
+    padding: 16px 12px 22px;
+  }
+
+  .purchase-requisition-logs-header {
+    display: grid;
+  }
+
+  .purchase-requisition-logs-filters {
+    grid-template-columns: 1fr;
+    margin-top: 28px;
+    padding: 0;
+  }
+
+  .purchase-requisition-logs-tools {
+    margin-top: 26px;
+  }
+
+  .purchase-requisition-logs-table-wrap {
+    margin-top: 8px;
+  }
+
+  .purchase-requisition-logs-pagination {
     justify-content: center;
     gap: 12px;
     padding: 18px 0 0;
