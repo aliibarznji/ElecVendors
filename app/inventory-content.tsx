@@ -84,7 +84,7 @@ export function InventoryContent() {
           <div>
             <p>Available Products</p>
             <strong>{availableCount}</strong>
-            <small>Quantity > 0</small>
+            <small>Quantity &gt; 0</small>
           </div>
         </article>
         <article className="inventory-summary-item inventory-orange">

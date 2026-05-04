@@ -549,7 +549,7 @@ a {
 }
 
 body {
-  direction: rtl;
+  direction: ltr;
 }
 
 input,
@@ -573,21 +573,21 @@ textarea {
 .account-manager-pending-content,
 .account-manager-log-content,
 .existing-marketing-content {
-  direction: rtl;
+  direction: ltr;
 }
 
 .top-nav {
-  direction: rtl;
+  direction: ltr;
 }
 
 .sidebar {
-  border-right: 0;
-  border-left: 1px solid var(--border);
+  border-right: 1px solid var(--border);
+  border-left: 0;
 }
 
 .sidebar-toggle {
-  right: auto;
-  left: -15px;
+  right: -15px;
+  left: auto;
 }
 
 .sidebar-link.is-active {
@@ -9550,20 +9550,20 @@ button:not(:disabled):active {
   }
 }
 
-/* Final RTL and brand overrides after legacy dashboard styles */
+/* Final LTR and brand overrides after legacy dashboard styles */
 body,
 .dashboard-stage {
-  direction: rtl;
+  direction: ltr;
 }
 
 .sidebar {
-  border-right: 0;
-  border-left: 1px solid var(--border);
+  border-right: 1px solid var(--border);
+  border-left: 0;
 }
 
 .sidebar-toggle {
-  right: auto;
-  left: -15px;
+  right: -15px;
+  left: auto;
 }
 
 .discount-create-button,
@@ -9584,5 +9584,5 @@ body,
 .product-list-table td,
 .dashboard-table th,
 .dashboard-table td {
-  text-align: right;
+  text-align: left;
 }
