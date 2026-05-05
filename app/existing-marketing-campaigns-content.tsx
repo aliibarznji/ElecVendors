@@ -1,14 +1,18 @@
 "use client";
 
-import { Clipboard, Download, Eye } from "lucide-react";
+import { Clipboard, Clock, Download, Eye, Megaphone, Plus } from "lucide-react";
 import Link from "next/link";
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useEffect, useMemo, useState } from "react";
 import { useLang } from "./lang-context";
 import { api } from "./lib/api";
 import type { ApiMarketingCampaign } from "./lib/utils";
 
 function downloadCampaignReport(campaign: ApiMarketingCampaign) {
   const pkgName = campaign.package?.name ?? campaign.packageId;
+  const ctr =
+    campaign.views > 0
+      ? ((campaign.clicks / campaign.views) * 100).toFixed(2)
+      : "0";
   const headers = ["Metric", "Value"];
   const rows: [string, string | number][] = [
     ["Campaign Code", campaign.code],
@@ -19,10 +23,13 @@ function downloadCampaignReport(campaign: ApiMarketingCampaign) {
     ["End Date", campaign.endsAt ?? "-"],
     ["Views", campaign.views],
     ["Clicks", campaign.clicks],
+    ["Click-Through Rate (%)", ctr],
     ["Sales Generated", campaign.sales],
     ["Reach", campaign.reach],
   ];
-  const csv = [headers, ...rows].map((row) => row.map((v) => `"${v}"`).join(",")).join("\n");
+  const csv = [headers, ...rows]
+    .map((row) => row.map((v) => `"${v}"`).join(","))
+    .join("\n");
   const blob = new Blob([csv], { type: "text/csv" });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
@@ -69,10 +76,21 @@ function statusClass(status: ApiMarketingCampaign["status"]) {
   }
 }
 
+type FilterStatus = "all" | ApiMarketingCampaign["status"];
+
+const TABS: { key: FilterStatus; label: string }[] = [
+  { key: "all", label: "All" },
+  { key: "active", label: "Active" },
+  { key: "pending", label: "Pending" },
+  { key: "completed", label: "Completed" },
+  { key: "rejected", label: "Rejected" },
+];
+
 export function ExistingMarketingCampaignsContent() {
   const [campaigns, setCampaigns] = useState<ApiMarketingCampaign[]>([]);
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState<string | null>(null);
+  const [filter, setFilter] = useState<FilterStatus>("all");
   const { t } = useLang();
 
   useEffect(() => {
@@ -84,21 +102,75 @@ export function ExistingMarketingCampaignsContent() {
       .finally(() => setLoading(false));
   }, []);
 
+  const counts = useMemo(
+    () => ({
+      total: campaigns.length,
+      active: campaigns.filter((c) => c.status === "active").length,
+      pending: campaigns.filter((c) => c.status === "pending").length,
+      completed: campaigns.filter((c) => c.status === "completed").length,
+    }),
+    [campaigns],
+  );
+
+  const filtered = useMemo(
+    () =>
+      filter === "all" ? campaigns : campaigns.filter((c) => c.status === filter),
+    [campaigns, filter],
+  );
+
   return (
     <div className="existing-marketing-content dashboard-content">
       <header className="page-title-row">
         <div>
           <h1>{t("activeCampaigns")}</h1>
           <p className="dashboard-sub">
-            Track campaign status, campaign code, countdown, and performance reports after completion.
+            Track campaign status, countdown, and performance reports after completion.
           </p>
         </div>
         <Link className="discount-create-button" href="/marketing/new">
+          <Plus size={14} strokeWidth={2.5} aria-hidden="true" />
           New Campaign
         </Link>
       </header>
 
+      {!loading && campaigns.length > 0 && (
+        <div className="campaigns-summary-strip">
+          <div className="campaigns-summary-stat">
+            <span className="stat-value">{counts.total}</span>
+            <span className="stat-label">Total Campaigns</span>
+          </div>
+          <div className="campaigns-summary-stat campaigns-summary-active">
+            <span className="stat-value">{counts.active}</span>
+            <span className="stat-label">Active</span>
+          </div>
+          <div className="campaigns-summary-stat campaigns-summary-pending">
+            <span className="stat-value">{counts.pending}</span>
+            <span className="stat-label">Pending Approval</span>
+          </div>
+          <div className="campaigns-summary-stat campaigns-summary-completed">
+            <span className="stat-value">{counts.completed}</span>
+            <span className="stat-label">Completed</span>
+          </div>
+        </div>
+      )}
+
       <section className="campaigns-list-card product-list-card">
+        <div className="campaign-status-tabs">
+          {TABS.map((tab) => (
+            <button
+              key={tab.key}
+              type="button"
+              className={`campaign-status-tab${filter === tab.key ? " is-active" : ""}`}
+              onClick={() => {
+                setFilter(tab.key);
+                setOpen(null);
+              }}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+
         <div className="purchase-order-table-wrap">
           <table className="purchase-order-table">
             <thead>
@@ -110,7 +182,7 @@ export function ExistingMarketingCampaignsContent() {
                 <th>Duration</th>
                 <th>Status</th>
                 <th>Time Remaining</th>
-                <th>Report</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -120,21 +192,39 @@ export function ExistingMarketingCampaignsContent() {
                     Loading…
                   </td>
                 </tr>
-              ) : campaigns.length === 0 ? (
+              ) : filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="empty-cell">
-                    No campaigns found. Start by purchasing a marketing package.
+                  <td colSpan={8}>
+                    <div className="campaigns-empty-state">
+                      <Megaphone size={34} strokeWidth={1.4} aria-hidden="true" />
+                      <p>
+                        {campaigns.length === 0
+                          ? "No campaigns yet."
+                          : "No campaigns match this filter."}
+                      </p>
+                      {campaigns.length === 0 && (
+                        <Link className="discount-create-button" href="/marketing/new">
+                          Browse Packages
+                        </Link>
+                      )}
+                    </div>
                   </td>
                 </tr>
               ) : (
-                campaigns.map((campaign) => {
+                filtered.map((campaign) => {
                   const pkg = campaign.package;
                   const remaining = getCampaignRemaining(campaign);
+                  const ctr =
+                    campaign.views > 0
+                      ? ((campaign.clicks / campaign.views) * 100).toFixed(1)
+                      : "0";
                   return (
                     <Fragment key={campaign.id}>
                       <tr className="product-list-data-row">
                         <td>{pkg?.name ?? campaign.packageId}</td>
-                        <td>{pkg ? `$${pkg.price} / ${pkg.durationDays} days` : "-"}</td>
+                        <td>
+                          {pkg ? `$${pkg.price.toLocaleString("en-US")} / ${pkg.durationDays}d` : "-"}
+                        </td>
                         <td>
                           <span className="campaign-code">
                             <code>{campaign.code}</code>
@@ -151,12 +241,23 @@ export function ExistingMarketingCampaignsContent() {
                         <td>{campaign.purchasedAt.slice(0, 10)}</td>
                         <td>{pkg?.durationDays ?? "-"} days</td>
                         <td>
-                          <span className={`approved-status-badge ${statusClass(campaign.status)}`}>
+                          <span
+                            className={`approved-status-badge ${statusClass(campaign.status)}`}
+                          >
                             {statusLabel(campaign.status)}
                           </span>
                         </td>
                         <td>
-                          {remaining ? `${remaining.days} days / ${remaining.hours} hours` : "-"}
+                          {campaign.status === "active" && remaining ? (
+                            <span className="countdown-badge">
+                              <Clock size={12} strokeWidth={2.3} aria-hidden="true" />
+                              {remaining.days}d {remaining.hours}h left
+                            </span>
+                          ) : remaining ? (
+                            `${remaining.days}d ${remaining.hours}h`
+                          ) : (
+                            "-"
+                          )}
                         </td>
                         <td>
                           {campaign.status === "completed" || campaign.status === "active" ? (
@@ -164,24 +265,37 @@ export function ExistingMarketingCampaignsContent() {
                               className="row-action-btn"
                               type="button"
                               onClick={() =>
-                                setOpen((current) =>
-                                  current === campaign.id ? null : campaign.id,
-                                )
+                                setOpen((cur) => (cur === campaign.id ? null : campaign.id))
                               }
                             >
                               <Eye aria-hidden="true" size={14} strokeWidth={2.4} />
-                              {campaign.status === "completed" ? "Download Report" : "Live Stats"}
+                              {campaign.status === "completed" ? "Report" : "Live Stats"}
                             </button>
                           ) : (
                             "-"
                           )}
                         </td>
                       </tr>
-                      {open === campaign.id ? (
+
+                      {open === campaign.id && (
                         <tr key={`${campaign.id}-report`} className="row-details-row">
                           <td colSpan={8}>
                             <div className="campaign-report">
-                              <h4>Campaign Report - {campaign.code}</h4>
+                              <div className="campaign-report-header">
+                                <h4>
+                                  {campaign.status === "completed"
+                                    ? "Campaign Report"
+                                    : "Live Stats"}{" "}
+                                  — {campaign.code}
+                                </h4>
+                                {campaign.startsAt && campaign.endsAt && (
+                                  <span className="campaign-report-dates">
+                                    {campaign.startsAt.slice(0, 10)} →{" "}
+                                    {campaign.endsAt.slice(0, 10)}
+                                  </span>
+                                )}
+                              </div>
+
                               <div className="kpi-grid kpi-grid-3">
                                 <article className="kpi-card kpi-blue">
                                   <p>Views</p>
@@ -199,19 +313,26 @@ export function ExistingMarketingCampaignsContent() {
                                   <p>Reach</p>
                                   <strong>{campaign.reach.toLocaleString("en-US")}</strong>
                                 </article>
+                                <article className="kpi-card kpi-pink">
+                                  <p>Click-Through Rate</p>
+                                  <strong>{ctr}%</strong>
+                                </article>
                               </div>
-                              <button
-                                className="export-button"
-                                type="button"
-                                onClick={() => downloadCampaignReport(campaign)}
-                              >
-                                <Download aria-hidden="true" size={16} strokeWidth={2.3} />
-                                <span>Download Report</span>
-                              </button>
+
+                              {campaign.status === "completed" && (
+                                <button
+                                  className="export-button"
+                                  type="button"
+                                  onClick={() => downloadCampaignReport(campaign)}
+                                >
+                                  <Download aria-hidden="true" size={16} strokeWidth={2.3} />
+                                  <span>Download Report</span>
+                                </button>
+                              )}
                             </div>
                           </td>
                         </tr>
-                      ) : null}
+                      )}
                     </Fragment>
                   );
                 })

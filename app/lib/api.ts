@@ -108,6 +108,21 @@ export const api = {
     update: (id: string, data: unknown) =>
       req<ApiProduct>(`/products/${id}`, { method: "PATCH", body: JSON.stringify(data) }),
     delete: (id: string) => req<{ ok: boolean }>(`/products/${id}`, { method: "DELETE" }),
+    uploadImage: async (file: File): Promise<string> => {
+      const form = new FormData();
+      form.append("file", file);
+      const res = await fetch(`${BASE}/products/upload`, {
+        method: "POST",
+        credentials: "include",
+        body: form,
+      });
+      if (!res.ok) {
+        const body: { error?: string } = await res.json().catch(() => ({}));
+        throw new Error(body.error ?? `Upload failed (HTTP ${res.status})`);
+      }
+      const data = (await res.json()) as { url: string };
+      return data.url;
+    },
   },
 
   settlements: {
