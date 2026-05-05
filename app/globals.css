@@ -12184,6 +12184,23 @@ body { background: var(--bg); }
   cursor: not-allowed;
 }
 
+.login-alt {
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--text-secondary, #6b7280);
+  margin-top: 0.25rem;
+}
+
+.login-alt a {
+  color: var(--brand);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.login-alt a:hover {
+  text-decoration: underline;
+}
+
 .dashboard-stage-loading {
   display: flex;
   align-items: center;

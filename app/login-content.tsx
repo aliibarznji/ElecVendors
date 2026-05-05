@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { api } from "./lib/api";
 
@@ -60,6 +61,9 @@ export function LoginContent() {
         <button className="login-submit" type="submit" disabled={loading}>
           {loading ? "Signing in…" : "Sign in"}
         </button>
+        <div className="login-alt">
+          Don&apos;t have an account? <Link href="/signup">Create one</Link>
+        </div>
       </form>
     </div>
   );

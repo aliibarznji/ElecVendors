@@ -58,6 +58,17 @@ export const api = {
         method: "POST",
         body: JSON.stringify({ email, password }),
       }),
+    signup: (data: {
+      name: string;
+      email: string;
+      password: string;
+      phone: string;
+      companyLocation: string;
+    }) =>
+      req<{ id: string; reference: string; name: string; email: string }>("/auth/signup", {
+        method: "POST",
+        body: JSON.stringify(data),
+      }),
     logout: () => req<{ ok: boolean }>("/auth/logout", { method: "POST" }),
     me: () => req<{ id: string; reference: string; name: string; email: string }>("/auth/me"),
   },

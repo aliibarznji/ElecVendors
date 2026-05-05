@@ -5,11 +5,13 @@ export function middleware(request: NextRequest) {
   const token = request.cookies.get("token");
   const { pathname } = request.nextUrl;
 
-  if (!token && !pathname.startsWith("/login")) {
+  const isAuthRoute = pathname.startsWith("/login") || pathname.startsWith("/signup");
+
+  if (!token && !isAuthRoute) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
-  if (token && pathname.startsWith("/login")) {
+  if (token && isAuthRoute) {
     return NextResponse.redirect(new URL("/", request.url));
   }
 

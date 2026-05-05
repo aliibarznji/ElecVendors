@@ -2,7 +2,7 @@ import { Router } from "express";
 import bcrypt from "bcryptjs";
 import { db } from "../db.js";
 import { requireAuth, signToken, type AuthRequest } from "../middleware/auth.js";
-import { loginSchema } from "../schemas/index.js";
+import { loginSchema, signupSchema } from "../schemas/index.js";
 import { config } from "../config.js";
 
 const router = Router();
@@ -33,6 +33,49 @@ router.post("/login", async (req, res, next) => {
     const token = signToken(vendor.id);
     res.cookie("token", token, COOKIE_OPTS);
     res.json({
+      id: vendor.id,
+      reference: vendor.reference,
+      name: vendor.name,
+      email: vendor.email,
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.post("/signup", async (req, res, next) => {
+  try {
+    const data = signupSchema.parse(req.body);
+
+    const existing = await db.vendor.findUnique({ where: { email: data.email } });
+    if (existing) {
+      res.status(409).json({ error: "Email already registered" });
+      return;
+    }
+
+    const passwordHash = await bcrypt.hash(data.password, 10);
+    const reference = `V-${Date.now().toString(36).toUpperCase()}-${Math.random()
+      .toString(36)
+      .slice(2, 6)
+      .toUpperCase()}`;
+
+    const vendor = await db.vendor.create({
+      data: {
+        reference,
+        name: data.name,
+        email: data.email,
+        phone: data.phone,
+        companyLocation: data.companyLocation,
+        joinedAt: new Date(),
+        accountManager: "",
+        deliveryMechanism: "",
+        passwordHash,
+      },
+    });
+
+    const token = signToken(vendor.id);
+    res.cookie("token", token, COOKIE_OPTS);
+    res.status(201).json({
       id: vendor.id,
       reference: vendor.reference,
       name: vendor.name,
