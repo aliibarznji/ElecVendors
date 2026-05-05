@@ -42,15 +42,22 @@ export default function Page() {
 - `app/translations.ts` — full ar/en string dictionaries.
 - All content components consume `useLang()` to get `{ lang, t, dir }`. New UI strings must be added to both dictionaries.
 
-**Data layer is mock-only.**
-- `app/vendor-dashboard-data.ts` — exports mock data: `products`, `orders`, `discountPlans`, `deliveryPrices`, `settlements`, `marketingCampaigns`, `marketingPackages`, `vendorProfile`.
-- `app/api/vendor-dashboard/route.ts` — single GET endpoint that merges and returns this mock data. No real backend.
+**Data layer.**
+- `app/lib/api.ts` — all API calls via `api.*` (e.g. `api.profile.get()`, `api.orders.list()`). Base path `/api/backend`. Handles 401 → redirect to `/login`.
+- `app/lib/utils.ts` — shared types (`ApiVendor`, `ApiOrder`, `ApiProduct`, `ApiWarehouse`, etc.) and pure helpers (`formatIqd`, `salesByProvince`, `bestSellingProducts`).
+- Types live in `app/lib/utils.ts`. Import from there, not redeclared per-file.
 
 **Shared components.**
 - `app/status-pill.tsx` — `<StatusPill>` renders order/product status badges. Use it for any status display.
 
 **Dynamic routes.**
 - `app/orders/[orderNumber]/page.tsx` — order detail page. Param: `orderNumber`.
+
+**Profile page patterns** (`app/profile-content.tsx`).
+- Sub-components: `SectionHeading`, `Field`, `EditInput`, `EditTextarea`, `ChoiceGroup`, `ToggleLine`, `PhoneValue`, `LocationStatus`, `MapFrame`, `VendorAvatar`, `CopyButton`, `Sparkline`.
+- `ChoiceGroup` requires `onChange` to be interactive — omitting it makes it read-only display.
+- `ToggleLine` requires `onChange` to be interactive.
+- CSS classes for profile (all in `globals.css`): `profile-avatar-section`, `profile-avatar`, `vendor-status-badge`, `copy-btn`, `profile-edit-textarea`, `performance-grid-4`, `performance-card-header`, `rate-good/warn/bad`, `perf-benchmark`, `sparkline`, `points-marketing-banner`, `points-marketing-link`.
 
 **Client vs server components.** Pages and content components are server components by default. Mark `"use client"` only when interactivity (state, event handlers, `usePathname`, etc.) is required — e.g. `sidebar.tsx` and forms.
 
