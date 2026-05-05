@@ -1,10 +1,6 @@
 "use client";
 
 import type { LucideIcon } from "lucide-react";
-import { useEffect, useState, type ReactNode } from "react";
-import { useLang } from "./lang-context";
-import { api } from "./lib/api";
-import type { ApiVendor } from "./lib/utils";
 import {
   Activity,
   Award,
@@ -13,9 +9,9 @@ import {
   CalendarDays,
   Camera,
   CheckCircle2,
+  Coins,
   Contact,
   CreditCard,
-  Coins,
   FileText,
   Gauge,
   Globe2,
@@ -23,6 +19,7 @@ import {
   Info,
   Mail,
   MapPin,
+  Megaphone,
   MessageSquareText,
   Phone,
   Save,
@@ -35,6 +32,11 @@ import {
   WalletCards,
   Warehouse,
 } from "lucide-react";
+import Link from "next/link";
+import { useEffect, useState, type ReactNode } from "react";
+import { useLang } from "./lang-context";
+import { api } from "./lib/api";
+import type { ApiVendor, ApiWarehouse } from "./lib/utils";
 
 const mapSrc =
   "https://www.google.com/maps?q=52R4%2B8H2%2C%20Erbil%2C%20Erbil%20Governorate%2C%20Iraq&output=embed";
@@ -129,13 +131,7 @@ function ChoiceGroup({
   );
 }
 
-function ToggleLine({
-  label,
-  enabled,
-}: {
-  label: string;
-  enabled: boolean;
-}) {
+function ToggleLine({ label, enabled }: { label: string; enabled: boolean }) {
   return (
     <div className="toggle-line">
       <span>{label}</span>
@@ -167,6 +163,78 @@ function MapFrame({ title }: { title: string }) {
   );
 }
 
+function perfClass(
+  metric: "speed" | "cancel" | "rating" | "upload",
+  value: number,
+) {
+  if (metric === "speed")
+    return value < 24 ? "rate-good" : value < 48 ? "rate-warn" : "rate-bad";
+  if (metric === "cancel")
+    return value < 2 ? "rate-good" : value < 5 ? "rate-warn" : "rate-bad";
+  if (metric === "rating")
+    return value >= 4 ? "rate-good" : value >= 3 ? "rate-warn" : "rate-bad";
+  return value >= 5 ? "rate-good" : value >= 2 ? "rate-warn" : "rate-bad";
+}
+
+function perfLabel(
+  metric: "speed" | "cancel" | "rating" | "upload",
+  value: number,
+) {
+  if (metric === "speed")
+    return value < 24 ? "Excellent" : value < 48 ? "Average" : "Needs improvement";
+  if (metric === "cancel")
+    return value < 2 ? "Excellent" : value < 5 ? "Average" : "High — review orders";
+  if (metric === "rating")
+    return value >= 4 ? "Excellent" : value >= 3 ? "Good" : "Needs improvement";
+  return value >= 5 ? "Very active" : value >= 2 ? "Active" : "Low activity";
+}
+
+function WarehouseEntry({
+  wh,
+  index,
+  onContact,
+}: {
+  wh: ApiWarehouse;
+  index: number;
+  onContact: () => void;
+}) {
+  return (
+    <div className="warehouse-entry">
+      <div className="warehouse-entry-header">
+        <Warehouse aria-hidden="true" size={15} strokeWidth={2.3} />
+        <h3>Warehouse {index + 1}: {wh.name}</h3>
+      </div>
+      <div className="profile-grid profile-contact-grid">
+        <div className="profile-column">
+          <Field icon={Globe2} label="Country:" value="Iraq" />
+          <Field icon={Warehouse} label="Warehouse Name:" value={wh.name} />
+          <Field icon={CalendarDays} label="Opening Days:" value={wh.openingDays} />
+          <Field icon={Timer} label="Opening Time:" value={wh.openingTime} />
+          <Field icon={Timer} label="Closing Time:" value={wh.closingTime} />
+          <ToggleLine label="Shipping Status:" enabled />
+        </div>
+        <div className="profile-column">
+          <Field
+            helper="eg : +9647912345678"
+            icon={Phone}
+            label="Mobile Number:"
+            value={<PhoneValue number={wh.phone} />}
+          />
+          <Field icon={MapPin} label="Warehouse Address:" value={wh.address} />
+          <LocationStatus />
+          <MapFrame title={`${wh.name} map`} />
+        </div>
+      </div>
+      <div className="warehouse-action-row">
+        <button className="warehouse-button" type="button" onClick={onContact}>
+          <MapPin aria-hidden="true" size={17} strokeWidth={2.4} />
+          <span>Contact warehouse</span>
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export function ProfileContent() {
   const [banner, setBanner] = useState("");
   const [vendor, setVendor] = useState<ApiVendor | null>(null);
@@ -182,7 +250,6 @@ export function ProfileContent() {
     return () => clearTimeout(timer);
   }, [banner]);
 
-  const wh = vendor?.warehouses[0];
   const pointsAvailable = (vendor?.pointsEarned ?? 0) - (vendor?.pointsRedeemed ?? 0);
 
   return (
@@ -191,6 +258,7 @@ export function ProfileContent() {
       <h1>{t("vendorProfile")}</h1>
 
       <div className="profile-card">
+        {/* ── Primary Information ── */}
         <section className="profile-section">
           <SectionHeading icon={Info} title="Primary Information" />
           <div className="profile-grid">
@@ -201,7 +269,7 @@ export function ProfileContent() {
             />
             <Field
               icon={Building2}
-              label="Web Address/Facebook Page:"
+              label="Web Address / Facebook Page:"
               placeholder="Web Address"
             />
             <Field
@@ -224,42 +292,33 @@ export function ProfileContent() {
               }
             />
             <Field
-              icon={Tags}
-              label="Category of your products:"
-              value="beauty"
-            />
-            <Field
               icon={Users}
-              label="Individual/Company Name:"
+              label="Individual / Company Name:"
               value={vendor?.name}
             />
+            <Field icon={Tags} label="Category of your products:" value="Beauty" />
+            <Field icon={Tags} label="Category:" value="Brand Distributor / Owner" />
             <Field
               icon={MessageSquareText}
               label="Comments:"
               placeholder="Enter your comments"
             />
-            <Field
-              icon={Tags}
-              label="Category:"
-              value="Brand Distributor/Owner"
-            />
           </div>
         </section>
 
+        {/* ── Contact Details ── */}
         <section className="profile-section">
           <SectionHeading icon={Contact} title="Contact Details" />
           <div className="profile-grid profile-contact-grid">
             <div className="profile-column">
+              <Field icon={User} label="Contact Person:" value={vendor?.name} />
               <Field
                 icon={User}
-                label="Contact Person:"
-                value={vendor?.name}
+                label="Account Manager:"
+                value={vendor?.accountManager}
+                helper="Person responsible for account follow-up"
               />
-              <Field
-                icon={Mail}
-                label="Email Address:"
-                value={vendor?.email}
-              />
+              <Field icon={Mail} label="Email Address:" value={vendor?.email} />
               <Field
                 helper="eg : +9647912345678"
                 icon={Phone}
@@ -278,7 +337,7 @@ export function ProfileContent() {
               <Field icon={Globe2} label="Country:" value="Iraq" />
               <Field
                 icon={MapPin}
-                label="Enter Address:"
+                label="Company Location:"
                 value={vendor?.companyLocation}
               />
               <LocationStatus />
@@ -287,41 +346,23 @@ export function ProfileContent() {
           </div>
         </section>
 
+        {/* ── Shipping Details ── */}
         <section className="profile-section">
-          <SectionHeading icon={Truck} title="Shipping Details" />
-          <div className="profile-grid profile-contact-grid">
-            <div className="profile-column">
-              <Field icon={Globe2} label="Country:" value="Iraq" />
-              <Field
-                icon={Warehouse}
-                label="Warehouse name:"
-                value={wh?.name}
+          <SectionHeading icon={Truck} title="Warehouse Locations" />
+
+          {vendor?.warehouses && vendor.warehouses.length > 0 ? (
+            vendor.warehouses.map((wh, i) => (
+              <WarehouseEntry
+                key={wh.id}
+                wh={wh}
+                index={i}
+                onContact={() => setBanner(t("warehouseContact"))}
               />
-              <Field
-                icon={CalendarDays}
-                label="Opening Days:"
-                value={wh?.openingDays}
-              />
-              <Field icon={Timer} label="Opening Time:" value={wh?.openingTime} />
-              <Field icon={Timer} label="Closing Time:" value={wh?.closingTime} />
-              <ToggleLine label="Shipping Status:" enabled />
-            </div>
-            <div className="profile-column">
-              <Field
-                helper="eg : +9647912345678"
-                icon={Phone}
-                label="Mobile Number:"
-                value={wh ? <PhoneValue number={wh.phone} /> : undefined}
-              />
-              <Field
-                icon={MapPin}
-                label="Warehouse Address:"
-                value={wh?.address}
-              />
-              <LocationStatus />
-              <MapFrame title="Warehouse address map" />
-            </div>
-          </div>
+            ))
+          ) : (
+            <p className="payment-note">No warehouses added yet.</p>
+          )}
+
           <div className="warehouse-action-row">
             <button
               className="warehouse-button"
@@ -334,6 +375,7 @@ export function ProfileContent() {
           </div>
         </section>
 
+        {/* ── Payment Details ── */}
         <section className="profile-section">
           <SectionHeading icon={CreditCard} title="Payment Details" />
           <div className="payment-stack">
@@ -350,6 +392,7 @@ export function ProfileContent() {
           </div>
         </section>
 
+        {/* ── Documents ── */}
         <section className="profile-section">
           <SectionHeading icon={FileText} title="Documents" />
           <div className="documents-area">
@@ -357,9 +400,9 @@ export function ProfileContent() {
               <h3>Identification</h3>
               <p>
                 Please attach a copy of your identification (if you selected
-                individual, this should be a copy of your passport or ID, if you
-                selected company this should be a copy of your company
-                registration certificate)
+                individual, this should be a copy of your passport or ID; if you
+                selected company this should be a copy of your company registration
+                certificate)
               </p>
             </div>
 
@@ -414,10 +457,7 @@ export function ProfileContent() {
                 <li>Maximum 10 documents total</li>
                 <li>Supported formats: PNG, JPEG, PDF</li>
                 <li>Maximum file size: 5MB per file</li>
-                <li>
-                  You can upload multiple files at once or come back to add more
-                  later
-                </li>
+                <li>You can upload multiple files at once or come back to add more later</li>
               </ul>
             </div>
 
@@ -434,6 +474,7 @@ export function ProfileContent() {
           </div>
         </section>
 
+        {/* ── Delivery Mechanism ── */}
         <section className="profile-section">
           <SectionHeading icon={Truck} title="Delivery Mechanism" />
           <div className="payment-stack">
@@ -443,16 +484,18 @@ export function ProfileContent() {
               selected={vendor?.deliveryMechanism ?? "By Electro Mall"}
             />
             <p className="payment-note">
-              Choosing Electro Mall delivery includes platform shipping fees in
-              your settlement; vendor delivery requires you to handle dispatch
-              and last-mile yourself.
+              Choosing Electro Mall delivery includes platform shipping fees in your
+              settlement. Vendor delivery requires you to handle dispatch and
+              last-mile yourself.
             </p>
           </div>
         </section>
 
+        {/* ── Vendor Points ── */}
         <section className="profile-section">
           <SectionHeading icon={Coins} title="Vendor Points" />
-          <div className="kpi-grid kpi-grid-3">
+
+          <div className="kpi-grid">
             <article className="kpi-card kpi-blue">
               <p>Total Points Earned</p>
               <strong>{(vendor?.pointsEarned ?? 0).toLocaleString("en-US")}</strong>
@@ -465,11 +508,26 @@ export function ProfileContent() {
               <p>Available Balance</p>
               <strong>{pointsAvailable.toLocaleString("en-US")}</strong>
             </article>
+            <article className="kpi-card kpi-pink">
+              <p>Points per Order</p>
+              <strong>Automatic</strong>
+            </article>
           </div>
-          <p className="payment-note">
-            Points are calculated automatically per completed order. Redeem
-            points for marketing campaigns and platform services.
-          </p>
+
+          <div className="points-marketing-banner">
+            <Megaphone aria-hidden="true" size={18} strokeWidth={2.2} />
+            <div>
+              <strong>Use points for marketing campaigns</strong>
+              <p>
+                Points accumulate automatically with every completed order. Redeem
+                them to fund marketing packages on the platform.
+              </p>
+            </div>
+            <Link className="points-marketing-link" href="/marketing/new">
+              Browse Packages
+            </Link>
+          </div>
+
           <div className="submit-row">
             <button
               className="submit-all-button"
@@ -484,6 +542,7 @@ export function ProfileContent() {
               <span>Redeem Points</span>
             </button>
           </div>
+
           <div className="purchase-order-table-wrap">
             <table className="purchase-order-table">
               <thead>
@@ -496,50 +555,92 @@ export function ProfileContent() {
                 </tr>
               </thead>
               <tbody>
-                {pointsAvailable === 0 ? (
-                  <tr><td colSpan={5} style={{ textAlign: "center", color: "#94a3b8", padding: "16px" }}>No transaction history yet</td></tr>
-                ) : (
-                  <tr><td colSpan={5} style={{ textAlign: "center", color: "#94a3b8", padding: "16px" }}>Transaction history coming soon</td></tr>
-                )}
+                <tr>
+                  <td
+                    colSpan={5}
+                    style={{ textAlign: "center", color: "#94a3b8", padding: "16px" }}
+                  >
+                    {pointsAvailable === 0
+                      ? "No transaction history yet"
+                      : "Transaction history coming soon"}
+                  </td>
+                </tr>
               </tbody>
             </table>
           </div>
         </section>
 
+        {/* ── Vendor Performance ── */}
         <section className="profile-section">
           <SectionHeading icon={Gauge} title="Vendor Performance" />
-          <div className="performance-grid">
+
+          <div className="performance-grid performance-grid-4">
             <article className="performance-card">
               <header>
                 <Activity aria-hidden="true" size={18} strokeWidth={2.3} />
                 <span>Order Processing Speed</span>
               </header>
-              <strong>{vendor?.processingSpeedHours ?? 0} h</strong>
-              <Sparkline data={[6, 5.5, 5, 4.8, 5.2, 4.5, 4.2, vendor?.processingSpeedHours ?? 4]} />
+              <strong className={perfClass("speed", vendor?.processingSpeedHours ?? 0)}>
+                {vendor?.processingSpeedHours ?? 0} h avg
+              </strong>
+              <span className="perf-benchmark">
+                {perfLabel("speed", vendor?.processingSpeedHours ?? 0)}
+                <em> · target: &lt;24 h</em>
+              </span>
+              <Sparkline
+                data={[6, 5.5, 5, 4.8, 5.2, 4.5, 4.2, vendor?.processingSpeedHours ?? 4]}
+              />
             </article>
+
             <article className="performance-card">
               <header>
                 <Info aria-hidden="true" size={18} strokeWidth={2.3} />
                 <span>Cancellation Rate</span>
               </header>
-              <strong className="rate-good">{vendor?.cancellationRate ?? 0}%</strong>
-              <Sparkline data={[3, 2.8, 2.5, 2.4, 2, 1.9, 1.8, vendor?.cancellationRate ?? 1.8]} />
+              <strong className={perfClass("cancel", vendor?.cancellationRate ?? 0)}>
+                {vendor?.cancellationRate ?? 0}%
+              </strong>
+              <span className="perf-benchmark">
+                {perfLabel("cancel", vendor?.cancellationRate ?? 0)}
+                <em> · target: &lt;2%</em>
+              </span>
+              <Sparkline
+                data={[3, 2.8, 2.5, 2.4, 2, 1.9, 1.8, vendor?.cancellationRate ?? 1.8]}
+              />
             </article>
+
             <article className="performance-card">
               <header>
                 <Star aria-hidden="true" size={18} strokeWidth={2.3} />
                 <span>Customer Rating</span>
               </header>
-              <strong>{vendor?.customerRating ?? 0} / 5</strong>
-              <Sparkline data={[4.2, 4.3, 4.4, 4.5, 4.4, 4.5, 4.6, vendor?.customerRating ?? 4.6]} />
+              <strong className={perfClass("rating", vendor?.customerRating ?? 0)}>
+                {vendor?.customerRating ?? 0} / 5
+              </strong>
+              <span className="perf-benchmark">
+                {perfLabel("rating", vendor?.customerRating ?? 0)}
+                <em> · target: ≥4.0</em>
+              </span>
+              <Sparkline
+                data={[4.2, 4.3, 4.4, 4.5, 4.4, 4.5, 4.6, vendor?.customerRating ?? 4.6]}
+              />
             </article>
+
             <article className="performance-card">
               <header>
                 <FileText aria-hidden="true" size={18} strokeWidth={2.3} />
                 <span>Product Upload Activity</span>
               </header>
-              <strong>{vendor?.uploadActivity ?? 0}</strong>
-              <Sparkline data={[2, 4, 3, 5, 4, 6, 5, vendor?.uploadActivity ?? 3]} />
+              <strong className={perfClass("upload", vendor?.uploadActivity ?? 0)}>
+                {vendor?.uploadActivity ?? 0} uploads
+              </strong>
+              <span className="perf-benchmark">
+                {perfLabel("upload", vendor?.uploadActivity ?? 0)}
+                <em> · this month</em>
+              </span>
+              <Sparkline
+                data={[2, 4, 3, 5, 4, 6, 5, vendor?.uploadActivity ?? 3]}
+              />
             </article>
           </div>
         </section>
@@ -560,12 +661,7 @@ function Sparkline({ data }: { data: number[] }) {
     })
     .join(" ");
   return (
-    <svg
-      viewBox="0 0 120 32"
-      className="sparkline"
-      role="img"
-      aria-label="Trend"
-    >
+    <svg viewBox="0 0 120 32" className="sparkline" role="img" aria-label="Trend">
       <polyline
         fill="none"
         stroke="var(--brand)"
