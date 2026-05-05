@@ -18,13 +18,20 @@ async function req<T>(path: string, init?: RequestInit): Promise<T> {
     credentials: "include",
     headers: { "Content-Type": "application/json", ...init?.headers },
   });
-  if (res.status === 401) {
-    if (typeof window !== "undefined") window.location.replace("/login");
-    throw new Error("Unauthorized");
-  }
   if (!res.ok) {
     const body: { error?: string } = await res.json().catch(() => ({}));
-    throw new Error(body.error ?? `HTTP ${res.status}`);
+    const message = body.error ?? `HTTP ${res.status}`;
+    if (
+      res.status === 401 &&
+      !path.startsWith("/auth/login") &&
+      !path.startsWith("/auth/signup") &&
+      typeof window !== "undefined" &&
+      !window.location.pathname.startsWith("/login") &&
+      !window.location.pathname.startsWith("/signup")
+    ) {
+      window.location.replace("/login");
+    }
+    throw new Error(message);
   }
   return res.json() as Promise<T>;
 }

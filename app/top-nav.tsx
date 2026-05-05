@@ -58,10 +58,14 @@ export function TopNav() {
         <button
           className="nav-action"
           type="button"
-          onClick={() => {
-            if (window.confirm(t("logoutConfirm"))) {
-              router.push("/");
+          onClick={async () => {
+            if (!window.confirm(t("logoutConfirm"))) return;
+            try {
+              await api.auth.logout();
+            } catch {
+              // ignore — still force client redirect
             }
+            window.location.replace("/login");
           }}
         >
           <LogOut aria-hidden="true" size={24} strokeWidth={2.1} />

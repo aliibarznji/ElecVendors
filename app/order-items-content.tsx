@@ -35,8 +35,11 @@ export function OrderItemsContent() {
   const [sort, setSort] = useState<"newest" | "oldest" | "amount">("newest");
   const [orders, setOrders] = useState<ApiOrder[]>([]);
   const [total, setTotal] = useState(0);
+  const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const { t } = useLang();
+  const PAGE_SIZE = 100;
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
   useEffect(() => {
     setLoading(true);
@@ -46,12 +49,17 @@ export function OrderItemsContent() {
       dateFrom: from || undefined,
       dateTo: to || undefined,
       sort,
-      limit: 100,
+      limit: PAGE_SIZE,
+      page,
     };
     api.orders.list(params)
       .then((r) => { setOrders(r.items); setTotal(r.total); })
       .catch(console.error)
       .finally(() => setLoading(false));
+  }, [activeTab, search, from, to, sort, page]);
+
+  useEffect(() => {
+    setPage(1);
   }, [activeTab, search, from, to, sort]);
 
   const currentMonth = new Date().toISOString().slice(0, 7);
@@ -222,10 +230,23 @@ export function OrderItemsContent() {
           <span>
             {orders.length} {t("from")} {total}
           </span>
-          <button type="button" aria-label="Previous Page" disabled>
+          <span>
+            {page} / {totalPages}
+          </span>
+          <button
+            type="button"
+            aria-label="Previous Page"
+            disabled={page <= 1}
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
+          >
             <ChevronRight aria-hidden="true" size={22} strokeWidth={2.1} />
           </button>
-          <button type="button" aria-label="Next Page" disabled>
+          <button
+            type="button"
+            aria-label="Next Page"
+            disabled={page >= totalPages}
+            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+          >
             <ChevronLeft aria-hidden="true" size={22} strokeWidth={2.1} />
           </button>
           <ChevronDown aria-hidden="true" size={16} strokeWidth={2.1} />
