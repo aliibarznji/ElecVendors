@@ -18,6 +18,10 @@ async function req<T>(path: string, init?: RequestInit): Promise<T> {
     credentials: "include",
     headers: { "Content-Type": "application/json", ...init?.headers },
   });
+  if (res.status === 401) {
+    if (typeof window !== "undefined") window.location.replace("/login");
+    throw new Error("Unauthorized");
+  }
   if (!res.ok) {
     const body: { error?: string } = await res.json().catch(() => ({}));
     throw new Error(body.error ?? `HTTP ${res.status}`);
