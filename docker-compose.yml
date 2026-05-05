@@ -27,11 +27,11 @@ services:
     restart: unless-stopped
     environment:
       DATABASE_URL: postgresql://electromall:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@postgres:5432/electromall_vendors
-      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required — generate with: openssl rand -base64 48}
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
       JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-7d}
       PORT: 4000
       NODE_ENV: production
-      CORS_ORIGIN: ${CORS_ORIGIN:?CORS_ORIGIN is required — set to your frontend URL}
+      CORS_ORIGIN: ${CORS_ORIGIN:?CORS_ORIGIN is required}
     ports:
       - "4000:4000"
     depends_on:
