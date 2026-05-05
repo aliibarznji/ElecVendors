@@ -211,7 +211,6 @@ export function AddProductContent({ editId }: { editId?: string }) {
 
   useEffect(() => {
     if (!editId) return;
-    setLoading(true);
     api.products
       .get(editId)
       .then((p) => {
@@ -238,8 +237,6 @@ export function AddProductContent({ editId }: { editId?: string }) {
   useEffect(() => {
     if (editId || startMode !== "existing" || existingProducts.length > 0) return;
     let active = true;
-    setExistingLoading(true);
-    setExistingError("");
     api.products
       .list({ limit: 100 })
       .then((res) => {
@@ -409,7 +406,11 @@ export function AddProductContent({ editId }: { editId?: string }) {
             <button
               className="product-choice-option is-primary"
               type="button"
-              onClick={() => setStartMode("existing")}
+              onClick={() => {
+                setExistingLoading(existingProducts.length === 0);
+                setExistingError("");
+                setStartMode("existing");
+              }}
             >
               <span className="product-choice-icon">
                 <PackageSearch aria-hidden="true" size={22} strokeWidth={2.2} />
