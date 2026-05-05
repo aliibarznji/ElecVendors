@@ -4,9 +4,9 @@ import { ArrowRightLeft, Check, Megaphone, Send, UserPlus, X } from "lucide-reac
 import { Fragment, useEffect, useState } from "react";
 import { useLang } from "./lang-context";
 import { api } from "./lib/api";
-import { type ApiMarketingCampaign, type ApiMarketingPackage } from "./lib/utils";
+import type { ApiMarketingCampaign } from "./lib/utils";
 
-type MarketingCampaign = ApiMarketingCampaign;
+
 const todayIso = new Date().toISOString().slice(0, 10);
 
 const vendors = ["Shex jaffar", "Electromall Direct", "Braun Distributor", "Philips Iraq"];
@@ -206,11 +206,9 @@ function TransferAgentModal({
 export function AccountManagerOrdersContent() {
   const { t } = useLang();
   const [orders, setOrders] = useState(sample);
-  const [campaigns, setCampaigns] = useState<MarketingCampaign[]>([]);
-  const [packages, setPackages] = useState<ApiMarketingPackage[]>([]);
+  const [campaigns, setCampaigns] = useState<ApiMarketingCampaign[]>([]);
   useEffect(() => {
     api.marketing.campaigns().then(setCampaigns).catch(console.error);
-    api.marketing.packages().then(setPackages).catch(console.error);
   }, []);
   const [vendorFilter, setVendorFilter] = useState<string[]>([]);
   const [statusFilter, setStatusFilter] = useState("All");
@@ -443,11 +441,10 @@ export function AccountManagerOrdersContent() {
             </thead>
             <tbody>
               {campaigns.map((campaign) => {
-                const pkg = packages.find((item) => item.id === campaign.packageId);
                 return (
                   <tr className="product-list-data-row" key={campaign.id}>
                     <td>{campaign.code}</td>
-                    <td>{pkg?.name}</td>
+                    <td>{campaign.package?.name}</td>
                     <td>{campaign.vendorId}</td>
                     <td>{campaign.purchasedAt}</td>
                     <td>

@@ -51,9 +51,9 @@ function downloadTemplate(products: ApiProduct[], mode: Mode) {
   URL.revokeObjectURL(url);
 }
 
-export function BulkOperationsContent() {
+export function BulkOperationsContent({ initialMode = "prices" }: { initialMode?: Mode }) {
   const [products, setProducts] = useState<ApiProduct[]>([]);
-  const [mode, setMode] = useState<Mode>("prices");
+  const [mode, setMode] = useState<Mode>(initialMode);
   const [uploaded, setUploaded] = useState(false);
   const [applied, setApplied] = useState(false);
   const { t } = useLang();

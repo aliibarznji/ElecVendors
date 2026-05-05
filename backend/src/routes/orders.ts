@@ -67,8 +67,9 @@ router.get("/", requireAuth, async (req: AuthRequest, res, next) => {
 
 router.get("/:orderNumber", requireAuth, async (req: AuthRequest, res, next) => {
   try {
+    const { orderNumber } = req.params as { orderNumber: string };
     const order = await db.order.findFirst({
-      where: { orderNumber: req.params.orderNumber, vendorId: req.vendorId },
+      where: { orderNumber, vendorId: req.vendorId },
       include: { product: { include: { colors: { include: { sizes: true } } } } },
     });
     if (!order) {
@@ -83,8 +84,9 @@ router.get("/:orderNumber", requireAuth, async (req: AuthRequest, res, next) => 
 
 router.patch("/:orderNumber/status", requireAuth, async (req: AuthRequest, res, next) => {
   try {
+    const { orderNumber } = req.params as { orderNumber: string };
     const existing = await db.order.findFirst({
-      where: { orderNumber: req.params.orderNumber, vendorId: req.vendorId },
+      where: { orderNumber, vendorId: req.vendorId },
     });
     if (!existing) {
       res.status(404).json({ error: "Order not found" });

@@ -3,6 +3,8 @@
 import type { LucideIcon } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 import { useLang } from "./lang-context";
+import { api } from "./lib/api";
+import type { ApiVendor } from "./lib/utils";
 import {
   Activity,
   Award,
@@ -167,13 +169,21 @@ function MapFrame({ title }: { title: string }) {
 
 export function ProfileContent() {
   const [banner, setBanner] = useState("");
+  const [vendor, setVendor] = useState<ApiVendor | null>(null);
   const { t } = useLang();
+
+  useEffect(() => {
+    api.profile.get().then(setVendor).catch(() => {});
+  }, []);
 
   useEffect(() => {
     if (!banner) return;
     const timer = setTimeout(() => setBanner(""), 4000);
     return () => clearTimeout(timer);
   }, [banner]);
+
+  const wh = vendor?.warehouses[0];
+  const pointsAvailable = (vendor?.pointsEarned ?? 0) - (vendor?.pointsRedeemed ?? 0);
 
   return (
     <div className="profile-content">
@@ -197,13 +207,21 @@ export function ProfileContent() {
             <Field
               icon={Badge}
               label="Vendor ID:"
-              value="VEN-68c7c5e47bd93a0041cfb75b"
-              helper="Raw ID: 68c7c5e47bd93a0041cfb75b"
+              value={vendor?.reference}
+              helper={vendor ? `Raw ID: ${vendor.id}` : undefined}
             />
             <Field
               icon={CalendarDays}
               label="Date of Joining Electro Mall:"
-              value="12 Mar 2024"
+              value={
+                vendor
+                  ? new Date(vendor.joinedAt).toLocaleDateString("en-GB", {
+                      day: "2-digit",
+                      month: "short",
+                      year: "numeric",
+                    })
+                  : undefined
+              }
             />
             <Field
               icon={Tags}
@@ -213,7 +231,7 @@ export function ProfileContent() {
             <Field
               icon={Users}
               label="Individual/Company Name:"
-              value="Shex jaffar"
+              value={vendor?.name}
             />
             <Field
               icon={MessageSquareText}
@@ -235,18 +253,18 @@ export function ProfileContent() {
               <Field
                 icon={User}
                 label="Contact Person:"
-                value="Mr Ahmed sales manager"
+                value={vendor?.name}
               />
               <Field
                 icon={Mail}
                 label="Email Address:"
-                value="beautifulgril2294@gmail.com"
+                value={vendor?.email}
               />
               <Field
                 helper="eg : +9647912345678"
                 icon={Phone}
                 label="Mobile Number:"
-                value={<PhoneValue number="7504930644" />}
+                value={vendor ? <PhoneValue number={vendor.phone} /> : undefined}
               />
               <ToggleLine label="WhatsApp notification:" enabled={false} />
             </div>
@@ -255,13 +273,13 @@ export function ProfileContent() {
                 helper="eg : +9647912345678"
                 icon={Phone}
                 label="Alternate Number:"
-                value={<PhoneValue number="7504930644" />}
+                value={vendor ? <PhoneValue number={vendor.phone} /> : undefined}
               />
               <Field icon={Globe2} label="Country:" value="Iraq" />
               <Field
                 icon={MapPin}
                 label="Enter Address:"
-                value="52R4+8H2, Erbil, Erbil Governorate, Iraq"
+                value={vendor?.companyLocation}
               />
               <LocationStatus />
               <MapFrame title="Contact address map" />
@@ -277,15 +295,15 @@ export function ProfileContent() {
               <Field
                 icon={Warehouse}
                 label="Warehouse name:"
-                value="Warehouse 1"
+                value={wh?.name}
               />
               <Field
                 icon={CalendarDays}
                 label="Opening Days:"
-                value="Saturday, Sunday, Monday, Tuesday, Wednesday, Thursday"
+                value={wh?.openingDays}
               />
-              <Field icon={Timer} label="Opening Time:" value="10:00" />
-              <Field icon={Timer} label="Closing Time:" value="17:00" />
+              <Field icon={Timer} label="Opening Time:" value={wh?.openingTime} />
+              <Field icon={Timer} label="Closing Time:" value={wh?.closingTime} />
               <ToggleLine label="Shipping Status:" enabled />
             </div>
             <div className="profile-column">
@@ -293,12 +311,12 @@ export function ProfileContent() {
                 helper="eg : +9647912345678"
                 icon={Phone}
                 label="Mobile Number:"
-                value={<PhoneValue number="7504930644" />}
+                value={wh ? <PhoneValue number={wh.phone} /> : undefined}
               />
               <Field
                 icon={MapPin}
                 label="Warehouse Address:"
-                value="52R4+8H2, Erbil, Erbil Governorate, Iraq"
+                value={wh?.address}
               />
               <LocationStatus />
               <MapFrame title="Warehouse address map" />
@@ -373,7 +391,7 @@ export function ProfileContent() {
                   <span className="document-brand-text">electromall</span>
                 </div>
                 <div className="document-meta">
-                  <strong>68c7c5e47bd93a0041...</strong>
+                  <strong>{vendor ? `${vendor.id.slice(0, 20)}...` : "—"}</strong>
                   <span>Image Document</span>
                 </div>
               </article>
@@ -422,7 +440,7 @@ export function ProfileContent() {
             <ChoiceGroup
               label="Delivery handled by:"
               options={["By the Vendor", "By Electro Mall"]}
-              selected="By Electro Mall"
+              selected={vendor?.deliveryMechanism ?? "By Electro Mall"}
             />
             <p className="payment-note">
               Choosing Electro Mall delivery includes platform shipping fees in
@@ -437,15 +455,15 @@ export function ProfileContent() {
           <div className="kpi-grid kpi-grid-3">
             <article className="kpi-card kpi-blue">
               <p>Total Points Earned</p>
-              <strong>1,240</strong>
+              <strong>{(vendor?.pointsEarned ?? 0).toLocaleString("en-US")}</strong>
             </article>
             <article className="kpi-card kpi-amber">
               <p>Points Redeemed</p>
-              <strong>320</strong>
+              <strong>{(vendor?.pointsRedeemed ?? 0).toLocaleString("en-US")}</strong>
             </article>
             <article className="kpi-card kpi-green">
               <p>Available Balance</p>
-              <strong>920</strong>
+              <strong>{pointsAvailable.toLocaleString("en-US")}</strong>
             </article>
           </div>
           <p className="payment-note">
@@ -478,9 +496,9 @@ export function ProfileContent() {
                 </tr>
               </thead>
               <tbody>
-                <tr><td>2026-04-29</td><td>ORD-100190</td><td>Earned</td><td>+ 40</td><td>920</td></tr>
-                <tr><td>2026-04-22</td><td>—</td><td>Redeemed</td><td>− 200</td><td>880</td></tr>
-                <tr><td>2026-04-14</td><td>ORD-100151</td><td>Earned</td><td>+ 60</td><td>1,080</td></tr>
+                <tr><td>2026-04-29</td><td>ORD-100190</td><td>Earned</td><td>+ 40</td><td>{pointsAvailable}</td></tr>
+                <tr><td>2026-04-22</td><td>—</td><td>Redeemed</td><td>− 200</td><td>{pointsAvailable - 40}</td></tr>
+                <tr><td>2026-04-14</td><td>ORD-100151</td><td>Earned</td><td>+ 60</td><td>{pointsAvailable + 160}</td></tr>
               </tbody>
             </table>
           </div>
@@ -494,32 +512,32 @@ export function ProfileContent() {
                 <Activity aria-hidden="true" size={18} strokeWidth={2.3} />
                 <span>Order Processing Speed</span>
               </header>
-              <strong>4.2 h</strong>
-              <Sparkline data={[6, 5.5, 5, 4.8, 5.2, 4.5, 4.2, 4]} />
+              <strong>{vendor?.processingSpeedHours ?? 0} h</strong>
+              <Sparkline data={[6, 5.5, 5, 4.8, 5.2, 4.5, 4.2, vendor?.processingSpeedHours ?? 4]} />
             </article>
             <article className="performance-card">
               <header>
                 <Info aria-hidden="true" size={18} strokeWidth={2.3} />
                 <span>Cancellation Rate</span>
               </header>
-              <strong className="rate-good">1.8%</strong>
-              <Sparkline data={[3, 2.8, 2.5, 2.4, 2, 1.9, 1.8, 1.8]} />
+              <strong className="rate-good">{vendor?.cancellationRate ?? 0}%</strong>
+              <Sparkline data={[3, 2.8, 2.5, 2.4, 2, 1.9, 1.8, vendor?.cancellationRate ?? 1.8]} />
             </article>
             <article className="performance-card">
               <header>
                 <Star aria-hidden="true" size={18} strokeWidth={2.3} />
                 <span>Customer Rating</span>
               </header>
-              <strong>4.6 / 5</strong>
-              <Sparkline data={[4.2, 4.3, 4.4, 4.5, 4.4, 4.5, 4.6, 4.6]} />
+              <strong>{vendor?.customerRating ?? 0} / 5</strong>
+              <Sparkline data={[4.2, 4.3, 4.4, 4.5, 4.4, 4.5, 4.6, vendor?.customerRating ?? 4.6]} />
             </article>
             <article className="performance-card">
               <header>
                 <FileText aria-hidden="true" size={18} strokeWidth={2.3} />
                 <span>Product Upload Activity</span>
               </header>
-              <strong>32 / 28</strong>
-              <Sparkline data={[2, 4, 3, 5, 4, 6, 5, 3]} />
+              <strong>{vendor?.uploadActivity ?? 0}</strong>
+              <Sparkline data={[2, 4, 3, 5, 4, 6, 5, vendor?.uploadActivity ?? 3]} />
             </article>
           </div>
         </section>

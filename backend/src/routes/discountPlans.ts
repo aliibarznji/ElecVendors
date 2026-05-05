@@ -47,14 +47,15 @@ router.post("/", requireAuth, async (req: AuthRequest, res, next) => {
 
 router.delete("/:id", requireAuth, async (req: AuthRequest, res, next) => {
   try {
+    const { id } = req.params as { id: string };
     const existing = await db.discountPlan.findFirst({
-      where: { id: req.params.id, vendorId: req.vendorId },
+      where: { id, vendorId: req.vendorId },
     });
     if (!existing) {
       res.status(404).json({ error: "Discount plan not found" });
       return;
     }
-    await db.discountPlan.delete({ where: { id: req.params.id } });
+    await db.discountPlan.delete({ where: { id } });
     res.json({ ok: true });
   } catch (err) {
     next(err);
