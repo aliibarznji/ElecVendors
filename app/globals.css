@@ -2243,6 +2243,112 @@ textarea {
   outline-offset: 3px;
 }
 
+/* ── Warehouse entry ─────────────────────────────── */
+
+.warehouse-entry {
+  display: grid;
+  gap: 24px;
+  padding: 20px;
+  border: 1px solid #d7dce3;
+  border-radius: 8px;
+  background: #fafbfd;
+}
+
+.warehouse-entry--form {
+  border-color: var(--brand, #3e62b8);
+  background: #f5f7ff;
+}
+
+.warehouse-entry-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--brand, #3e62b8);
+}
+
+.warehouse-entry-header h3 {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 600;
+  flex: 1;
+}
+
+.warehouse-delete-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border: 1px solid #f0b0b0;
+  border-radius: 6px;
+  background: #fff5f5;
+  color: #b91c1c;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+  margin-inline-start: auto;
+}
+
+.warehouse-delete-btn:hover {
+  background: #fee2e2;
+  border-color: #dc2626;
+}
+
+/* ── Profile edit input ──────────────────────────── */
+
+.profile-edit-input {
+  display: block;
+  width: 100%;
+  min-height: 52px;
+  padding: 0 13px;
+  border: 1.5px solid var(--brand, #3e62b8);
+  border-radius: 6px;
+  background: #ffffff;
+  font-size: 16px;
+  color: #333847;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.profile-edit-input:focus {
+  border-color: #2046a0;
+  box-shadow: 0 0 0 3px rgba(62, 98, 184, 0.15);
+}
+
+/* ── Section heading row (heading + action button) ── */
+
+.section-heading-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.section-heading-row .profile-section-heading {
+  padding-bottom: 0;
+  border-bottom: 0;
+  flex: 1;
+}
+
+.profile-section-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ── Clickable choice option ─────────────────────── */
+
+.profile-choice--clickable {
+  cursor: pointer;
+  user-select: none;
+  transition: color 0.12s;
+}
+
+.profile-choice--clickable:hover {
+  color: var(--brand, #3e62b8);
+}
+
 .payment-stack {
   display: grid;
   gap: 22px;
@@ -11525,11 +11631,39 @@ body { background: var(--bg); }
 }
 .performance-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 12px; }
 .performance-card { border-radius: 12px; border: 1px solid var(--border); background: #fafbfe; padding: 14px; display: grid; gap: 6px; }
-.rate-good { color: #15803d; font-weight: 700; }
+.rate-good { color: #15803d; font-weight: 700; font-size: 20px; }
+.rate-warn { color: #b45309; font-weight: 700; font-size: 20px; }
+.rate-bad  { color: #dc2626; font-weight: 700; font-size: 20px; }
+.perf-benchmark { font-size: 11.5px; color: #64748b; }
+.perf-benchmark em { color: #94a3b8; font-style: normal; }
+.sparkline { width: 100%; height: 32px; display: block; }
+.performance-grid-4 { grid-template-columns: repeat(4,minmax(0,1fr)); }
+.performance-card-header { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; color: #475569; }
 .document-card { border-radius: 10px; border: 1px solid var(--border); background: #fafbfe; padding: 12px; display: grid; gap: 8px; }
 .upload-target { border: 2px dashed var(--border); border-radius: 10px; padding: 20px; text-align: center; cursor: pointer; color: #94a3b8; font-size: 13px; transition: border-color var(--t), background var(--t); }
 .upload-target:hover { border-color: rgba(215,25,32,.35); background: #fff0f0; color: var(--brand); }
 .submit-row { display: flex; justify-content: flex-end; padding-top: 8px; }
+.points-marketing-banner { display: flex; align-items: flex-start; gap: 14px; padding: 16px 18px; border-radius: 12px; background: linear-gradient(135deg,#fff7ed,#fff); border: 1px solid #fed7aa; }
+.points-marketing-banner > svg { flex-shrink: 0; color: #f59e0b; margin-top: 2px; }
+.points-marketing-banner > div { flex: 1; min-width: 0; }
+.points-marketing-banner > div strong { font-size: 13px; font-weight: 700; color: #0f172a; display: block; margin-bottom: 2px; }
+.points-marketing-banner > div p { font-size: 12px; color: #64748b; margin: 0; }
+.points-marketing-link { display: inline-flex; align-items: center; padding: 0 14px; min-height: 34px; border-radius: 8px; background: var(--brand); color: #fff; font-size: 12px; font-weight: 600; text-decoration: none; white-space: nowrap; align-self: center; transition: background var(--t); }
+.points-marketing-link:hover { background: #b91c1c; }
+.profile-avatar-section { display: flex; align-items: center; gap: 16px; padding-bottom: 14px; margin-bottom: 2px; border-bottom: 1px solid var(--border); }
+.profile-avatar { width: 72px; height: 72px; border-radius: 50%; background: var(--brand); color: #fff; font-size: 24px; font-weight: 700; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; flex-shrink: 0; cursor: pointer; border: 3px solid rgba(215,25,32,.15); transition: opacity .15s; padding: 0; }
+.profile-avatar img { width: 100%; height: 100%; object-fit: cover; position: absolute; inset: 0; }
+.profile-avatar-upload { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,.45); opacity: 0; transition: opacity .15s; color: #fff; border-radius: 50%; }
+.profile-avatar:hover .profile-avatar-upload { opacity: 1; }
+.profile-avatar-meta { display: grid; gap: 4px; }
+.profile-avatar-meta strong { font-size: 16px; font-weight: 700; color: #0f172a; }
+.profile-avatar-meta span { font-size: 12.5px; color: #64748b; }
+.vendor-status-badge { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; border-radius: 999px; background: #f0fdf4; border: 1px solid #bbf7d0; color: #15803d; font-size: 11px; font-weight: 600; }
+.copy-btn { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 6px; border: 1px solid var(--border); background: #fff; color: #64748b; font-size: 11px; cursor: pointer; transition: background .15s, color .15s, border-color .15s; flex-shrink: 0; }
+.copy-btn:hover { background: #f0fdf4; color: #15803d; border-color: #bbf7d0; }
+.copy-btn.copied { background: #f0fdf4; color: #15803d; border-color: #bbf7d0; }
+.profile-edit-textarea { width: 100%; min-height: 72px; padding: 8px 10px; border-radius: 9px; border: 1px solid var(--border); background: #f8f9fc; font-size: 13px; color: var(--text); font-family: inherit; resize: vertical; box-sizing: border-box; transition: border-color .15s, box-shadow .15s, background .15s; }
+.profile-edit-textarea:focus { outline: none; border-color: rgba(215,25,32,.4); box-shadow: 0 0 0 3px rgba(215,25,32,.09); background: #fff; }
 
 /* ── WARRANTY ────────────────────────────────────────────────── */
 .warranty-content { display: grid; gap: 18px; padding: 22px 24px 48px; }
