@@ -31,15 +31,16 @@ router.patch("/read-all", requireAuth, async (req: AuthRequest, res, next) => {
 
 router.patch("/:id/read", requireAuth, async (req: AuthRequest, res, next) => {
   try {
+    const { id } = req.params as { id: string };
     const existing = await db.notification.findFirst({
-      where: { id: req.params.id, vendorId: req.vendorId },
+      where: { id, vendorId: req.vendorId },
     });
     if (!existing) {
       res.status(404).json({ error: "Notification not found" });
       return;
     }
     const updated = await db.notification.update({
-      where: { id: req.params.id },
+      where: { id },
       data: { read: true },
     });
     res.json(updated);

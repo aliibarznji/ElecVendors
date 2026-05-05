@@ -70,8 +70,9 @@ router.post("/", requireAuth, async (req: AuthRequest, res, next) => {
 
 router.get("/:id", requireAuth, async (req: AuthRequest, res, next) => {
   try {
+    const { id } = req.params as { id: string };
     const product = await db.product.findFirst({
-      where: { id: req.params.id, vendorId: req.vendorId },
+      where: { id, vendorId: req.vendorId },
       include: { colors: { include: { sizes: true } } },
     });
     if (!product) {
@@ -86,8 +87,9 @@ router.get("/:id", requireAuth, async (req: AuthRequest, res, next) => {
 
 router.patch("/:id", requireAuth, async (req: AuthRequest, res, next) => {
   try {
+    const { id } = req.params as { id: string };
     const existing = await db.product.findFirst({
-      where: { id: req.params.id, vendorId: req.vendorId },
+      where: { id, vendorId: req.vendorId },
     });
     if (!existing) {
       res.status(404).json({ error: "Product not found" });
@@ -100,16 +102,16 @@ router.patch("/:id", requireAuth, async (req: AuthRequest, res, next) => {
     const product = await db.$transaction(async (tx) => {
       if (colors !== undefined) {
         const colorIds = await tx.productColor.findMany({
-          where: { productId: req.params.id },
+          where: { productId: id },
           select: { id: true },
         });
         await tx.productSize.deleteMany({
           where: { colorId: { in: colorIds.map((c) => c.id) } },
         });
-        await tx.productColor.deleteMany({ where: { productId: req.params.id } });
+        await tx.productColor.deleteMany({ where: { productId: id } });
         await tx.productColor.createMany({
           data: colors.map((c) => ({
-            productId: req.params.id,
+            productId: id,
             code: c.code,
             nameAr: c.nameAr,
             nameEn: c.nameEn,
@@ -117,7 +119,7 @@ router.patch("/:id", requireAuth, async (req: AuthRequest, res, next) => {
         });
         for (const c of colors) {
           const created = await tx.productColor.findFirst({
-            where: { productId: req.params.id, code: c.code },
+            where: { productId: id, code: c.code },
           });
           if (created) {
             await tx.productSize.createMany({
@@ -127,7 +129,7 @@ router.patch("/:id", requireAuth, async (req: AuthRequest, res, next) => {
         }
       }
       return tx.product.update({
-        where: { id: req.params.id },
+        where: { id },
         data: productData,
         include: { colors: { include: { sizes: true } } },
       });
@@ -141,14 +143,15 @@ router.patch("/:id", requireAuth, async (req: AuthRequest, res, next) => {
 
 router.delete("/:id", requireAuth, async (req: AuthRequest, res, next) => {
   try {
+    const { id } = req.params as { id: string };
     const existing = await db.product.findFirst({
-      where: { id: req.params.id, vendorId: req.vendorId },
+      where: { id, vendorId: req.vendorId },
     });
     if (!existing) {
       res.status(404).json({ error: "Product not found" });
       return;
     }
-    await db.product.delete({ where: { id: req.params.id } });
+    await db.product.delete({ where: { id } });
     res.json({ ok: true });
   } catch (err) {
     next(err);

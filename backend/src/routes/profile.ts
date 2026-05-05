@@ -9,8 +9,14 @@ router.get("/", requireAuth, async (req: AuthRequest, res, next) => {
   try {
     const vendor = await db.vendor.findUnique({
       where: { id: req.vendorId },
-      include: { warehouses: true },
-      omit: { passwordHash: true },
+      select: {
+        id: true, reference: true, name: true, email: true, phone: true,
+        companyLocation: true, joinedAt: true, accountManager: true,
+        deliveryMechanism: true, pointsEarned: true, pointsRedeemed: true,
+        processingSpeedHours: true, cancellationRate: true, customerRating: true,
+        uploadActivity: true, createdAt: true, updatedAt: true,
+        warehouses: true,
+      },
     });
     if (!vendor) {
       res.status(404).json({ error: "Vendor not found" });
@@ -44,8 +50,14 @@ router.patch("/", requireAuth, async (req: AuthRequest, res, next) => {
 
       return tx.vendor.findUnique({
         where: { id: updated.id },
-        include: { warehouses: true },
-        omit: { passwordHash: true },
+        select: {
+          id: true, reference: true, name: true, email: true, phone: true,
+          companyLocation: true, joinedAt: true, accountManager: true,
+          deliveryMechanism: true, pointsEarned: true, pointsRedeemed: true,
+          processingSpeedHours: true, cancellationRate: true, customerRating: true,
+          uploadActivity: true, createdAt: true, updatedAt: true,
+          warehouses: true,
+        },
       });
     });
 
