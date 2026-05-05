@@ -12587,3 +12587,260 @@ body { background: var(--bg); }
 /* Uploading state overlay text */
 .pf-uploading-text { font-size: 12px; color: var(--brand); display: flex; align-items: center; gap: 5px; }
 
+/* ── MARKETING CAMPAIGN IMPROVEMENTS ─────────────────────────────── */
+
+/* How It Works flow card */
+.campaign-flow-card {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: var(--sh-sm);
+  padding: 16px 22px 20px;
+  display: grid;
+  gap: 14px;
+}
+
+.campaign-flow-title {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .5px;
+  text-transform: uppercase;
+  color: #94a3b8;
+}
+
+.campaign-flow-steps {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  position: relative;
+}
+
+.campaign-flow-steps::before {
+  content: "";
+  position: absolute;
+  top: 18px;
+  left: calc(12.5% + 12px);
+  right: calc(12.5% + 12px);
+  height: 2px;
+  background: linear-gradient(90deg, #c7d2fe, #dde2ea);
+  z-index: 0;
+}
+
+.campaign-flow-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  text-align: center;
+  position: relative;
+  z-index: 1;
+}
+
+.campaign-flow-step-icon {
+  display: inline-grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #eff2fb;
+  color: #3d60ae;
+  border: 2px solid #fff;
+  box-shadow: 0 0 0 2px #c7d2fe;
+}
+
+.campaign-flow-step-num {
+  font-size: 10px;
+  font-weight: 700;
+  color: #94a3b8;
+  letter-spacing: .3px;
+}
+
+.campaign-flow-step-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #1e2a45;
+  line-height: 1.3;
+}
+
+.campaign-flow-step-sub {
+  font-size: 11px;
+  color: #94a3b8;
+  line-height: 1.3;
+}
+
+/* Channel tags on package cards */
+.marketing-package-channels {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  padding: 10px 20px 0;
+}
+
+.marketing-channel-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #eff2fb;
+  color: #3d60ae;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* Campaign code reveal in confirmation */
+.campaign-code-reveal {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 13px;
+  color: #64748b;
+}
+
+.campaign-code-reveal code {
+  font-family: monospace;
+  font-size: 15px;
+  font-weight: 700;
+  color: #0f172a;
+  letter-spacing: 1.5px;
+}
+
+/* ── CAMPAIGNS LIST PAGE ──────────────────────────────────────────── */
+
+/* Summary stats strip */
+.campaigns-summary-strip {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+.campaigns-summary-stat {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: var(--sh-sm);
+  padding: 14px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.campaigns-summary-stat .stat-value {
+  font-size: 24px;
+  font-weight: 700;
+  color: #0f172a;
+  line-height: 1;
+}
+
+.campaigns-summary-stat .stat-label {
+  font-size: 11.5px;
+  color: #64748b;
+}
+
+.campaigns-summary-active  { border-top: 3px solid #25a66a; }
+.campaigns-summary-pending { border-top: 3px solid #f2a51a; }
+.campaigns-summary-completed { border-top: 3px solid #94a3b8; }
+
+/* Status filter tabs */
+.campaign-status-tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid var(--border);
+  padding: 0 4px;
+}
+
+.campaign-status-tab {
+  padding: 9px 16px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #64748b;
+  cursor: pointer;
+  border: none;
+  background: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  transition: color .15s, border-color .15s;
+  font: inherit;
+}
+
+.campaign-status-tab:hover { color: #334155; }
+
+.campaign-status-tab.is-active {
+  color: #3d60ae;
+  border-bottom-color: #3d60ae;
+  font-weight: 700;
+}
+
+/* Countdown badge for active campaigns */
+.countdown-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: #eff6ff;
+  color: #1d4ed8;
+  border-radius: 6px;
+  padding: 3px 9px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* Empty state for campaigns table */
+.campaigns-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 36px 20px;
+  color: #94a3b8;
+}
+
+.campaigns-empty-state p {
+  margin: 0;
+  font-size: 14px;
+  color: #64748b;
+}
+
+/* Report header row */
+.campaign-report-header {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.campaign-report-header h4 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.campaign-report-dates {
+  font-size: 12px;
+  color: #94a3b8;
+  font-weight: 500;
+}
+
+/* Responsive: stack summary + flow on small screens */
+@media (max-width: 768px) {
+  .campaigns-summary-strip {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .campaign-flow-steps {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .campaign-flow-steps::before { display: none; }
+}
+
+@media (max-width: 480px) {
+  .campaigns-summary-strip {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
