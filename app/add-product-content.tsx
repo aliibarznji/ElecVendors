@@ -13,7 +13,8 @@ import {
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useLang } from "./lang-context";
-import { getProduct } from "./vendor-dashboard-data";
+import { api } from "./lib/api";
+import { type ApiProduct } from "./lib/utils";
 
 type SizeRow = {
   id: string;
@@ -92,35 +93,64 @@ function SelectBox({
   );
 }
 
+function populateFromProduct(ep: ApiProduct, setters: {
+  setNameAr: (v: string) => void; setNameEn: (v: string) => void;
+  setHighlights: (v: string) => void; setDescription: (v: string) => void;
+  setKeywords: (v: string) => void; setMaterialCode: (v: string) => void;
+  setSellingPrice: (v: string) => void; setCostPrice: (v: string) => void;
+  setLargeProduct: (v: boolean) => void; setCategory: (v: string[]) => void;
+  setBrand: (v: string) => void; setBarcode: (v: string) => void;
+  setVendorCode: (v: string) => void; setColors: (v: ColorRow[]) => void;
+}) {
+  setters.setNameAr(ep.nameAr);
+  setters.setNameEn(ep.nameEn);
+  setters.setHighlights(ep.highlights);
+  setters.setDescription(ep.description);
+  setters.setKeywords(ep.keywords.join(", "));
+  setters.setMaterialCode(ep.materialCode);
+  setters.setSellingPrice(String(ep.sellingPrice));
+  setters.setCostPrice(String(ep.costPrice));
+  setters.setLargeProduct(ep.largeProduct);
+  setters.setCategory([ep.categoryLevel1, ep.categoryLevel2, ep.categoryLevel3, ep.categoryLevel4]);
+  setters.setBrand(ep.brand);
+  setters.setBarcode(ep.barcode);
+  setters.setVendorCode(ep.vendorCode);
+  setters.setColors(ep.colors.map((c, ci) => ({
+    id: `color-${ci}`,
+    code: c.code,
+    name: c.nameEn,
+    sizes: c.sizes.map((s, si) => ({ id: `size-${ci}-${si}`, size: s.size, quantity: s.quantity })),
+  })));
+}
+
 export function AddProductContent({ editId }: { editId?: string }) {
-  const ep = editId ? getProduct(editId) : null;
   const { t } = useLang();
 
-  const [nameAr, setNameAr] = useState(() => ep?.nameAr ?? "");
-  const [nameEn, setNameEn] = useState(() => ep?.nameEn ?? "");
-  const [highlights, setHighlights] = useState(() => ep?.highlights ?? "");
-  const [description, setDescription] = useState(() => ep?.description ?? "");
-  const [keywords, setKeywords] = useState(() => ep?.keywords.join(", ") ?? "");
-  const [materialCode, setMaterialCode] = useState(() => ep?.materialCode ?? "");
-  const [sellingPrice, setSellingPrice] = useState(() => ep ? String(ep.sellingPrice) : "");
-  const [costPrice, setCostPrice] = useState(() => ep ? String(ep.costPrice) : "");
-  const [largeProduct, setLargeProduct] = useState(() => ep?.largeProduct ?? false);
-  const [category, setCategory] = useState<string[]>(() => ep ? [...ep.categoryLevels] : categories[0]);
-  const [brand, setBrand] = useState(() => ep?.brand ?? "");
-  const [barcode, setBarcode] = useState(() => ep?.barcode ?? "");
-  const [vendorCode, setVendorCode] = useState(() => ep?.vendorCode ?? "");
-  const [colors, setColors] = useState<ColorRow[]>(() =>
-    ep
-      ? ep.colors.map((c, ci) => ({
-          id: `color-${ci}`,
-          code: c.code,
-          name: c.nameEn,
-          sizes: c.sizes.map((s, si) => ({ id: `size-${ci}-${si}`, size: s.size, quantity: s.quantity })),
-        }))
-      : [{ id: "color-1", code: "#c7ccd4", name: "Silver", sizes: [{ id: "size-1", size: "Standard", quantity: 1 }] }],
-  );
+  const [nameAr, setNameAr] = useState("");
+  const [nameEn, setNameEn] = useState("");
+  const [highlights, setHighlights] = useState("");
+  const [description, setDescription] = useState("");
+  const [keywords, setKeywords] = useState("");
+  const [materialCode, setMaterialCode] = useState("");
+  const [sellingPrice, setSellingPrice] = useState("");
+  const [costPrice, setCostPrice] = useState("");
+  const [largeProduct, setLargeProduct] = useState(false);
+  const [category, setCategory] = useState<string[]>(categories[0]);
+  const [brand, setBrand] = useState("");
+  const [barcode, setBarcode] = useState("");
+  const [vendorCode, setVendorCode] = useState("");
+  const [colors, setColors] = useState<ColorRow[]>([{ id: "color-1", code: "#c7ccd4", name: "Silver", sizes: [{ id: "size-1", size: "Standard", quantity: 1 }] }]);
   const [submitted, setSubmitted] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [editProduct, setEditProduct] = useState<ApiProduct | null>(null);
+
+  useEffect(() => {
+    if (!editId) return;
+    api.products.get(editId).then((ep) => {
+      setEditProduct(ep);
+      populateFromProduct(ep, { setNameAr, setNameEn, setHighlights, setDescription, setKeywords, setMaterialCode, setSellingPrice, setCostPrice, setLargeProduct, setCategory, setBrand, setBarcode, setVendorCode, setColors });
+    }).catch(console.error);
+  }, [editId]);
 
   useEffect(() => {
     if (!saved) return;
@@ -177,43 +207,59 @@ export function AddProductContent({ editId }: { editId?: string }) {
     <div className="add-product-content">
       <header className="page-title-row">
         <div>
-          <h1>{ep ? `${t("editProductTitle")}: ${ep.nameEn}` : t("addProductTitle")}</h1>
+          <h1>{editProduct ? `${t("editProductTitle")}: ${editProduct.nameEn}` : t("addProductTitle")}</h1>
           <p className="dashboard-sub">
-            {ep ? t("editProductSub") : t("addProductSub")}
+            {editProduct ? t("editProductSub") : t("addProductSub")}
           </p>
         </div>
         <button
           className="discount-create-button"
           type="button"
-          onClick={() => {
+          onClick={async () => {
             setSubmitted(true);
-            if (Object.keys(errors).length === 0) {
-              setNameAr("");
-              setNameEn("");
-              setHighlights("");
-              setDescription("");
-              setKeywords("");
-              setMaterialCode("");
-              setSellingPrice("");
-              setCostPrice("");
-              setBrand("");
-              setBarcode("");
-              setVendorCode("");
-              setColors([{ id: "color-1", code: "#c7ccd4", name: "Silver", sizes: [{ id: "size-1", size: "Standard", quantity: 1 }] }]);
-              setLargeProduct(false);
+            if (Object.keys(errors).length > 0) return;
+            const payload = {
+              nameAr, nameEn, highlights, description,
+              keywords: keywords.split(",").map((k) => k.trim()).filter(Boolean),
+              materialCode, brand, barcode, vendorCode,
+              sellingPrice: Number(sellingPrice),
+              costPrice: Number(costPrice),
+              largeProduct,
+              categoryLevel1: category[0] ?? "",
+              categoryLevel2: category[1] ?? "",
+              categoryLevel3: category[2] ?? "",
+              categoryLevel4: category[3] ?? "",
+              colors: colors.map((c) => ({
+                code: c.code, nameAr: c.name, nameEn: c.name,
+                sizes: c.sizes.map((s) => ({ size: s.size, quantity: s.quantity })),
+              })),
+            };
+            try {
+              if (editProduct) {
+                await api.products.update(editProduct.id, payload);
+              } else {
+                await api.products.create(payload);
+                setNameAr(""); setNameEn(""); setHighlights(""); setDescription("");
+                setKeywords(""); setMaterialCode(""); setSellingPrice(""); setCostPrice("");
+                setBrand(""); setBarcode(""); setVendorCode("");
+                setColors([{ id: "color-1", code: "#c7ccd4", name: "Silver", sizes: [{ id: "size-1", size: "Standard", quantity: 1 }] }]);
+                setLargeProduct(false);
+              }
               setSubmitted(false);
               setSaved(true);
+            } catch (err) {
+              console.error(err);
             }
           }}
         >
           <Save aria-hidden="true" size={16} strokeWidth={2.4} />
-          <span>{ep ? t("updateProduct") : t("saveProduct")}</span>
+          <span>{editProduct ? t("updateProduct") : t("saveProduct")}</span>
         </button>
       </header>
 
       {saved ? (
         <div className="success-banner">
-          {ep ? t("productUpdated") : t("productSaved")}
+          {editProduct ? t("productUpdated") : t("productSaved")}
         </div>
       ) : null}
 

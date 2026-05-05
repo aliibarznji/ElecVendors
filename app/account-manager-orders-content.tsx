@@ -1,14 +1,13 @@
 "use client";
 
 import { ArrowRightLeft, Check, Megaphone, Send, UserPlus, X } from "lucide-react";
-import { Fragment, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { useLang } from "./lang-context";
-import {
-  marketingCampaigns,
-  marketingPackages,
-  todayIso,
-  type MarketingCampaign,
-} from "./vendor-dashboard-data";
+import { api } from "./lib/api";
+import { type ApiMarketingCampaign, type ApiMarketingPackage } from "./lib/utils";
+
+type MarketingCampaign = ApiMarketingCampaign;
+const todayIso = new Date().toISOString().slice(0, 10);
 
 const vendors = ["Shex jaffar", "Electromall Direct", "Braun Distributor", "Philips Iraq"];
 const agents = ["Agent Sara", "Agent Hussein", "Agent Lina", "Agent Omar"];
@@ -207,7 +206,12 @@ function TransferAgentModal({
 export function AccountManagerOrdersContent() {
   const { t } = useLang();
   const [orders, setOrders] = useState(sample);
-  const [campaigns, setCampaigns] = useState<MarketingCampaign[]>(marketingCampaigns);
+  const [campaigns, setCampaigns] = useState<MarketingCampaign[]>([]);
+  const [packages, setPackages] = useState<ApiMarketingPackage[]>([]);
+  useEffect(() => {
+    api.marketing.campaigns().then(setCampaigns).catch(console.error);
+    api.marketing.packages().then(setPackages).catch(console.error);
+  }, []);
   const [vendorFilter, setVendorFilter] = useState<string[]>([]);
   const [statusFilter, setStatusFilter] = useState("All");
   const [from, setFrom] = useState("");
@@ -439,7 +443,7 @@ export function AccountManagerOrdersContent() {
             </thead>
             <tbody>
               {campaigns.map((campaign) => {
-                const pkg = marketingPackages.find((item) => item.id === campaign.packageId);
+                const pkg = packages.find((item) => item.id === campaign.packageId);
                 return (
                   <tr className="product-list-data-row" key={campaign.id}>
                     <td>{campaign.code}</td>
