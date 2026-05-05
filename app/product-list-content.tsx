@@ -310,10 +310,10 @@ export function ProductListContent() {
                           >
                             <Pencil aria-hidden="true" size={14} strokeWidth={2.4} />
                           </Link>
-                          <button className="row-action-btn" type="button" title={t("qrCode")}>
+                          <button className="row-action-btn" type="button" title={t("qrCode")} disabled>
                             <QrCode aria-hidden="true" size={14} strokeWidth={2.4} />
                           </button>
-                          <button className="row-action-btn" type="button" title={t("installments")}>
+                          <button className="row-action-btn" type="button" title={t("installments")} disabled>
                             <WalletCards aria-hidden="true" size={14} strokeWidth={2.4} />
                           </button>
                           <button

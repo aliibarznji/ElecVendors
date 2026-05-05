@@ -7,7 +7,7 @@ services:
     restart: unless-stopped
     environment:
       POSTGRES_USER: electromall
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-secret}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
       POSTGRES_DB: electromall_vendors
     ports:
       - "5432:5432"
@@ -26,12 +26,12 @@ services:
     container_name: electromall_api
     restart: unless-stopped
     environment:
-      DATABASE_URL: postgresql://electromall:${POSTGRES_PASSWORD:-secret}@postgres:5432/electromall_vendors
-      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
+      DATABASE_URL: postgresql://electromall:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@postgres:5432/electromall_vendors
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required — generate with: openssl rand -base64 48}
       JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-7d}
       PORT: 4000
       NODE_ENV: production
-      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:3000}
+      CORS_ORIGIN: ${CORS_ORIGIN:?CORS_ORIGIN is required — set to your frontend URL}
     ports:
       - "4000:4000"
     depends_on:

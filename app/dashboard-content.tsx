@@ -23,7 +23,7 @@ import {
   type ApiProduct,
 } from "./lib/utils";
 
-const TODAY = "2026-05-05";
+const TODAY = new Date().toISOString().slice(0, 10);
 
 function downloadCsv(filename: string, headers: string[], rows: (string | number)[][]) {
   const csv = [headers, ...rows]
@@ -116,22 +116,33 @@ function LineChart({ data, valueFormatter }: { data: { label: string; value: num
   );
 }
 
+function lastFiveMonths(): { label: string; prefix: string }[] {
+  const months = [];
+  const d = new Date();
+  d.setDate(1);
+  for (let i = 4; i >= 0; i--) {
+    const t = new Date(d);
+    t.setMonth(d.getMonth() - i);
+    months.push({
+      label: t.toLocaleString("en-US", { month: "long" }),
+      prefix: t.toISOString().slice(0, 7),
+    });
+  }
+  return months;
+}
+
 function ordersByMonth(orders: ApiOrder[]) {
-  const labels = ["2026-01", "2026-02", "2026-03", "2026-04", "2026-05"];
-  const names = ["January", "February", "March", "April", "May"];
-  return labels.map((m, i) => ({
-    label: names[i],
-    value: orders.filter((o) => o.dateTime.startsWith(m)).length,
+  return lastFiveMonths().map(({ label, prefix }) => ({
+    label,
+    value: orders.filter((o) => o.dateTime.startsWith(prefix)).length,
   }));
 }
 
 function salesByMonth(orders: ApiOrder[]) {
-  const labels = ["2026-01", "2026-02", "2026-03", "2026-04", "2026-05"];
-  const names = ["January", "February", "March", "April", "May"];
-  return labels.map((m, i) => ({
-    label: names[i],
+  return lastFiveMonths().map(({ label, prefix }) => ({
+    label,
     value: orders
-      .filter((o) => o.dateTime.startsWith(m) && o.status !== "cancelled")
+      .filter((o) => o.dateTime.startsWith(prefix) && o.status !== "cancelled")
       .reduce((s, o) => s + o.priceWithCommission * o.quantity, 0),
   }));
 }
@@ -152,7 +163,7 @@ export function DashboardContent() {
       })
     : allOrders;
 
-  const month = "2026-05";
+  const month = TODAY.slice(0, 7);
   const monthlyOrders = allOrders.filter((o) => o.dateTime.startsWith(month)).length;
   const monthlySales = allOrders
     .filter((o) => o.dateTime.startsWith(month) && o.status !== "cancelled")

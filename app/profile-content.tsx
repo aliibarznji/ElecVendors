@@ -496,9 +496,11 @@ export function ProfileContent() {
                 </tr>
               </thead>
               <tbody>
-                <tr><td>2026-04-29</td><td>ORD-100190</td><td>Earned</td><td>+ 40</td><td>{pointsAvailable}</td></tr>
-                <tr><td>2026-04-22</td><td>—</td><td>Redeemed</td><td>− 200</td><td>{pointsAvailable - 40}</td></tr>
-                <tr><td>2026-04-14</td><td>ORD-100151</td><td>Earned</td><td>+ 60</td><td>{pointsAvailable + 160}</td></tr>
+                {pointsAvailable === 0 ? (
+                  <tr><td colSpan={5} style={{ textAlign: "center", color: "#94a3b8", padding: "16px" }}>No transaction history yet</td></tr>
+                ) : (
+                  <tr><td colSpan={5} style={{ textAlign: "center", color: "#94a3b8", padding: "16px" }}>Transaction history coming soon</td></tr>
+                )}
               </tbody>
             </table>
           </div>

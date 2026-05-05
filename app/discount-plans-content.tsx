@@ -29,8 +29,8 @@ function CreatePlanForm({
   onSave: (plan: ApiDiscountPlan) => void;
 }) {
   const [name, setName] = useState("");
-  const [startDate, setStartDate] = useState("2026-05-10");
-  const [endDate, setEndDate] = useState("2026-05-20");
+  const [startDate, setStartDate] = useState(() => { const d = new Date(); d.setDate(d.getDate() + 10); return d.toISOString().slice(0, 10); });
+  const [endDate, setEndDate] = useState(() => { const d = new Date(); d.setDate(d.getDate() + 20); return d.toISOString().slice(0, 10); });
   const [saving, setSaving] = useState(false);
 
   const handleSave = () => {

@@ -30,8 +30,8 @@ function ProductThumb({ product }: { product?: ApiProduct }) {
 export function OrderItemsContent() {
   const [activeTab, setActiveTab] = useState<ApiOrder["status"] | "all">("all");
   const [search, setSearch] = useState("");
-  const [from, setFrom] = useState("2026-05-01");
-  const [to, setTo] = useState("2026-05-05");
+  const [from, setFrom] = useState(() => new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().slice(0, 10));
+  const [to, setTo] = useState(() => new Date().toISOString().slice(0, 10));
   const [sort, setSort] = useState<"newest" | "oldest" | "amount">("newest");
   const [orders, setOrders] = useState<ApiOrder[]>([]);
   const [total, setTotal] = useState(0);
@@ -54,15 +54,16 @@ export function OrderItemsContent() {
       .finally(() => setLoading(false));
   }, [activeTab, search, from, to, sort]);
 
-  const monthlyOrders = orders.filter((o) => o.dateTime.startsWith("2026-05")).length;
+  const currentMonth = new Date().toISOString().slice(0, 7);
+  const monthlyOrders = orders.filter((o) => o.dateTime.startsWith(currentMonth)).length;
   const monthlySales = orders
-    .filter((o) => o.dateTime.startsWith("2026-05") && o.status !== "cancelled")
+    .filter((o) => o.dateTime.startsWith(currentMonth) && o.status !== "cancelled")
     .reduce((s, o) => s + o.priceWithCommission * o.quantity, 0);
   const netSales = orders
     .filter((o) => o.status !== "cancelled")
     .reduce((s, o) => s + o.priceWithoutCommission * o.quantity, 0);
   const cancelledOrders = orders.filter(
-    (o) => o.dateTime.startsWith("2026-05") && o.status === "cancelled",
+    (o) => o.dateTime.startsWith(currentMonth) && o.status === "cancelled",
   ).length;
 
   return (

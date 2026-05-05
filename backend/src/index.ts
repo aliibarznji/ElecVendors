@@ -5,6 +5,7 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import rateLimit from "express-rate-limit";
 import { config } from "./config.js";
+import { db } from "./db.js";
 import { errorHandler } from "./middleware/errorHandler.js";
 import authRoutes from "./routes/auth.js";
 import profileRoutes from "./routes/profile.js";
@@ -65,8 +66,20 @@ app.get("/api/health", (_req, res) => res.json({ ok: true }));
 
 app.use(errorHandler);
 
-app.listen(config.PORT, () => {
+const server = app.listen(config.PORT, () => {
   console.log(`API running on http://localhost:${config.PORT}`);
 });
+
+async function shutdown(signal: string) {
+  console.log(`${signal} received — shutting down`);
+  server.close(async () => {
+    await db.$disconnect();
+    process.exit(0);
+  });
+  setTimeout(() => process.exit(1), 10_000).unref();
+}
+
+process.on("SIGTERM", () => shutdown("SIGTERM"));
+process.on("SIGINT", () => shutdown("SIGINT"));
 
 export default app;

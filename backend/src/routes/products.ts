@@ -151,6 +151,11 @@ router.delete("/:id", requireAuth, async (req: AuthRequest, res, next) => {
       res.status(404).json({ error: "Product not found" });
       return;
     }
+    const orderCount = await db.order.count({ where: { productId: id } });
+    if (orderCount > 0) {
+      res.status(409).json({ error: "Cannot delete a product that has orders" });
+      return;
+    }
     await db.product.delete({ where: { id } });
     res.json({ ok: true });
   } catch (err) {

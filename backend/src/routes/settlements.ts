@@ -23,19 +23,20 @@ router.get("/", requireAuth, async (req: AuthRequest, res, next) => {
       orderBy: { date: "desc" },
     });
 
-    const itemsWithAmount = await Promise.all(
-      items.map(async (settlement) => {
-        const orders = await db.order.findMany({
-          where: { id: { in: settlement.itemIds } },
-          select: { id: true, priceWithoutCommission: true, quantity: true },
-        });
-        const amount = orders.reduce(
-          (sum, o) => sum + o.priceWithoutCommission * o.quantity,
-          0,
-        );
-        return { ...settlement, amount };
-      }),
-    );
+    const allOrderIds = [...new Set(items.flatMap((s) => s.itemIds))];
+    const orders = await db.order.findMany({
+      where: { id: { in: allOrderIds } },
+      select: { id: true, priceWithoutCommission: true, quantity: true },
+    });
+    const orderMap = new Map(orders.map((o) => [o.id, o]));
+
+    const itemsWithAmount = items.map((settlement) => {
+      const amount = settlement.itemIds.reduce((sum, id) => {
+        const o = orderMap.get(id);
+        return o ? sum + o.priceWithoutCommission * o.quantity : sum;
+      }, 0);
+      return { ...settlement, amount };
+    });
 
     res.json(itemsWithAmount);
   } catch (err) {

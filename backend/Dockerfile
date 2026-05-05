@@ -18,7 +18,12 @@ COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/package.json ./package.json
-RUN addgroup --system --gid 1001 nodejs && adduser --system --uid 1001 api
+COPY --from=builder /app/entrypoint.sh ./entrypoint.sh
+
+RUN addgroup --system --gid 1001 nodejs \
+  && adduser --system --uid 1001 api \
+  && chmod +x /app/entrypoint.sh
+
 USER api
 EXPOSE 4000
-CMD ["sh", "-c", "npx prisma migrate deploy && node dist/index.js"]
+ENTRYPOINT ["/app/entrypoint.sh"]

@@ -30,9 +30,9 @@ function Bar({ value, max }: { value: number; max: number }) {
 export function SellerReportContent() {
   const [allOrders, setAllOrders] = useState<ApiOrder[]>([]);
   const [loading, setLoading] = useState(true);
-  const [from, setFrom] = useState("2026-04-01");
-  const [to, setTo] = useState("2026-05-04");
-  const [lastUpdated, setLastUpdated] = useState("2026-05-04 12:00");
+  const [from, setFrom] = useState(() => { const d = new Date(); d.setDate(d.getDate() - 30); return d.toISOString().slice(0, 10); });
+  const [to, setTo] = useState(() => new Date().toISOString().slice(0, 10));
+  const [lastUpdated, setLastUpdated] = useState("");
   const [detail, setDetail] = useState<string | null>(null);
   const { t } = useLang();
 
@@ -42,6 +42,7 @@ export function SellerReportContent() {
       .list({ limit: 500 })
       .then((res) => {
         setAllOrders(res.items);
+        setLastUpdated(new Date().toLocaleString("en-US", { dateStyle: "short", timeStyle: "short" }));
       })
       .catch(() => {})
       .finally(() => setLoading(false));
