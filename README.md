@@ -14,63 +14,13 @@ Vendor management dashboard for ElecMall — bilingual (Arabic/English), RTL/LTR
 
 ---
 
-## Local development
-
-### Prerequisites
-- Node.js 22+
-- PostgreSQL 16 running locally (or use Docker)
-
-### 1. Set up the database
-
-```bash
-# Create the role and database (run as postgres superuser, replace password)
-psql -U postgres -f backend/setup-db.sql
-```
-
-### 2. Configure backend
-
-```bash
-cp backend/.env.example backend/.env
-# Edit backend/.env — set DATABASE_URL, JWT_SECRET, CORS_ORIGIN
-```
-
-Generate a secure JWT secret:
-```bash
-openssl rand -base64 48
-```
-
-### 3. Install and run backend
-
-```bash
-cd backend
-npm install
-npx prisma migrate deploy   # create tables
-npm run db:seed             # seed demo data
-npm run dev                 # http://localhost:4000
-```
-
-### 4. Install and run frontend
-
-```bash
-# from repo root
-npm install
-npm run dev    # http://localhost:3000
-```
-
-**Demo login** (seeded by `npm run db:seed`):
-- Email: `beautifulgril2294@gmail.com`
-- Password: `Vendor@12345`
-
----
-
-## Deploy with Docker Compose
+## Deploy with Docker Compose (recommended)
 
 ### 1. Create a `.env` file in the repo root
 
 ```bash
 POSTGRES_PASSWORD=<strong-random-password>
 JWT_SECRET=<output of: openssl rand -base64 48>
-CORS_ORIGIN=https://your-frontend-domain.com
 ```
 
 ### 2. Build and start
@@ -79,26 +29,83 @@ CORS_ORIGIN=https://your-frontend-domain.com
 docker compose up --build -d
 ```
 
-This starts:
-- `electromall_postgres` — PostgreSQL 16 on port 5432
-- `electromall_api` — Express API on port 4000 (runs migrations on startup)
+This starts three containers:
+- `electromall_postgres` — PostgreSQL 16 (port 5432, localhost only)
+- `electromall_api` — Express API (port 4000, internal only; runs migrations on startup)
+- `electromall_frontend` — Next.js (port 3000, public)
 
-### 3. Seed demo data (first deploy only)
+### 3. Seed on first deploy
 
 ```bash
-docker compose exec api node -e "require('./dist/...') " # or run seed via npm
-cd backend && DATABASE_URL=... npm run db:seed
+cd backend && npm run db:seed
+```
+
+Default admin login (change the password after first login):
+- Email: `admin@electromall.com`
+- Password: `ChangeMe@123`
+
+You can override these via env vars before seeding:
+```bash
+VENDOR_EMAIL=you@company.com VENDOR_PASSWORD=YourPassword123 VENDOR_NAME="Your Name" npm run db:seed
+```
+
+---
+
+## Local development
+
+### Prerequisites
+- Node.js 22+
+- Docker (for PostgreSQL) or a local PostgreSQL 16 instance
+
+### 1. Start the database
+
+```bash
+docker run -d --name pg-dev \
+  -e POSTGRES_USER=electromall \
+  -e POSTGRES_PASSWORD=devpass \
+  -e POSTGRES_DB=electromall_vendors \
+  -p 5432:5432 postgres:16-alpine
+```
+
+### 2. Configure backend
+
+```bash
+# backend/.env
+DATABASE_URL=postgresql://electromall:devpass@localhost:5432/electromall_vendors
+JWT_SECRET=$(openssl rand -base64 48)
+CORS_ORIGIN=http://localhost:3000
+PORT=4000
+NODE_ENV=development
+```
+
+### 3. Run backend
+
+```bash
+cd backend
+npm install
+npx prisma migrate deploy
+npm run db:seed
+npm run dev     # http://localhost:4000
+```
+
+### 4. Run frontend
+
+```bash
+# from repo root
+npm install
+npm run dev     # http://localhost:3000
 ```
 
 ---
 
 ## API endpoints
 
-All endpoints are prefixed `/api/`. The frontend proxies `/api/backend/*` → `http://localhost:4000/api/*` via Next.js rewrites.
+All endpoints are prefixed `/api/`. The frontend proxies `/api/backend/*` → `http://api:4000/api/*` via Next.js rewrites.
 
 | Method | Path | Auth | Description |
 |---|---|---|---|
 | POST | `/auth/login` | — | Login, sets httpOnly cookie |
+| POST | `/auth/signup` | — | Register new vendor |
 | POST | `/auth/logout` | — | Clears cookie |
 | GET | `/auth/me` | ✓ | Current vendor |
 | GET | `/profile` | ✓ | Full vendor profile |
@@ -128,14 +135,16 @@ All endpoints are prefixed `/api/`. The frontend proxies `/api/backend/*` → `h
 
 ## Security
 
-- **Passwords**: bcrypt (12 rounds)
+- **Passwords**: bcrypt (10 rounds)
 - **Auth tokens**: JWT in `httpOnly; SameSite=Strict` cookie — JS-inaccessible
 - **Cookie `Secure` flag**: set in production (`NODE_ENV=production`)
-- **Input validation**: Zod schemas on every write endpoint
-- **Rate limiting**: 200 req/15 min globally, 10 req/15 min on login
+- **Input validation**: Zod schemas on every write endpoint — email lowercased + trimmed
+- **Rate limiting**: 200 req/15 min globally, 10 req/15 min on auth routes
 - **SQL injection**: impossible — Prisma parameterized queries only
 - **HTTP headers**: `helmet()` — XSS, clickjacking, MIME sniffing protections
 - **CORS**: explicit origin allowlist — no wildcard
+- **Middleware auth guard**: Next.js middleware verifies JWT signature (via `jose`) on every request — invalid/expired cookies cleared and redirected to `/login`
+- **Client 401 guard**: any API 401 redirects to `/login` and clears session
 - **Error responses**: no stack traces or DB details exposed to client
 - **Prisma errors**: P2002 (duplicate) → 409, P2025 (not found) → 404
 - **Graceful shutdown**: SIGTERM/SIGINT close server then disconnect DB
@@ -148,12 +157,13 @@ All endpoints are prefixed `/api/`. The frontend proxies `/api/backend/*` → `h
 
 | Route | Description |
 |---|---|
-| `/login` | Login page |
+| `/login` | Login — bilingual, links to signup |
+| `/signup` | Vendor registration — bilingual |
 | `/` | Dashboard — KPIs, charts, analytics |
 | `/orders` | Orders with status tabs and search |
 | `/orders/[orderNumber]` | Order detail |
 | `/products` | Product list |
-| `/products/add` | Add / edit product (StartMode flow) |
+| `/products/add` | Add / edit product |
 | `/products/bulk` | CSV bulk stock/price updates |
 | `/products/discounts` | Discount plan management |
 | `/inventory` | Stock levels |
@@ -180,7 +190,7 @@ page.tsx  →  DashboardShell  →  *-content.tsx
 - `*-content.tsx` — feature UI at `app/` root
 - `app/lib/api.ts` — typed fetch client (`credentials: "include"`)
 - `app/lib/utils.ts` — shared types + utility functions
-- `app/middleware.ts` — Next.js auth guard (redirects to `/login` if no cookie)
+- `app/middleware.ts` — Next.js auth guard (JWT verification via `jose`)
 - Navigation in `app/sidebar.tsx`
 
 ## Commands
@@ -196,6 +206,6 @@ cd backend
 npm run dev        # dev server (nodemon)
 npm run build      # tsc compile
 npx prisma studio  # DB GUI
-npm run db:seed    # seed demo data
+npm run db:seed    # seed initial data
 npm run db:migrate # run migrations
 ```

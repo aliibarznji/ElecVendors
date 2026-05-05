@@ -1,16 +1,16 @@
 import { z } from "zod";
 
 export const loginSchema = z.object({
-  email: z.string().email(),
+  email: z.string().trim().toLowerCase().email(),
   password: z.string().min(8),
 });
 
 export const signupSchema = z.object({
-  name: z.string().min(1).max(120),
-  email: z.string().email(),
+  name: z.string().trim().min(1).max(120),
+  email: z.string().trim().toLowerCase().email(),
   password: z.string().min(8).max(200),
-  phone: z.string().min(3).max(40),
-  companyLocation: z.string().min(1).max(200),
+  phone: z.string().trim().min(3).max(40),
+  companyLocation: z.string().trim().min(1).max(200),
 });
 
 export const productCreateSchema = z.object({

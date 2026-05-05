@@ -12119,11 +12119,33 @@ body { background: var(--bg); }
   gap: 1.1rem;
 }
 
+.login-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.login-lang {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.3rem 0.65rem;
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--text-secondary, #6b7280);
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.login-lang:hover {
+  border-color: var(--brand);
+  color: var(--brand);
+}
+
 .login-brand {
   display: flex;
   align-items: baseline;
   gap: 0.35rem;
-  margin-bottom: 0.25rem;
 }
 
 .login-brand strong {

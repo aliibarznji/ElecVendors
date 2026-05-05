@@ -4,8 +4,10 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { api } from "./lib/api";
+import { useLang } from "./lang-context";
 
 export function SignupContent() {
+  const { t, lang, setLang } = useLang();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
@@ -21,11 +23,11 @@ export function SignupContent() {
     setError("");
 
     if (password !== confirm) {
-      setError("Passwords do not match");
+      setError(t("signupPasswordMismatch"));
       return;
     }
     if (password.length < 8) {
-      setError("Password must be at least 8 characters");
+      setError(t("signupPasswordTooShort"));
       return;
     }
 
@@ -35,7 +37,7 @@ export function SignupContent() {
       router.push("/");
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Sign up failed");
+      setError(err instanceof Error ? err.message : t("signupFailed"));
     } finally {
       setLoading(false);
     }
@@ -44,15 +46,24 @@ export function SignupContent() {
   return (
     <div className="login-page">
       <form className="login-card" onSubmit={handleSubmit}>
-        <div className="login-brand">
-          <strong>ElecMall</strong>
-          <span>Vendors</span>
+        <div className="login-card-header">
+          <div className="login-brand">
+            <strong>ElecMall</strong>
+            <span>Vendors</span>
+          </div>
+          <button
+            type="button"
+            className="login-lang"
+            onClick={() => setLang(lang === "en" ? "ar" : "en")}
+          >
+            {t("changeLanguage")}
+          </button>
         </div>
-        <h1>Create your vendor account</h1>
+        <h1>{t("signupTitle")}</h1>
         {error ? <div className="warning-banner">{error}</div> : null}
 
         <label className="login-field">
-          <span>Full name</span>
+          <span>{t("signupNameLabel")}</span>
           <input
             type="text"
             value={name}
@@ -64,7 +75,7 @@ export function SignupContent() {
         </label>
 
         <label className="login-field">
-          <span>Email address</span>
+          <span>{t("loginEmailLabel")}</span>
           <input
             type="email"
             value={email}
@@ -76,7 +87,7 @@ export function SignupContent() {
         </label>
 
         <label className="login-field">
-          <span>Phone</span>
+          <span>{t("signupPhoneLabel")}</span>
           <input
             type="tel"
             value={phone}
@@ -88,7 +99,7 @@ export function SignupContent() {
         </label>
 
         <label className="login-field">
-          <span>Company location</span>
+          <span>{t("signupLocationLabel")}</span>
           <input
             type="text"
             value={companyLocation}
@@ -100,7 +111,7 @@ export function SignupContent() {
         </label>
 
         <label className="login-field">
-          <span>Password</span>
+          <span>{t("loginPasswordLabel")}</span>
           <input
             type="password"
             value={password}
@@ -108,12 +119,12 @@ export function SignupContent() {
             required
             minLength={8}
             autoComplete="new-password"
-            placeholder="At least 8 characters"
+            placeholder="••••••••"
           />
         </label>
 
         <label className="login-field">
-          <span>Confirm password</span>
+          <span>{t("signupConfirmLabel")}</span>
           <input
             type="password"
             value={confirm}
@@ -126,11 +137,11 @@ export function SignupContent() {
         </label>
 
         <button className="login-submit" type="submit" disabled={loading}>
-          {loading ? "Creating account…" : "Create account"}
+          {loading ? t("signupSubmitting") : t("signupSubmitBtn")}
         </button>
 
         <div className="login-alt">
-          Already have an account? <Link href="/login">Sign in</Link>
+          {t("signupHasAccount")} <Link href="/login">{t("signupSignInLink")}</Link>
         </div>
       </form>
     </div>

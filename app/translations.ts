@@ -415,6 +415,29 @@ export const en = {
   noLogEntries: "No log entries found.",
   noPendingProducts: "No pending products.",
 
+  // Auth pages
+  loginTitle: "Sign in to your account",
+  loginEmailLabel: "Email address",
+  loginPasswordLabel: "Password",
+  loginSubmitBtn: "Sign in",
+  loginSubmitting: "Signing in…",
+  loginNoAccount: "Don't have an account?",
+  loginCreateLink: "Create one",
+  loginFailed: "Login failed",
+
+  signupTitle: "Create your vendor account",
+  signupNameLabel: "Full name",
+  signupPhoneLabel: "Phone",
+  signupLocationLabel: "Company location",
+  signupConfirmLabel: "Confirm password",
+  signupSubmitBtn: "Create account",
+  signupSubmitting: "Creating account…",
+  signupHasAccount: "Already have an account?",
+  signupSignInLink: "Sign in",
+  signupPasswordMismatch: "Passwords do not match",
+  signupPasswordTooShort: "Password must be at least 8 characters",
+  signupFailed: "Sign up failed",
+
   // Common
   search: "Search",
   close: "Close",
@@ -843,6 +866,29 @@ export const ar: Translations = {
   searchUser: "البحث بالمستخدم",
   noLogEntries: "لا توجد سجلات.",
   noPendingProducts: "لا توجد منتجات معلقة.",
+
+  // Auth pages
+  loginTitle: "تسجيل الدخول إلى حسابك",
+  loginEmailLabel: "البريد الإلكتروني",
+  loginPasswordLabel: "كلمة المرور",
+  loginSubmitBtn: "تسجيل الدخول",
+  loginSubmitting: "جار تسجيل الدخول…",
+  loginNoAccount: "ليس لديك حساب؟",
+  loginCreateLink: "إنشاء حساب",
+  loginFailed: "فشل تسجيل الدخول",
+
+  signupTitle: "إنشاء حساب بائع",
+  signupNameLabel: "الاسم الكامل",
+  signupPhoneLabel: "رقم الهاتف",
+  signupLocationLabel: "موقع الشركة",
+  signupConfirmLabel: "تأكيد كلمة المرور",
+  signupSubmitBtn: "إنشاء الحساب",
+  signupSubmitting: "جار إنشاء الحساب…",
+  signupHasAccount: "لديك حساب بالفعل؟",
+  signupSignInLink: "تسجيل الدخول",
+  signupPasswordMismatch: "كلمات المرور غير متطابقة",
+  signupPasswordTooShort: "يجب أن تكون كلمة المرور 8 أحرف على الأقل",
+  signupFailed: "فشل إنشاء الحساب",
 
   // Common
   search: "بحث",
