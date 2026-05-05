@@ -6,7 +6,9 @@
       "Bash(Remove-Item \"C:\\\\Users\\\\LENOVO\\\\Desktop\\\\elecV\\\\ElecVendors\\\\app\\\\api\\\\vendor-dashboard\\\\route.ts\" -Force)",
       "Bash(Remove-Item \"C:\\\\Users\\\\LENOVO\\\\Desktop\\\\elecV\\\\ElecVendors\\\\app\\\\vendor-dashboard-data.ts\" -Force)",
       "Bash(Remove-Item \"C:\\\\Users\\\\LENOVO\\\\Desktop\\\\elecV\\\\ElecVendors\\\\tests\\\\vendor-dashboard-data.test.ts\" -Force)",
-      "Bash(Write-Output \"Deleted 3 files\")"
+      "Bash(Write-Output \"Deleted 3 files\")",
+      "PowerShell(Get-Process *)",
+      "Bash(/c/Program Files/PostgreSQL/17/bin/pg_ctl.exe start *)"
     ]
   }
 }

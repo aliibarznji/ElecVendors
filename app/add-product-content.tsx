@@ -1,20 +1,28 @@
 "use client";
 
 import {
+  ArrowRight,
   Barcode,
+  Boxes,
   ChevronDown,
+  CheckCircle2,
+  FileSpreadsheet,
   ImagePlus,
+  PackageSearch,
+  PenLine,
   Plus,
   Save,
+  Search,
   Tag,
   ToggleRight,
   Trash2,
   UploadCloud,
 } from "lucide-react";
+import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { useLang } from "./lang-context";
 import { api } from "./lib/api";
-import type { ApiProduct } from "./lib/utils";
+import { formatIqd, totalProductQty, type ApiProduct } from "./lib/utils";
 
 type SizeRow = {
   id: string;
@@ -29,11 +37,88 @@ type ColorRow = {
   sizes: SizeRow[];
 };
 
+type StartMode = "existing" | "manual" | null;
+
 const categories = [
   ["Beauty", "Hair Care", "Hair Devices", "Curling Irons"],
   ["Electronics", "Audio", "Headphones", "Wireless"],
   ["Electronics", "Personal Care", "Shaving", "Trimmers"],
 ];
+
+const addProductEntryCopy = {
+  title: "How would you like to add this product?",
+  subtitle: "Choose the path that matches the product status before entering details.",
+  existingTitle: "Add product by existing product",
+  existingSub: "Use a product already in your catalog, then update only price and stock.",
+  manualTitle: "Add product manually",
+  manualSub: "Create a completely new product with full details, images, colors, and sizes.",
+  bulkTitle: "Update inventory from bulk operations",
+  bulkSub: "Open the CSV/XLSX upload workflow for stock updates across many products.",
+  choose: "Choose",
+  openBulk: "Open bulk upload",
+  existingHeading: "Find an existing product",
+  existingDescription: "Search your current catalog, select the product, then update price and inventory.",
+  existingPlaceholder: "Search by product name, SKU, barcode, code, or brand",
+  productNotFound: "Product not found? Add it manually",
+  bulkShortcut: "Use CSV inventory upload",
+  selectProduct: "Select product",
+  selectedProduct: "Selected existing product",
+  updateExistingSub: "Product identity stays the same. Update the selling price, cost price, and stock quantities.",
+  updateExisting: "Update price and stock",
+  existingSaved: "Existing product price and stock were updated.",
+  noExistingProducts: "No products match this search.",
+  loadingProducts: "Loading existing products...",
+  backToOptions: "Back to options",
+};
+
+function createDefaultColors(): ColorRow[] {
+  return [
+    {
+      id: "color-1",
+      code: "#c7ccd4",
+      name: "Silver",
+      sizes: [{ id: "size-1", size: "Standard", quantity: 1 }],
+    },
+  ];
+}
+
+function colorRowsFromProduct(product: ApiProduct): ColorRow[] {
+  if (product.colors.length === 0) return createDefaultColors();
+
+  return product.colors.map((color, colorIndex) => ({
+    id: color.id || `color-${colorIndex}`,
+    code: color.code,
+    name: color.nameEn || color.nameAr,
+    sizes: color.sizes.map((size, sizeIndex) => ({
+      id: size.id || `size-${colorIndex}-${sizeIndex}`,
+      size: size.size,
+      quantity: size.quantity,
+    })),
+  }));
+}
+
+function colorsToPayload(rows: ColorRow[]) {
+  return rows.map((color) => ({
+    code: color.code,
+    nameAr: color.name,
+    nameEn: color.name,
+    sizes: color.sizes.map((size) => ({ size: size.size, quantity: size.quantity })),
+  }));
+}
+
+function ProductThumb({ product }: { product: ApiProduct }) {
+  const initials = product.brand.slice(0, 2).toUpperCase() || "PR";
+
+  return (
+    <span
+      className="sample-product-thumb existing-product-thumb"
+      style={{ background: product.imageTone || "#3d5fb6" }}
+      aria-label={product.nameEn}
+    >
+      <span>{initials}</span>
+    </span>
+  );
+}
 
 function Field({
   label,
@@ -95,8 +180,16 @@ function SelectBox({
 
 export function AddProductContent({ editId }: { editId?: string }) {
   const { t } = useLang();
+  const [startMode, setStartMode] = useState<StartMode>(editId ? "manual" : null);
   const [ep, setEp] = useState<ApiProduct | null>(null);
   const [loading, setLoading] = useState(!!editId);
+  const [existingProducts, setExistingProducts] = useState<ApiProduct[]>([]);
+  const [existingQuery, setExistingQuery] = useState("");
+  const [existingLoading, setExistingLoading] = useState(false);
+  const [existingError, setExistingError] = useState("");
+  const [selectedExisting, setSelectedExisting] = useState<ApiProduct | null>(null);
+  const [existingSubmitted, setExistingSubmitted] = useState(false);
+  const [existingSaved, setExistingSaved] = useState(false);
 
   const [nameAr, setNameAr] = useState("");
   const [nameEn, setNameEn] = useState("");
@@ -111,9 +204,7 @@ export function AddProductContent({ editId }: { editId?: string }) {
   const [brand, setBrand] = useState("");
   const [barcode, setBarcode] = useState("");
   const [vendorCode, setVendorCode] = useState("");
-  const [colors, setColors] = useState<ColorRow[]>([
-    { id: "color-1", code: "#c7ccd4", name: "Silver", sizes: [{ id: "size-1", size: "Standard", quantity: 1 }] },
-  ]);
+  const [colors, setColors] = useState<ColorRow[]>(createDefaultColors);
   const [submitted, setSubmitted] = useState(false);
   const [saved, setSaved] = useState(false);
   const [saveError, setSaveError] = useState("");
@@ -138,24 +229,44 @@ export function AddProductContent({ editId }: { editId?: string }) {
         setBrand(p.brand);
         setBarcode(p.barcode);
         setVendorCode(p.vendorCode);
-        setColors(
-          p.colors.map((c, ci) => ({
-            id: `color-${ci}`,
-            code: c.code,
-            name: c.nameEn,
-            sizes: c.sizes.map((s, si) => ({ id: `size-${ci}-${si}`, size: s.size, quantity: s.quantity })),
-          })),
-        );
+        setColors(colorRowsFromProduct(p));
       })
       .catch(() => {})
       .finally(() => setLoading(false));
   }, [editId]);
 
   useEffect(() => {
+    if (editId || startMode !== "existing" || existingProducts.length > 0) return;
+    let active = true;
+    setExistingLoading(true);
+    setExistingError("");
+    api.products
+      .list({ limit: 100 })
+      .then((res) => {
+        if (active) setExistingProducts(res.items);
+      })
+      .catch((err) => {
+        if (active) setExistingError(err instanceof Error ? err.message : "Failed to load products");
+      })
+      .finally(() => {
+        if (active) setExistingLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, [editId, existingProducts.length, startMode]);
+
+  useEffect(() => {
     if (!saved) return;
     const timer = setTimeout(() => setSaved(false), 5000);
     return () => clearTimeout(timer);
   }, [saved]);
+
+  useEffect(() => {
+    if (!existingSaved) return;
+    const timer = setTimeout(() => setExistingSaved(false), 5000);
+    return () => clearTimeout(timer);
+  }, [existingSaved]);
 
   const errors = useMemo(() => {
     const next: Record<string, string> = {};
@@ -181,6 +292,36 @@ export function AddProductContent({ editId }: { editId?: string }) {
     return next;
   }, [barcode, brand, colors, costPrice, materialCode, nameAr, nameEn, sellingPrice, vendorCode, t]);
 
+  const existingErrors = useMemo(() => {
+    const next: Record<string, string> = {};
+    const selling = Number(sellingPrice);
+    const cost = Number(costPrice);
+    if (!selling || selling <= 0) next.sellingPrice = t("errSellingPrice");
+    if (!cost || cost <= 0) next.costPrice = t("errCostPrice");
+    if (selling && cost && selling < cost) {
+      next.sellingPrice = t("errPriceOrder");
+    }
+    if (colors.some((color) => color.sizes.some((size) => !size.size || size.quantity < 0))) {
+      next.sizes = t("errSizes");
+    }
+    return next;
+  }, [colors, costPrice, sellingPrice, t]);
+
+  const filteredExistingProducts = useMemo(() => {
+    const query = existingQuery.trim().toLowerCase();
+    if (!query) return existingProducts;
+    return existingProducts.filter((product) =>
+      [
+        product.nameAr,
+        product.nameEn,
+        product.sku,
+        product.barcode,
+        product.vendorCode,
+        product.brand,
+      ].some((value) => value.toLowerCase().includes(query)),
+    );
+  }, [existingProducts, existingQuery]);
+
   if (loading) return <div className="dashboard-stage-loading">{t("loading")}</div>;
 
   const updateColor = (id: string, patch: Partial<ColorRow>) => {
@@ -204,6 +345,278 @@ export function AddProductContent({ editId }: { editId?: string }) {
     );
   };
 
+  const loadExistingProduct = (product: ApiProduct) => {
+    setSelectedExisting(product);
+    setExistingSubmitted(false);
+    setExistingSaved(false);
+    setSaveError("");
+    setNameAr(product.nameAr);
+    setNameEn(product.nameEn);
+    setHighlights(product.highlights);
+    setDescription(product.description);
+    setKeywords(product.keywords.join(", "));
+    setMaterialCode(product.materialCode);
+    setSellingPrice(String(product.sellingPrice));
+    setCostPrice(String(product.costPrice));
+    setLargeProduct(product.largeProduct);
+    setCategory([product.categoryLevel1, product.categoryLevel2, product.categoryLevel3, product.categoryLevel4]);
+    setBrand(product.brand);
+    setBarcode(product.barcode);
+    setVendorCode(product.vendorCode);
+    setColors(colorRowsFromProduct(product));
+  };
+
+  const saveExistingProduct = async () => {
+    if (!selectedExisting) return;
+    setExistingSubmitted(true);
+    setSaveError("");
+    if (Object.keys(existingErrors).length > 0) return;
+
+    try {
+      const updated = await api.products.update(selectedExisting.id, {
+        sellingPrice: Number(sellingPrice),
+        costPrice: Number(costPrice),
+        colors: colorsToPayload(colors),
+      });
+      setSelectedExisting(updated);
+      setExistingProducts((current) =>
+        current.map((product) => (product.id === updated.id ? updated : product)),
+      );
+      setExistingSaved(true);
+    } catch (err) {
+      setSaveError(err instanceof Error ? err.message : "Failed to update product");
+    }
+  };
+
+  if (!editId && startMode === null) {
+    return (
+      <div className="add-product-content">
+        <header className="page-title-row">
+          <div>
+            <h1>{t("addProductTitle")}</h1>
+            <p className="dashboard-sub">{addProductEntryCopy.subtitle}</p>
+          </div>
+        </header>
+
+        <section className="add-product-choice-card" aria-labelledby="add-product-choice-title">
+          <div className="add-product-choice-copy">
+            <span>{t("productManagement")}</span>
+            <h2 id="add-product-choice-title">{addProductEntryCopy.title}</h2>
+            <p>{addProductEntryCopy.existingDescription}</p>
+          </div>
+
+          <div className="add-product-choice-grid">
+            <button
+              className="product-choice-option is-primary"
+              type="button"
+              onClick={() => setStartMode("existing")}
+            >
+              <span className="product-choice-icon">
+                <PackageSearch aria-hidden="true" size={22} strokeWidth={2.2} />
+              </span>
+              <span className="product-choice-text">
+                <strong>{addProductEntryCopy.existingTitle}</strong>
+                <span>{addProductEntryCopy.existingSub}</span>
+              </span>
+              <span className="product-choice-action">
+                {addProductEntryCopy.choose}
+                <ArrowRight aria-hidden="true" size={16} strokeWidth={2.4} />
+              </span>
+            </button>
+
+            <button
+              className="product-choice-option"
+              type="button"
+              onClick={() => setStartMode("manual")}
+            >
+              <span className="product-choice-icon">
+                <PenLine aria-hidden="true" size={22} strokeWidth={2.2} />
+              </span>
+              <span className="product-choice-text">
+                <strong>{addProductEntryCopy.manualTitle}</strong>
+                <span>{addProductEntryCopy.manualSub}</span>
+              </span>
+              <span className="product-choice-action">
+                {addProductEntryCopy.choose}
+                <ArrowRight aria-hidden="true" size={16} strokeWidth={2.4} />
+              </span>
+            </button>
+
+            <Link className="product-choice-option" href="/products/bulk?mode=stock">
+              <span className="product-choice-icon">
+                <FileSpreadsheet aria-hidden="true" size={22} strokeWidth={2.2} />
+              </span>
+              <span className="product-choice-text">
+                <strong>{addProductEntryCopy.bulkTitle}</strong>
+                <span>{addProductEntryCopy.bulkSub}</span>
+              </span>
+              <span className="product-choice-action">
+                {addProductEntryCopy.openBulk}
+                <ArrowRight aria-hidden="true" size={16} strokeWidth={2.4} />
+              </span>
+            </Link>
+          </div>
+        </section>
+      </div>
+    );
+  }
+
+  if (!editId && startMode === "existing") {
+    return (
+      <div className="add-product-content">
+        <header className="page-title-row">
+          <div>
+            <h1>{addProductEntryCopy.existingTitle}</h1>
+            <p className="dashboard-sub">{addProductEntryCopy.existingDescription}</p>
+          </div>
+          <button className="small-outline-button product-back-button" type="button" onClick={() => setStartMode(null)}>
+            {addProductEntryCopy.backToOptions}
+          </button>
+        </header>
+
+        <section className="existing-product-workflow">
+          <div className="existing-product-search-header">
+            <div>
+              <h2>{addProductEntryCopy.existingHeading}</h2>
+              <p>{addProductEntryCopy.existingDescription}</p>
+            </div>
+            <Boxes aria-hidden="true" size={24} strokeWidth={2.1} />
+          </div>
+
+          <label className="existing-product-search">
+            <Search aria-hidden="true" size={17} strokeWidth={2.3} />
+            <input
+              value={existingQuery}
+              placeholder={addProductEntryCopy.existingPlaceholder}
+              onChange={(event) => setExistingQuery(event.target.value)}
+            />
+          </label>
+
+          {existingLoading ? (
+            <div className="existing-product-empty">{addProductEntryCopy.loadingProducts}</div>
+          ) : existingError ? (
+            <div className="warning-banner">{existingError}</div>
+          ) : filteredExistingProducts.length === 0 ? (
+            <div className="existing-product-empty">{addProductEntryCopy.noExistingProducts}</div>
+          ) : (
+            <div className="existing-product-results" role="list">
+              {filteredExistingProducts.map((product) => (
+                <button
+                  className={`existing-product-row${selectedExisting?.id === product.id ? " is-selected" : ""}`}
+                  key={product.id}
+                  type="button"
+                  onClick={() => loadExistingProduct(product)}
+                >
+                  <ProductThumb product={product} />
+                  <span className="existing-product-main">
+                    <strong>{product.nameEn}</strong>
+                    <span>{product.nameAr}</span>
+                  </span>
+                  <span className="existing-product-meta">
+                    <span>{t("skuLabel")}: {product.sku}</span>
+                    <span>{t("stockColumn")}: {totalProductQty(product.colors)}</span>
+                  </span>
+                  <span className="existing-product-price">{formatIqd(product.sellingPrice)}</span>
+                  <span className="existing-product-select">{addProductEntryCopy.selectProduct}</span>
+                </button>
+              ))}
+            </div>
+          )}
+
+          <div className="existing-product-footer">
+            <button className="small-outline-button" type="button" onClick={() => setStartMode("manual")}>
+              {addProductEntryCopy.productNotFound}
+            </button>
+            <Link className="small-outline-button product-link-button" href="/products/bulk?mode=stock">
+              {addProductEntryCopy.bulkShortcut}
+            </Link>
+          </div>
+        </section>
+
+        {selectedExisting ? (
+          <section className="product-section existing-product-update-section">
+            <div className="section-copy">
+              <h2>{addProductEntryCopy.selectedProduct}</h2>
+              <p>{addProductEntryCopy.updateExistingSub}</p>
+            </div>
+
+            <div className="existing-selected-summary">
+              <ProductThumb product={selectedExisting} />
+              <div>
+                <strong>{selectedExisting.nameEn}</strong>
+                <span>{selectedExisting.brand} / {selectedExisting.sku}</span>
+              </div>
+              <b>{formatIqd(selectedExisting.sellingPrice)}</b>
+            </div>
+
+            <div className="product-details-grid">
+              <Field
+                label={t("sellingPriceIqd")}
+                type="number"
+                value={sellingPrice}
+                onChange={setSellingPrice}
+                placeholder="49000"
+                error={existingSubmitted ? existingErrors.sellingPrice : undefined}
+              />
+              <Field
+                label={t("costPriceIqd")}
+                type="number"
+                value={costPrice}
+                onChange={setCostPrice}
+                placeholder="45085"
+                error={existingSubmitted ? existingErrors.costPrice : undefined}
+              />
+            </div>
+
+            <div className="existing-inventory-editor">
+              {colors.map((color) => (
+                <article className="existing-inventory-color" key={color.id}>
+                  <div className="existing-inventory-color-head">
+                    <span style={{ backgroundColor: color.code }} />
+                    <strong>{color.name}</strong>
+                  </div>
+                  <div className="existing-size-grid">
+                    {color.sizes.map((size) => (
+                      <label className="existing-size-field" key={size.id}>
+                        <span>{size.size}</span>
+                        <input
+                          type="number"
+                          min="0"
+                          value={size.quantity}
+                          onChange={(event) =>
+                            updateSize(color.id, size.id, { quantity: Number(event.target.value) })
+                          }
+                        />
+                      </label>
+                    ))}
+                  </div>
+                </article>
+              ))}
+            </div>
+
+            {existingSubmitted && existingErrors.sizes ? (
+              <em className="form-error">{existingErrors.sizes}</em>
+            ) : null}
+
+            {saveError ? <div className="warning-banner">{saveError}</div> : null}
+
+            {existingSaved ? (
+              <div className="success-banner">
+                <CheckCircle2 aria-hidden="true" size={18} strokeWidth={2.4} />
+                {addProductEntryCopy.existingSaved}
+              </div>
+            ) : null}
+
+            <button className="discount-create-button existing-save-button" type="button" onClick={saveExistingProduct}>
+              <Save aria-hidden="true" size={16} strokeWidth={2.4} />
+              <span>{addProductEntryCopy.updateExisting}</span>
+            </button>
+          </section>
+        ) : null}
+      </div>
+    );
+  }
+
   return (
     <div className="add-product-content">
       <header className="page-title-row">
@@ -213,70 +626,72 @@ export function AddProductContent({ editId }: { editId?: string }) {
             {ep ? t("editProductSub") : t("addProductSub")}
           </p>
         </div>
-        <button
-          className="discount-create-button"
-          type="button"
-          onClick={async () => {
-            setSubmitted(true);
-            setSaveError("");
-            if (Object.keys(errors).length === 0) {
-              const payload = {
-                nameAr,
-                nameEn,
-                highlights,
-                description,
-                keywords: keywords.split(",").map((k) => k.trim()).filter(Boolean),
-                materialCode,
-                sku: vendorCode,
-                barcode,
-                vendorCode,
-                brand,
-                categoryLevel1: category[0] ?? "",
-                categoryLevel2: category[1] ?? "",
-                categoryLevel3: category[2] ?? "",
-                categoryLevel4: category[3] ?? "",
-                sellingPrice: Number(sellingPrice),
-                costPrice: Number(costPrice),
-                commissionPct: 0,
-                largeProduct,
-                imageTone: "",
-                colors: colors.map((c) => ({
-                  code: c.code,
-                  nameAr: c.name,
-                  nameEn: c.name,
-                  sizes: c.sizes.map((s) => ({ size: s.size, quantity: s.quantity })),
-                })),
-              };
-              try {
-                if (editId && ep) {
-                  await api.products.update(ep.id, payload);
-                } else {
-                  await api.products.create(payload);
-                  setNameAr("");
-                  setNameEn("");
-                  setHighlights("");
-                  setDescription("");
-                  setKeywords("");
-                  setMaterialCode("");
-                  setSellingPrice("");
-                  setCostPrice("");
-                  setBrand("");
-                  setBarcode("");
-                  setVendorCode("");
-                  setColors([{ id: "color-1", code: "#c7ccd4", name: "Silver", sizes: [{ id: "size-1", size: "Standard", quantity: 1 }] }]);
-                  setLargeProduct(false);
-                  setSubmitted(false);
+        <div className="product-header-actions">
+          {!editId ? (
+            <button className="small-outline-button product-back-button" type="button" onClick={() => setStartMode(null)}>
+              {addProductEntryCopy.backToOptions}
+            </button>
+          ) : null}
+          <button
+            className="discount-create-button"
+            type="button"
+            onClick={async () => {
+              setSubmitted(true);
+              setSaveError("");
+              if (Object.keys(errors).length === 0) {
+                const payload = {
+                  nameAr,
+                  nameEn,
+                  highlights,
+                  description,
+                  keywords: keywords.split(",").map((k) => k.trim()).filter(Boolean),
+                  materialCode,
+                  sku: vendorCode,
+                  barcode,
+                  vendorCode,
+                  brand,
+                  categoryLevel1: category[0] ?? "",
+                  categoryLevel2: category[1] ?? "",
+                  categoryLevel3: category[2] ?? "",
+                  categoryLevel4: category[3] ?? "",
+                  sellingPrice: Number(sellingPrice),
+                  costPrice: Number(costPrice),
+                  commissionPct: 0,
+                  largeProduct,
+                  imageTone: "",
+                  colors: colorsToPayload(colors),
+                };
+                try {
+                  if (editId && ep) {
+                    await api.products.update(ep.id, payload);
+                  } else {
+                    await api.products.create(payload);
+                    setNameAr("");
+                    setNameEn("");
+                    setHighlights("");
+                    setDescription("");
+                    setKeywords("");
+                    setMaterialCode("");
+                    setSellingPrice("");
+                    setCostPrice("");
+                    setBrand("");
+                    setBarcode("");
+                    setVendorCode("");
+                    setColors(createDefaultColors());
+                    setLargeProduct(false);
+                    setSubmitted(false);
+                  }
+                  setSaved(true);
+                } catch (err) {
+                  setSaveError(err instanceof Error ? err.message : "Failed to save");
                 }
-                setSaved(true);
-              } catch (err) {
-                setSaveError(err instanceof Error ? err.message : "Failed to save");
               }
-            }
-          }}
-        >
-          <Save aria-hidden="true" size={16} strokeWidth={2.4} />
-          <span>{ep ? t("updateProduct") : t("saveProduct")}</span>
-        </button>
+            }}
+          >
+            <Save aria-hidden="true" size={16} strokeWidth={2.4} />
+            <span>{ep ? t("updateProduct") : t("saveProduct")}</span>
+          </button>
+        </div>
       </header>
 
       {saved ? (
