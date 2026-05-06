@@ -559,7 +559,8 @@ export function AddProductContent({ editId }: { editId?: string }) {
             </div>
           )}
           <div className="existing-product-footer">
-            <button className="small-outline-button" type="button" onClick={() => setStartMode("manual")}>{addProductEntryCopy.productNotFound}</button>
+            <button className="small-outline-button existing-footer-primary" type="button" onClick={() => setStartMode("manual")}>{addProductEntryCopy.productNotFound}</button>
+            <span className="existing-footer-sep">or</span>
             <Link className="small-outline-button product-link-button" href="/products/bulk?mode=stock">{addProductEntryCopy.bulkShortcut}</Link>
           </div>
         </section>
