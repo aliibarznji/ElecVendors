@@ -11567,6 +11567,31 @@ body { background: var(--bg); }
 /* ── DISCOUNT PLANS ──────────────────────────────────────────── */
 .discount-plans-content { display: grid; gap: 18px; padding: 22px 24px 48px; }
 .discount-filter-chips { display: flex; gap: 6px; flex-wrap: wrap; }
+.filter-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 14px;
+  border-radius: 999px;
+  border: 1.5px solid var(--border);
+  background: var(--surface);
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--text-2);
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+.filter-chip:hover {
+  border-color: var(--brand);
+  color: var(--brand);
+  background: color-mix(in srgb, var(--brand) 5%, transparent);
+}
+.filter-chip.is-on {
+  background: var(--brand);
+  border-color: var(--brand);
+  color: #fff;
+  font-weight: 600;
+}
 .discount-plan-detail { padding: 14px 16px; background: #fafbfe; border-top: 1px solid var(--border); display: grid; gap: 10px; }
 .discount-chip-row { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
 .discount-chip { display: inline-flex; align-items: center; padding: 3px 9px; border-radius: 999px; border: 1px solid var(--border); background: #f8f9fc; font-size: 11.5px; color: #475569; }
