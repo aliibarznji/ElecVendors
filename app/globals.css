@@ -478,7 +478,6 @@ a {
 
 .export-button {
   gap: 10px;
-  min-width: 230px;
   padding: 0 18px;
   border: 1px solid #c5d0e8;
   color: var(--brand);
@@ -628,31 +627,6 @@ textarea {
 
 .page-title-row h1 {
   margin: 0;
-}
-
-.discount-create-button,
-.save-warranty-button,
-.submit-all-button,
-.marketing-package-buy-button,
-.bulk-export-button,
-.apply-filter-button,
-.edit-product-button,
-.modal-primary {
-  border: 0;
-  background: linear-gradient(135deg, #e02a31 0%, #b8131b 100%);
-  color: #ffffff;
-  box-shadow: 0 6px 14px rgba(184, 19, 27, 0.18);
-}
-
-.discount-create-button:hover,
-.save-warranty-button:hover,
-.submit-all-button:hover,
-.marketing-package-buy-button:hover,
-.bulk-export-button:hover,
-.apply-filter-button:hover,
-.edit-product-button:hover,
-.modal-primary:hover {
-  background: linear-gradient(135deg, #c9141d 0%, #9d0e15 100%);
 }
 
 .discount-create-button:disabled,
@@ -2611,11 +2585,6 @@ textarea {
   align-items: center;
 }
 
-.submit-all-button {
-  width: 222px;
-  min-height: 39px;
-  background: #172d5a;
-}
 
 .warranty-content {
   display: grid;
@@ -9679,17 +9648,6 @@ body,
   left: auto;
 }
 
-.discount-create-button,
-.save-warranty-button,
-.marketing-package-buy-button,
-.bulk-export-button,
-.apply-filter-button,
-.modal-primary,
-.submit-all-button {
-  border: 0;
-  background: linear-gradient(135deg, #e02a31 0%, #b8131b 100%);
-  color: #ffffff;
-}
 
 .purchase-order-table th,
 .purchase-order-table td,
@@ -13043,5 +13001,49 @@ body { background: var(--bg); }
   .campaigns-summary-strip {
     grid-template-columns: 1fr 1fr;
   }
+}
+
+/* ─── Button fixes: override legacy conflicting rules ──────────────────── */
+
+/* submit-all-button: remove legacy fixed width so it sizes to content */
+.submit-all-button {
+  width: auto;
+  min-width: 0;
+}
+
+/* warranty-cancel-button: was jet-black (#101633); now proper secondary */
+.warranty-cancel-button {
+  background: #f1f5f9;
+  color: #475569;
+  border: 1px solid var(--border);
+  min-width: 80px;
+  padding: 0 16px;
+}
+.warranty-cancel-button:hover,
+.warranty-cancel-button:focus-visible {
+  background: #e2e8f0;
+  border-color: var(--border-strong);
+  color: #1e293b;
+}
+
+/* warehouse-button: was blue (#3e62b8) fixed 220px width; now secondary outline */
+.warehouse-button {
+  width: auto;
+  min-width: 0;
+  padding: 0 18px;
+  min-height: 38px;
+  background: #f1f5f9;
+  color: #475569;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: none;
+  font-size: 13.5px;
+  font-weight: 600;
+}
+.warehouse-button:hover,
+.warehouse-button:focus-visible {
+  background: #e2e8f0;
+  border-color: var(--border-strong);
+  color: #1e293b;
 }
 
