@@ -158,24 +158,13 @@ function SelectBox({ label, value, onChange, options, error, onAdd }: { label: s
 
 function RichTextArea({ value, onChange, placeholder, showGenerate }: { value: string; onChange: (v: string) => void; placeholder?: string; showGenerate?: boolean }) {
   const ref = useRef<HTMLTextAreaElement>(null);
-  const insert = (before: string, after = "") => {
-    const ta = ref.current;
-    if (!ta) return;
-    const s = ta.selectionStart, e = ta.selectionEnd;
-    const sel = ta.value.slice(s, e);
-    onChange(ta.value.slice(0, s) + before + sel + after + ta.value.slice(e));
-    setTimeout(() => { ta.focus(); ta.setSelectionRange(s + before.length, s + before.length + sel.length); }, 0);
-  };
   return (
     <div className="pf-rich-editor">
-      <div className="pf-toolbar">
-        <button className="pf-toolbar-btn" type="button" onClick={() => insert("• ")}>• List</button>
-        <button className="pf-toolbar-btn" type="button" onClick={() => insert("1. ")}>1. List</button>
-        <button className="pf-toolbar-btn" type="button" onClick={() => insert("<p style=\"text-align:left\">", "</p>")}>Left</button>
-        <button className="pf-toolbar-btn" type="button" onClick={() => insert("<p style=\"text-align:center\">", "</p>")}>Center</button>
-        <button className="pf-toolbar-btn" type="button" onClick={() => insert("<p style=\"text-align:right\">", "</p>")}>Right</button>
-        {showGenerate && <button className="pf-generate-btn" type="button" disabled title="Coming soon">✨ Generate from URL</button>}
-      </div>
+      {showGenerate && (
+        <div className="pf-toolbar">
+          <button className="pf-generate-btn" type="button" disabled title="Coming soon">✨ Generate from URL</button>
+        </div>
+      )}
       <textarea ref={ref} value={value} placeholder={placeholder} onChange={(e) => onChange(e.target.value)} />
     </div>
   );
