@@ -13,11 +13,16 @@ type PricingDraft = {
 };
 
 function ProductThumb({ product }: { product: ApiProduct }) {
+  const { lang } = useLang();
+  const name = lang === "ar" ? product.nameAr : product.nameEn;
+  if (product.mainImage) {
+    return <img className="sample-product-thumb" src={product.mainImage} alt={name} />;
+  }
   return (
     <div
       className="sample-product-thumb"
       style={{ background: product.imageTone }}
-      aria-label={product.nameAr}
+      aria-label={name}
     >
       <span>{product.brand.slice(0, 2).toUpperCase()}</span>
     </div>
@@ -41,7 +46,7 @@ export function PricingContent() {
   const [status, setStatus] = useState("all");
   const [drafts, setDrafts] = useState<Record<string, PricingDraft>>({});
   const [saved, setSaved] = useState<string | null>(null);
-  const { t } = useLang();
+  const { t, lang } = useLang();
 
   useEffect(() => {
     setLoading(true);
@@ -85,10 +90,14 @@ export function PricingContent() {
   }, [query, status, products]);
 
   const update = (id: string, patch: Partial<PricingDraft>) =>
-    setDrafts((current) => ({
-      ...current,
-      [id]: { ...current[id], ...patch },
-    }));
+    setDrafts((current) => {
+      const existing = current[id];
+      if (patch.commissionPct !== undefined && existing) {
+        const vendorRevenue = existing.sellingPrice * (1 - existing.commissionPct / 100);
+        patch = { ...patch, sellingPrice: Math.round(vendorRevenue / (1 - patch.commissionPct / 100)) };
+      }
+      return { ...current, [id]: { ...existing, ...patch } };
+    });
 
   const handleSave = () => {
     Promise.all(
@@ -188,8 +197,8 @@ export function PricingContent() {
                         <div className="product-inline-summary">
                           <ProductThumb product={product} />
                           <div>
-                            <strong>{product.nameAr}</strong>
-                            <span>{product.nameEn}</span>
+                            <strong>{lang === "ar" ? product.nameAr : product.nameEn}</strong>
+                            <span>{lang === "ar" ? product.nameEn : product.nameAr}</span>
                           </div>
                         </div>
                       </td>

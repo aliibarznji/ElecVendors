@@ -4479,6 +4479,11 @@ textarea {
   background: linear-gradient(#c7ccd4 0 28%, #c47645 28% 43%, #f2d1bd 43% 58%, #aeb4bd 58%);
 }
 
+img.sample-product-thumb {
+  object-fit: cover;
+  background: none;
+}
+
 .content-score-pill {
   display: inline-flex;
   min-width: 96px;

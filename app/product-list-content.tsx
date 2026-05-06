@@ -25,11 +25,16 @@ const statusClass: Record<ProductStatus, string> = {
 };
 
 function ProductThumb({ product }: { product: ApiProduct }) {
+  const { lang } = useLang();
+  const name = lang === "ar" ? product.nameAr : product.nameEn;
+  if (product.mainImage) {
+    return <img className="sample-product-thumb product-image-thumb" src={product.mainImage} alt={name} />;
+  }
   return (
     <div
       className="sample-product-thumb product-image-thumb"
       style={{ background: product.imageTone }}
-      aria-label={product.nameAr}
+      aria-label={name}
     >
       <span>{product.brand.slice(0, 2).toUpperCase()}</span>
     </div>
@@ -96,7 +101,7 @@ export function ProductListContent() {
   const [brandFilter, setBrandFilter] = useState("all");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [selected, setSelected] = useState<ApiProduct | null>(null);
-  const { t } = useLang();
+  const { t, lang } = useLang();
 
   useEffect(() => {
     setLoading(true);
@@ -245,8 +250,8 @@ export function ProductListContent() {
                         <ProductThumb product={product} />
                       </td>
                       <td className="product-name-cell">
-                        <strong>{product.nameAr}</strong>
-                        <span>{product.nameEn}</span>
+                        <strong>{lang === "ar" ? product.nameAr : product.nameEn}</strong>
+                        <span>{lang === "ar" ? product.nameEn : product.nameAr}</span>
                       </td>
                       <td>{formatIqd(product.sellingPrice)}</td>
                       <td>{formatIqd(product.costPrice)}</td>
@@ -280,9 +285,9 @@ export function ProductListContent() {
                       <td>
                         <div className="color-swatch-row">
                           {product.colors.map((color) => (
-                            <span key={color.code} title={color.nameAr}>
+                            <span key={color.code} title={lang === "ar" ? color.nameAr : color.nameEn}>
                               <i style={{ background: color.code }} />
-                              {color.nameAr}
+                              {lang === "ar" ? color.nameAr : color.nameEn}
                             </span>
                           ))}
                         </div>
@@ -340,7 +345,7 @@ export function ProductListContent() {
           <div className="modal-card modal-wide">
             <header className="modal-header">
               <div>
-                <h3>{selected.nameAr}</h3>
+                <h3>{lang === "ar" ? selected.nameAr : selected.nameEn}</h3>
                 <p className="modal-sub">{selected.sku}</p>
               </div>
               <button

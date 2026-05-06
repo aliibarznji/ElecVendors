@@ -34,7 +34,7 @@ export function SellerReportContent() {
   const [to, setTo] = useState(() => new Date().toISOString().slice(0, 10));
   const [lastUpdated, setLastUpdated] = useState("");
   const [detail, setDetail] = useState<string | null>(null);
-  const { t } = useLang();
+  const { t, lang } = useLang();
 
   useEffect(() => {
     setLoading(true);
@@ -63,7 +63,7 @@ export function SellerReportContent() {
   );
 
   const itemRows = bestSellingProducts(filteredOrders).map(({ product, sold }) => ({
-    label: product.nameAr,
+    label: lang === "ar" ? product.nameAr : product.nameEn,
     sub: product.sku,
     value: sold,
     sales: filteredOrders
@@ -284,11 +284,12 @@ export function SellerReportContent() {
                     return (
                       <tr className="product-list-data-row" key={order.id}>
                         <td>{order.dateTime.slice(0, 10)}</td>
-                        <td>{product?.nameAr}</td>
+                        <td>{product ? (lang === "ar" ? product.nameAr : product.nameEn) : ""}</td>
                         <td>
-                          <div className="sample-product-thumb" style={{ background: product?.imageTone }}>
-                            <span>{product?.brand.slice(0, 2).toUpperCase()}</span>
-                          </div>
+                          {product?.mainImage
+                            ? <img className="sample-product-thumb" src={product.mainImage} alt={lang === "ar" ? product.nameAr : product.nameEn} />
+                            : <div className="sample-product-thumb" style={{ background: product?.imageTone }}><span>{product?.brand.slice(0, 2).toUpperCase()}</span></div>
+                          }
                         </td>
                         <td>{product?.barcode}</td>
                         <td>{order.color}</td>

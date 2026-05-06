@@ -399,6 +399,9 @@ export function ProfileContent() {
   const [addingWh, setAddingWh] = useState(false);
   const [newWh, setNewWh] = useState<WhDraft>(emptyWh);
 
+  const [commissionPct, setCommissionPct] = useState(5);
+  const [savingCommission, setSavingCommission] = useState(false);
+
   const [deliveryLocal, setDeliveryLocal] = useState("");
   const [savingDelivery, setSavingDelivery] = useState(false);
 
@@ -414,6 +417,9 @@ export function ProfileContent() {
       .then(setVendor)
       .catch(() => flash("Failed to load profile", "error"))
       .finally(() => setLoading(false));
+    api.products.list({ limit: 100 })
+      .then((r) => { if (r.items.length > 0) setCommissionPct(r.items[0].commissionPct); })
+      .catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -447,6 +453,25 @@ export function ProfileContent() {
       flash("Error saving profile.", "error");
     } finally {
       setSaving(false);
+    }
+  }
+
+  async function handleSaveCommission() {
+    setSavingCommission(true);
+    try {
+      const res = await api.products.list({ limit: 100 });
+      await Promise.all(
+        res.items.map((product) => {
+          const vendorRevenue = product.sellingPrice * (1 - product.commissionPct / 100);
+          const newSellingPrice = Math.round(vendorRevenue / (1 - commissionPct / 100));
+          return api.products.update(product.id, { commissionPct, sellingPrice: newSellingPrice });
+        }),
+      );
+      flash("Commission updated — all product prices recalculated.", "success");
+    } catch {
+      flash("Error updating commission.", "error");
+    } finally {
+      setSavingCommission(false);
     }
   }
 
@@ -706,7 +731,31 @@ export function ProfileContent() {
               You will receive payment in {currency === "Iraqi Dinar" ? "Iraqi Dinars" : "US Dollars"}.
             </p>
             <div className="profile-payment-row">
-              <Field label="Commission:" value="8.0%" />
+              <div className="profile-field">
+                <span className="profile-label">Commission:</span>
+                <div className="profile-field-box" style={{ gap: "8px", alignItems: "center" }}>
+                  <input
+                    className="profile-edit-input"
+                    type="number"
+                    min={0}
+                    max={40}
+                    step={0.5}
+                    value={commissionPct}
+                    onChange={(e) => setCommissionPct(Number(e.target.value))}
+                    style={{ width: "72px" }}
+                  />
+                  <span className="profile-field-value profile-value">%</span>
+                  <button
+                    className="submit-all-button"
+                    type="button"
+                    onClick={handleSaveCommission}
+                    disabled={savingCommission}
+                    style={{ padding: "6px 12px", fontSize: "13px" }}
+                  >
+                    {savingCommission ? "Saving…" : "Apply to All Products"}
+                  </button>
+                </div>
+              </div>
               <Field icon={WalletCards} label="Payment Method:" value="Cash" />
             </div>
           </div>

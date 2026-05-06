@@ -150,7 +150,7 @@ function salesByMonth(orders: ApiOrder[]) {
 export function DashboardContent() {
   const [allOrders, setAllOrders] = useState<ApiOrder[]>([]);
   const [activeRange, setActiveRange] = useState<string | null>(null);
-  const { t } = useLang();
+  const { t, lang } = useLang();
 
   useEffect(() => {
     api.orders.list({ limit: 500 }).then((r) => setAllOrders(r.items)).catch(console.error);
@@ -284,11 +284,12 @@ export function DashboardContent() {
             {bestSellers.map(({ product, sold }, index) => (
               <article key={product.id} className="best-seller-row">
                 <span className="seller-rank">{index + 1}</span>
-                <span className="sample-product-thumb dashboard-thumb" style={{ background: product.imageTone }} aria-label={product.brand}>
-                  <span>{product.brand.slice(0, 2).toUpperCase()}</span>
-                </span>
+                {product.mainImage
+                  ? <img className="sample-product-thumb dashboard-thumb" src={product.mainImage} alt={lang === "ar" ? product.nameAr : product.nameEn} />
+                  : <span className="sample-product-thumb dashboard-thumb" style={{ background: product.imageTone }} aria-label={product.brand}><span>{product.brand.slice(0, 2).toUpperCase()}</span></span>
+                }
                 <div>
-                  <strong>{product.nameAr}</strong>
+                  <strong>{lang === "ar" ? product.nameAr : product.nameEn}</strong>
                   <span>{product.sku}</span>
                 </div>
                 <b>{sold} {t("units")}</b>

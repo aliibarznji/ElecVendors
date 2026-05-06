@@ -16,11 +16,16 @@ import { api, type OrdersParams } from "./lib/api";
 import { formatIqd, totalProductQty, type ApiOrder, type ApiProduct } from "./lib/utils";
 
 function ProductThumb({ product }: { product?: ApiProduct }) {
+  const { lang } = useLang();
+  const name = product ? (lang === "ar" ? product.nameAr : product.nameEn) : "";
+  if (product?.mainImage) {
+    return <img className="sample-product-thumb" src={product.mainImage} alt={name} />;
+  }
   return (
     <div
       className="sample-product-thumb"
       style={{ background: product?.imageTone }}
-      aria-label={product?.nameAr ?? ""}
+      aria-label={name}
     >
       <span>{product?.brand.slice(0, 2).toUpperCase()}</span>
     </div>

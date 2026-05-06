@@ -7,11 +7,16 @@ import { api } from "./lib/api";
 import { formatIqd, totalProductQty, type ApiProduct } from "./lib/utils";
 
 function ProductThumb({ product }: { product: ApiProduct }) {
+  const { lang } = useLang();
+  const name = lang === "ar" ? product.nameAr : product.nameEn;
+  if (product.mainImage) {
+    return <img className="sample-product-thumb" src={product.mainImage} alt={name} />;
+  }
   return (
     <div
       className="sample-product-thumb"
       style={{ background: product.imageTone }}
-      aria-label={product.nameAr}
+      aria-label={name}
     >
       <span>{product.brand.slice(0, 2).toUpperCase()}</span>
     </div>
@@ -25,7 +30,7 @@ export function InventoryContent() {
   const [stockFilter, setStockFilter] = useState<"all" | "available" | "out">("all");
   const [quantities, setQuantities] = useState<Record<string, number>>({});
   const [message, setMessage] = useState("");
-  const { t } = useLang();
+  const { t, lang } = useLang();
 
   useEffect(() => {
     setLoading(true);
@@ -183,11 +188,11 @@ export function InventoryContent() {
                   <div className="product-inline-summary">
                     <ProductThumb product={product} />
                     <div>
-                      <strong>{product.nameAr}</strong>
+                      <strong>{lang === "ar" ? product.nameAr : product.nameEn}</strong>
                       <span>{product.sku}</span>
                       {firstColor ? (
                         <span>
-                          {firstColor.nameAr} / {firstColor.code}
+                          {lang === "ar" ? firstColor.nameAr : firstColor.nameEn} / {firstColor.code}
                         </span>
                       ) : null}
                     </div>

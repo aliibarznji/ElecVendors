@@ -85,6 +85,9 @@ function colorsToPayload(rows: ColorRow[]) {
 }
 
 function ProductThumb({ product }: { product: ApiProduct }) {
+  if (product.mainImage) {
+    return <img className="sample-product-thumb existing-product-thumb" src={product.mainImage} alt={product.nameEn} />;
+  }
   const initials = product.brand.slice(0, 2).toUpperCase() || "PR";
   return (
     <span className="sample-product-thumb existing-product-thumb" style={{ background: product.imageTone || "#3d5fb6" }} aria-label={product.nameEn}>

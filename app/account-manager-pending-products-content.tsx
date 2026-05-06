@@ -155,12 +155,10 @@ export function AccountManagerPendingProductsContent() {
                       <tr key={p.id} className="product-list-data-row">
                         <td>
                           <div className="am-product-info">
-                            <div
-                              className="sample-product-thumb"
-                              style={{ background: p.imageTone || "#3d5fb6" }}
-                            >
-                              <span>{(p.nameEn || p.nameAr || "?").slice(0, 2).toUpperCase()}</span>
-                            </div>
+                            {p.mainImage
+                              ? <img className="sample-product-thumb" src={p.mainImage} alt={p.nameEn || p.nameAr} />
+                              : <div className="sample-product-thumb" style={{ background: p.imageTone || "#3d5fb6" }}><span>{(p.nameEn || p.nameAr || "?").slice(0, 2).toUpperCase()}</span></div>
+                            }
                             <div>
                               <strong>{p.nameEn || p.nameAr}</strong>
                               {p.nameAr && p.nameEn && (
