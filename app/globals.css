@@ -13394,3 +13394,65 @@ body { background: var(--bg); }
 @keyframes spin { to { transform: rotate(360deg); } }
 .spin { animation: spin 0.7s linear infinite; }
 
+/* ── Profile page (new layout) ──────────────────────────────────────────── */
+
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+
+.profile-page { display: grid; gap: 20px; padding: 24px 28px 56px; max-width: 1200px; }
+
+.profile-loading-state { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; padding: 80px 0; color: #64748b; font-size: 14px; }
+
+.profile-page-header { margin-bottom: 4px; }
+.profile-page-header h1 { font-size: 22px; font-weight: 700; color: #0f172a; margin: 0 0 2px; }
+
+.profile-banner { position: sticky; top: 12px; z-index: 50; margin: 0; border-radius: 10px; }
+
+/* Hero card */
+.profile-hero-card { border-radius: 16px; border: 1px solid var(--border); background: #fff; box-shadow: var(--sh-sm); overflow: hidden; }
+.profile-hero-body { display: flex; align-items: flex-start; gap: 20px; padding: 24px 28px; flex-wrap: wrap; }
+
+.profile-hero-meta { flex: 1; min-width: 180px; display: grid; gap: 6px; }
+.profile-hero-name-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.profile-hero-name-row strong { font-size: 18px; font-weight: 700; color: #0f172a; }
+.profile-hero-email { font-size: 13px; color: #64748b; }
+
+.profile-hero-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+.profile-hero-tag { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 999px; background: #f1f5f9; color: #475569; font-size: 11.5px; font-weight: 500; border: 1px solid var(--border); }
+.profile-hero-tag svg { color: #94a3b8; }
+
+.profile-hero-ref { display: grid; gap: 4px; align-self: center; margin-left: auto; text-align: right; }
+.profile-ref-row { display: flex; align-items: center; gap: 8px; justify-content: flex-end; }
+.profile-ref-code { font-family: ui-monospace, monospace; font-size: 12.5px; color: #334155; background: #f1f5f9; border: 1px solid var(--border); border-radius: 6px; padding: 3px 8px; letter-spacing: 0.04em; }
+
+/* Section cards */
+.profile-section-card { border-radius: 14px; border: 1px solid var(--border); background: #fff; box-shadow: var(--sh-sm); overflow: hidden; }
+.profile-card-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 22px 14px; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+.profile-card-body { padding: 20px 22px 22px; display: grid; gap: 16px; }
+.profile-card-body--warehouses { gap: 0; padding: 0; }
+
+/* Field value base */
+.profile-field-value { font-size: 13.5px; line-height: 1.4; }
+
+/* Interactive toggle */
+.toggle-line--interactive { cursor: pointer; user-select: none; }
+.toggle-line--interactive:hover { background: #f8f9fc; border-radius: 8px; }
+
+/* Badges */
+.profile-count-badge { display: inline-flex; align-items: center; padding: 3px 12px; border-radius: 999px; background: #f1f5f9; color: #475569; font-size: 12px; font-weight: 600; border: 1px solid var(--border); }
+.profile-points-balance { display: inline-flex; align-items: center; gap: 5px; padding: 4px 12px; border-radius: 999px; background: #fef3c7; color: #92400e; font-size: 12.5px; font-weight: 600; border: 1px solid #fde68a; }
+
+/* Payment row */
+.profile-payment-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+/* Empty warehouses */
+.profile-empty-warehouses { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 40px 20px; color: #94a3b8; text-align: center; }
+.profile-empty-warehouses strong { font-size: 14px; color: #475569; }
+.profile-empty-warehouses span { font-size: 12.5px; }
+
+/* Performance progress bars */
+.perf-progress-track { height: 5px; border-radius: 999px; background: #e2e8f0; overflow: hidden; margin: 6px 0 4px; }
+.perf-progress-bar { height: 100%; border-radius: 999px; transition: width 0.4s ease; }
+.perf-progress-bar.rate-good { background: #22c55e; }
+.perf-progress-bar.rate-warn { background: #f59e0b; }
+.perf-progress-bar.rate-bad { background: #ef4444; }
+
