@@ -30,6 +30,8 @@ services:
       PORT: 4000
       NODE_ENV: production
       CORS_ORIGIN: http://localhost:3000
+    ports:
+      - "127.0.0.1:4000:4000"
     depends_on:
       postgres:
         condition: service_healthy

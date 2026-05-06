@@ -5,6 +5,7 @@ RUN npm ci --omit=dev && npm cache clean --force
 
 FROM node:22-alpine AS builder
 WORKDIR /app
+RUN apk add --no-cache openssl
 COPY package.json package-lock.json* ./
 RUN npm ci
 COPY . .
@@ -26,6 +27,7 @@ COPY --from=builder /app/entrypoint.sh ./entrypoint.sh
 RUN addgroup --system --gid 1001 nodejs \
   && adduser --system --uid 1001 api \
   && chown -R api:nodejs /app \
+  && sed -i 's/\r$//' /app/entrypoint.sh \
   && chmod +x /app/entrypoint.sh
 
 USER api

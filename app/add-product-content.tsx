@@ -110,18 +110,49 @@ function Field({
   );
 }
 
-function SelectBox({ label, value, onChange, options }: { label: string; value: string; onChange: (v: string) => void; options: string[] }) {
+function SelectBox({ label, value, onChange, options, error, onAdd }: { label: string; value: string; onChange: (v: string) => void; options: string[]; error?: string; onAdd?: (v: string) => void }) {
+  const [adding, setAdding] = useState(false);
+  const [inputVal, setInputVal] = useState("");
+
+  const confirmAdd = () => {
+    const v = inputVal.trim();
+    if (v) { onAdd!(v); onChange(v); }
+    setInputVal("");
+    setAdding(false);
+  };
+
   return (
-    <label className="product-form-field">
-      <span>{label}</span>
-      <div className="product-input-box">
-        <select value={value} onChange={(e) => onChange(e.target.value)}>
-          <option value="">Select</option>
-          {options.map((o) => <option key={o}>{o}</option>)}
-        </select>
-        <ChevronDown aria-hidden="true" size={16} strokeWidth={2.1} />
+    <div className="product-form-field">
+      <span className="product-field-label">{label}</span>
+      <div className="select-box-row">
+        <div className={`product-input-box${error ? " has-error" : ""}`}>
+          <select value={value} onChange={(e) => onChange(e.target.value)}>
+            <option value="">Select...</option>
+            {options.map((o) => <option key={o}>{o}</option>)}
+          </select>
+          <ChevronDown aria-hidden="true" size={16} strokeWidth={2.1} />
+        </div>
+        {onAdd && (
+          <button type="button" className="select-add-btn" onClick={() => { setAdding((v) => !v); setInputVal(""); }}>
+            <Plus size={14} strokeWidth={2.5} />
+          </button>
+        )}
       </div>
-    </label>
+      {adding && (
+        <div className="select-add-row">
+          <input
+            autoFocus
+            value={inputVal}
+            placeholder={`Add ${label.toLowerCase()}…`}
+            onChange={(e) => setInputVal(e.target.value)}
+            onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); confirmAdd(); } if (e.key === "Escape") { setAdding(false); setInputVal(""); } }}
+            className="select-add-input"
+          />
+          <button type="button" className="select-add-confirm" onClick={confirmAdd}>Add</button>
+        </div>
+      )}
+      {error ? <em className="form-error">{error}</em> : null}
+    </div>
   );
 }
 
@@ -195,8 +226,10 @@ export function AddProductContent({ editId }: { editId?: string }) {
   const [warrantyKu, setWarrantyKu] = useState("");
 
   // Classification
-  const [category, setCategory] = useState<string[]>(["", "", "", ""]);
+  const [category, setCategory] = useState("");
   const [brand, setBrand] = useState("");
+  const [customCategories, setCustomCategories] = useState<string[]>([]);
+  const [customBrands, setCustomBrands] = useState<string[]>([]);
   const [giniCategory, setGiniCategory] = useState("");
   const [marketingCategory, setMarketingCategory] = useState("");
 
@@ -247,7 +280,7 @@ export function AddProductContent({ editId }: { editId?: string }) {
         setWarrantyEn(p.warrantyEn ?? ""); setWarrantyAr(p.warrantyAr ?? ""); setWarrantyKu(p.warrantyKu ?? "");
         setHighlights(p.highlights); setKeywords(p.keywords.join(", ")); setMaterialCode(p.materialCode);
         setSellingPrice(String(p.sellingPrice)); setCostPrice(String(p.costPrice)); setLargeProduct(p.largeProduct);
-        setCategory([p.categoryLevel1, p.categoryLevel2, p.categoryLevel3, p.categoryLevel4]);
+        setCategory(p.categoryLevel1 ?? "");
         setBrand(p.brand); setBarcode(p.barcode); setVendorCode(p.vendorCode);
         setGiniCategory(p.giniCategory ?? ""); setMarketingCategory(p.marketingCategory ?? "");
         setShippingCategory(p.shippingCategory ?? ""); setGiftType(p.giftType ?? "");
@@ -418,10 +451,10 @@ export function AddProductContent({ editId }: { editId?: string }) {
       materialCode,
       sku: vendorCode,
       barcode, vendorCode, brand,
-      categoryLevel1: category[0] ?? "",
-      categoryLevel2: category[1] ?? "",
-      categoryLevel3: category[2] ?? "",
-      categoryLevel4: category[3] ?? "",
+      categoryLevel1: category,
+      categoryLevel2: "",
+      categoryLevel3: "",
+      categoryLevel4: "",
       giniCategory, marketingCategory, shippingCategory, giftType,
       purchaseLimitEnabled,
       purchaseLimitQty: purchaseLimitEnabled ? Number(purchaseLimitQty) || 0 : 0,
@@ -674,15 +707,18 @@ export function AddProductContent({ editId }: { editId?: string }) {
             <section className="product-section">
               <SectionHeader icon={<Folder size={16} strokeWidth={2.2} />} title={t("classificationSection")} sub={t("classificationSub")} />
               <div className="pf-class-grid">
-                {[0, 1, 2, 3].map((level) => (
-                  <SelectBox key={level} label={`${t("categoryLevel")} ${level + 1}`} value={category[level] ?? ""}
-                    onChange={(v) => setCategory((cur) => cur.map((item, i) => (i === level ? v : item)))}
-                    options={[...new Set(categories.map((c) => c[level]).filter(Boolean))]}
-                  />
-                ))}
-                <Field label={t("brandLabel")} value={brand} onChange={setBrand} placeholder="Sheglam" error={submitted ? errors.brand : undefined} />
-                <Field label={t("giniCategoryLabel")} value={giniCategory} onChange={setGiniCategory} placeholder="Electronics > Phones" />
-                <Field label={t("marketingCategoryLabel")} value={marketingCategory} onChange={setMarketingCategory} placeholder="New Arrivals" />
+                <SelectBox label={t("categoriesLabel")} value={category}
+                  onChange={setCategory}
+                  options={[...new Set([...categories.map((c) => c[0]).filter(Boolean), ...customCategories])]}
+                  onAdd={(v) => setCustomCategories((cur) => [...cur, v])}
+                />
+                <SelectBox label={t("brandLabel")} value={brand} onChange={setBrand}
+                  options={customBrands}
+                  onAdd={(v) => setCustomBrands((cur) => [...cur, v])}
+                  error={submitted ? errors.brand : undefined}
+                />
+                <SelectBox label={t("giniCategoryLabel")} value={giniCategory} onChange={setGiniCategory} options={[]} />
+                <SelectBox label={t("marketingCategoryLabel")} value={marketingCategory} onChange={setMarketingCategory} options={[]} />
               </div>
             </section>
 
@@ -747,7 +783,7 @@ export function AddProductContent({ editId }: { editId?: string }) {
             <SectionHeader icon={<Truck size={16} strokeWidth={2.2} />} title={t("logisticsSection")} sub={t("logisticsSub")} />
             <div className="product-details-grid">
               <div className="product-field-stack">
-                <Field label={t("shippingCategoryLabel")} value={shippingCategory} onChange={setShippingCategory} placeholder="Standard" />
+                <SelectBox label={t("shippingCategoryLabel")} value={shippingCategory} onChange={setShippingCategory} options={[]} />
                 <button className="modal-toggle product-large-toggle" type="button" aria-pressed={largeProduct} onClick={() => setLargeProduct((v) => !v)}>
                   <span className={`toggle-switch${largeProduct ? " is-enabled" : ""}`} />
                   <strong>{largeProduct ? t("largeProductLabel") : t("smallProductLabel")}</strong>
@@ -882,7 +918,7 @@ export function AddProductContent({ editId }: { editId?: string }) {
             <div className="review-grid">
               <span><Tag aria-hidden size={15} /> {nameEn || t("productNameEn")}</span>
               <span><Barcode aria-hidden size={15} /> {barcode || t("barcodeField")}</span>
-              <span>{category.filter(Boolean).join(" / ")}</span>
+              <span>{category}</span>
               <span>{colors.length} {t("colorsCount")} / {colors.reduce((s, c) => s + c.sizes.length, 0)} {t("sizesCount")}</span>
             </div>
           </div>

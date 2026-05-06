@@ -31,13 +31,13 @@ docker compose up --build -d
 
 This starts three containers:
 - `electromall_postgres` — PostgreSQL 16 (port 5432, localhost only)
-- `electromall_api` — Express API (port 4000, internal only; runs migrations on startup)
+- `electromall_api` — Express API (port 4000, localhost only; runs migrations on startup)
 - `electromall_frontend` — Next.js (port 3000, public)
 
 ### 3. Seed on first deploy
 
 ```bash
-cd backend && npm run db:seed
+docker compose exec api npm run db:seed
 ```
 
 Default admin login (change the password after first login):
