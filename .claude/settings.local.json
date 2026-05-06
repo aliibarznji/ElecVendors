@@ -9,7 +9,8 @@
       "Bash(Write-Output \"Deleted 3 files\")",
       "PowerShell(Get-Process *)",
       "Bash(/c/Program Files/PostgreSQL/17/bin/pg_ctl.exe start *)",
-      "Bash(PGPASSWORD=postgres /c/Program Files/PostgreSQL/17/bin/psql.exe *)"
+      "Bash(PGPASSWORD=postgres /c/Program Files/PostgreSQL/17/bin/psql.exe *)",
+      "WebSearch"
     ]
   }
 }
