@@ -1,4 +1,8 @@
 import type {
+  AmCampaign,
+  AmLogEntry,
+  AmOrder,
+  AmProduct,
   ApiDeliveryPrice,
   ApiDiscountPlan,
   ApiMarketingCampaign,
@@ -161,5 +165,24 @@ export const api = {
 
   deliveryPrices: {
     list: () => req<ApiDeliveryPrice[]>("/delivery-prices"),
+  },
+
+  am: {
+    orders: (params: { vendor?: string; status?: string; dateFrom?: string; dateTo?: string } = {}) =>
+      req<AmOrder[]>(`/am/orders${qs(params as Record<string, string>)}`),
+    updateOrderStatus: (orderNumber: string, status: string) =>
+      req<AmOrder>(`/am/orders/${orderNumber}/status`, { method: "PATCH", body: JSON.stringify({ status }) }),
+    updateOrderAgent: (orderNumber: string, agent: string, fulfillment?: string) =>
+      req<AmOrder>(`/am/orders/${orderNumber}/agent`, { method: "PATCH", body: JSON.stringify({ agent, fulfillment }) }),
+    pendingProducts: () => req<AmProduct[]>("/am/pending-products"),
+    approveProduct: (id: string) =>
+      req<AmProduct>(`/am/pending-products/${id}/approve`, { method: "PATCH" }),
+    rejectProduct: (id: string, reason: string) =>
+      req<AmProduct>(`/am/pending-products/${id}/reject`, { method: "PATCH", body: JSON.stringify({ reason }) }),
+    campaigns: () => req<AmCampaign[]>("/am/campaigns"),
+    approveCampaign: (id: string) =>
+      req<AmCampaign>(`/am/campaigns/${id}/approve`, { method: "PATCH" }),
+    log: (params: { action?: string; search?: string; dateFrom?: string; dateTo?: string } = {}) =>
+      req<AmLogEntry[]>(`/am/log${qs(params as Record<string, string>)}`),
   },
 };

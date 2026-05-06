@@ -23,7 +23,8 @@ export function TopNav() {
   }, []);
 
   return (
-    <header className="top-nav">
+
+<header className="top-nav">
       <Link className="brand" href="/" aria-label={t("brandName")}>
         <span className="brand-text">{t("brandName")}</span>
       </Link>

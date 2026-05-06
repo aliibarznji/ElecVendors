@@ -17,6 +17,7 @@ import marketingRoutes from "./routes/marketing.js";
 import discountPlanRoutes from "./routes/discountPlans.js";
 import deliveryPriceRoutes from "./routes/deliveryPrices.js";
 import notificationRoutes from "./routes/notifications.js";
+import accountManagerRoutes from "./routes/accountManager.js";
 
 const app = express();
 
@@ -68,6 +69,7 @@ app.use("/api/marketing", marketingRoutes);
 app.use("/api/discount-plans", discountPlanRoutes);
 app.use("/api/delivery-prices", deliveryPriceRoutes);
 app.use("/api/notifications", notificationRoutes);
+app.use("/api/am", accountManagerRoutes);
 
 app.get("/api/health", (_req, res) => res.json({ ok: true }));
 

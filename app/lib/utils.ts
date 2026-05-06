@@ -208,3 +208,20 @@ export type ApiWarehouse = {
   openingTime: string;
   closingTime: string;
 };
+
+export type AmVendorRef = { id: string; name: string; reference: string };
+
+export type AmOrder = ApiOrder & { vendor: AmVendorRef };
+
+export type AmProduct = ApiProduct & { vendor: AmVendorRef };
+
+export type AmCampaign = ApiMarketingCampaign & { vendor: AmVendorRef };
+
+export type AmLogEntry = {
+  id: string;
+  timestamp: string;
+  user: string;
+  action: string;
+  reference: string;
+  details: string;
+};

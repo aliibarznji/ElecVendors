@@ -1,151 +1,161 @@
 "use client";
 
-import { useState } from "react";
+import { AlertCircle, ClipboardList, Loader2, RefreshCw } from "lucide-react";
+import { useEffect, useState } from "react";
 import { useLang } from "./lang-context";
+import { api } from "./lib/api";
+import type { AmLogEntry } from "./lib/utils";
 
-const actions = [
-  "Order Transfer",
+const ACTION_TYPES = [
+  "All",
+  "Status Update",
   "Agent Assignment",
-  "Item Reassignment",
+  "Fulfillment Change",
   "Approval",
   "Rejection",
-  "Fulfillment Change",
+  "Campaign Approval",
 ];
 
-type Entry = {
-  id: string;
-  timestamp: string;
-  user: string;
-  action: string;
-  reference: string;
-  details: string;
+const ACTION_BADGE: Record<string, string> = {
+  "Status Update": "is-info",
+  "Agent Assignment": "is-pending",
+  "Fulfillment Change": "is-pending",
+  Approval: "is-active",
+  Rejection: "is-rejected",
+  "Campaign Approval": "is-active",
 };
-
-const entries: Entry[] = [
-  {
-    id: "l1",
-    timestamp: "2026-05-03 09:21",
-    user: "AM Sara",
-    action: "Order Transfer",
-    reference: "AM-300001",
-    details: "Transferred to Shex jaffar",
-  },
-  {
-    id: "l2",
-    timestamp: "2026-05-03 10:04",
-    user: "AM Sara",
-    action: "Agent Assignment",
-    reference: "AM-300001 / item 1",
-    details: "Assigned Agent Sara",
-  },
-  {
-    id: "l3",
-    timestamp: "2026-05-03 11:42",
-    user: "AM Lina",
-    action: "Approval",
-    reference: "PROD-22918",
-    details: "Approved Shex jaffar Lipstick",
-  },
-  {
-    id: "l4",
-    timestamp: "2026-05-03 14:55",
-    user: "AM Lina",
-    action: "Rejection",
-    reference: "PROD-22939",
-    details: "Missing safety certificate",
-  },
-];
 
 export function AccountManagerLogContent() {
   const { t } = useLang();
-  const [actionType, setActionType] = useState("All");
-  const [user, setUser] = useState("");
+  const [entries, setEntries] = useState<AmLogEntry[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  const [actionFilter, setActionFilter] = useState("All");
+  const [search, setSearch] = useState("");
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
 
-  const visible = entries.filter((e) => {
-    if (actionType !== "All" && e.action !== actionType) return false;
-    if (user && !e.user.toLowerCase().includes(user.toLowerCase())) return false;
-    if (from && e.timestamp.slice(0, 10) < from) return false;
-    if (to && e.timestamp.slice(0, 10) > to) return false;
-    return true;
-  });
+  function load() {
+    setLoading(true);
+    setError("");
+    api.am
+      .log({
+        action: actionFilter !== "All" ? actionFilter : undefined,
+        search: search || undefined,
+        dateFrom: from || undefined,
+        dateTo: to || undefined,
+      })
+      .then(setEntries)
+      .catch(() => setError("Failed to load log"))
+      .finally(() => setLoading(false));
+  }
+
+  useEffect(() => { load(); }, []);
 
   return (
-    <div className="account-manager-log-content">
-      <h1>{t("operationsLog")}</h1>
+    <div className="am-page">
+      <div className="am-page-header">
+        <div>
+          <h1>{t("operationsLog")}</h1>
+          <p className="dashboard-sub">All actions performed by the account manager — updates every page load</p>
+        </div>
+        <button className="row-action-btn" type="button" onClick={load} disabled={loading}>
+          <RefreshCw size={13} strokeWidth={2.3} />
+          Refresh
+        </button>
+      </div>
 
       <section className="account-manager-card">
         <div className="am-filters">
           <label className="order-items-date">
             <span>Action Type</span>
-            <select
-              value={actionType}
-              onChange={(e) => setActionType(e.target.value)}
-            >
-              <option>All</option>
-              {actions.map((a) => (
-                <option key={a}>{a}</option>
-              ))}
+            <select value={actionFilter} onChange={(e) => setActionFilter(e.target.value)}>
+              {ACTION_TYPES.map((a) => <option key={a}>{a}</option>)}
             </select>
           </label>
           <label className="order-items-date">
             <span>From</span>
-            <input
-              type="date"
-              value={from}
-              onChange={(e) => setFrom(e.target.value)}
-            />
+            <input type="date" value={from} onChange={(e) => setFrom(e.target.value)} />
           </label>
           <label className="order-items-date">
             <span>To</span>
-            <input
-              type="date"
-              value={to}
-              onChange={(e) => setTo(e.target.value)}
-            />
+            <input type="date" value={to} onChange={(e) => setTo(e.target.value)} />
           </label>
           <label className="order-items-search">
             <input
-              placeholder="Search user"
-              value={user}
-              onChange={(e) => setUser(e.target.value)}
+              placeholder="Search reference or details…"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
             />
           </label>
+          <button className="apply-filter-button" type="button" onClick={load}>
+            Apply
+          </button>
+          <button
+            className="purchase-order-reset"
+            type="button"
+            onClick={() => { setActionFilter("All"); setSearch(""); setFrom(""); setTo(""); }}
+          >
+            Reset
+          </button>
         </div>
 
-        <div className="purchase-order-table-wrap">
-          <table className="purchase-order-table">
-            <thead>
-              <tr>
-                <th>Date / Time</th>
-                <th>User</th>
-                <th>Action</th>
-                <th>Reference</th>
-                <th>Details</th>
-              </tr>
-            </thead>
-            <tbody>
-              {visible.length === 0 ? (
+        {error && (
+          <div className="warning-banner" style={{ margin: "0 20px 16px" }}>
+            <AlertCircle size={16} /> {error}
+          </div>
+        )}
+
+        {loading ? (
+          <div className="am-loading-row">
+            <Loader2 size={24} className="spin" />
+            <span>Loading log entries…</span>
+          </div>
+        ) : (
+          <div className="purchase-order-table-wrap">
+            <table className="purchase-order-table">
+              <thead>
                 <tr>
-                  <td colSpan={5} className="empty-cell">
-                    No log entries
-                  </td>
+                  <th>Date / Time</th>
+                  <th>User</th>
+                  <th>Action</th>
+                  <th>Reference</th>
+                  <th>Details</th>
                 </tr>
-              ) : (
-                visible.map((e) => (
-                  <tr key={e.id} className="product-list-data-row">
-                    <td>{e.timestamp}</td>
-                    <td>{e.user}</td>
-                    <td>{e.action}</td>
-                    <td>{e.reference}</td>
-                    <td>{e.details}</td>
+              </thead>
+              <tbody>
+                {entries.length === 0 ? (
+                  <tr>
+                    <td colSpan={5}>
+                      <div className="am-empty-state">
+                        <ClipboardList size={32} strokeWidth={1.5} />
+                        <strong>No log entries yet</strong>
+                        <span>Actions taken from the Account Manager section appear here</span>
+                      </div>
+                    </td>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+                ) : (
+                  entries.map((e) => (
+                    <tr key={e.id} className="product-list-data-row">
+                      <td className="am-timestamp">{e.timestamp}</td>
+                      <td>
+                        <span className="am-user-badge">{e.user}</span>
+                      </td>
+                      <td>
+                        <span className={`approved-status-badge ${ACTION_BADGE[e.action] ?? "is-info"}`}>
+                          {e.action}
+                        </span>
+                      </td>
+                      <td><code className="am-code">{e.reference}</code></td>
+                      <td>{e.details}</td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        )}
       </section>
     </div>
   );
