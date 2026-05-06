@@ -187,6 +187,9 @@ async function main() {
     { sku:"MC-IPAD10",      qty:1, color:"Blue",            size:"64GB Wi-Fi",                daysBack:10, status:"cancelled", province:"Najaf",     payment:"Cash on Delivery" },
   ];
 
+  // Track delivered order IDs by age bucket for settlements
+  const settlementBuckets: { s1: string[]; s2: string[]; s3: string[] } = { s1: [], s2: [], s3: [] };
+
   let orderNum = 10001;
   for (const def of orderDefs) {
     const product = productMap[def.sku];
@@ -198,7 +201,7 @@ async function main() {
     const priceWithCommission    = product.sellingPrice * def.qty;
     const priceWithoutCommission = priceWithCommission * (1 - product.commissionPct / 100);
 
-    await db.order.create({
+    const created = await db.order.create({
       data: {
         orderNumber:             `ORD-${orderNum++}`,
         vendorId:                vendor.id,
@@ -220,6 +223,13 @@ async function main() {
         deliveryAgent:           def.status === "shipped" || def.status === "delivered" ? "Electromall Delivery" : "",
       },
     });
+
+    // Bucket delivered orders into settlement periods
+    if (def.status === "delivered") {
+      if (def.daysBack >= 46) settlementBuckets.s1.push(created.id);       // SET-001: days 60–46
+      else if (def.daysBack >= 23) settlementBuckets.s2.push(created.id);  // SET-002: days 45–23
+      else settlementBuckets.s3.push(created.id);                          // SET-003: days 22–0
+    }
   }
   console.log(`${orderDefs.length} orders created`);
 
@@ -227,12 +237,12 @@ async function main() {
   await db.settlement.deleteMany({ where: { vendorId: vendor.id } });
   await db.settlement.createMany({
     data: [
-      { settlementNumber:"SET-2024-001", vendorId:vendor.id, date:daysAgo(45), paymentMethod:"Bank Transfer", status:"paid",    itemIds:[] },
-      { settlementNumber:"SET-2024-002", vendorId:vendor.id, date:daysAgo(15), paymentMethod:"Bank Transfer", status:"paid",    itemIds:[] },
-      { settlementNumber:"SET-2024-003", vendorId:vendor.id, date:daysAgo(2),  paymentMethod:"Bank Transfer", status:"pending", itemIds:[] },
+      { settlementNumber:"SET-2024-001", vendorId:vendor.id, date:daysAgo(45), paymentMethod:"Bank Transfer", status:"paid",    itemIds: settlementBuckets.s1 },
+      { settlementNumber:"SET-2024-002", vendorId:vendor.id, date:daysAgo(15), paymentMethod:"Bank Transfer", status:"paid",    itemIds: settlementBuckets.s2 },
+      { settlementNumber:"SET-2024-003", vendorId:vendor.id, date:daysAgo(2),  paymentMethod:"Bank Transfer", status:"pending", itemIds: settlementBuckets.s3 },
     ],
   });
-  console.log("Settlements created");
+  console.log(`Settlements created — items: ${settlementBuckets.s1.length} / ${settlementBuckets.s2.length} / ${settlementBuckets.s3.length}`);
 
   // ── Marketing campaigns ──────────────────────────────────────────────────────
   await db.marketingCampaign.deleteMany({ where: { vendorId: vendor.id } });

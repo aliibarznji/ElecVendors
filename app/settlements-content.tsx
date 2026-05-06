@@ -17,90 +17,104 @@ function SettlementReceipt({
     year: "numeric", month: "long", day: "numeric",
     hour: "2-digit", minute: "2-digit",
   });
+  const isPaid = settlement.status === "paid";
+  const dateFormatted = new Date(settlement.date).toLocaleDateString("en-US", {
+    year: "numeric", month: "long", day: "numeric",
+  });
 
   return (
     <div className="settlement-receipt">
-      <div className="receipt-header">
-        <div className="receipt-brand">
+
+      {/* Top color band */}
+      <div className="receipt-top-band">
+        <div className="receipt-band-left">
           <div className="receipt-brand-mark">E</div>
           <div>
-            <h1 className="receipt-brand-name">Electromall</h1>
-            <p className="receipt-brand-sub">Vendor Settlement Statement</p>
+            <div className="receipt-brand-name">Electromall</div>
+            <div className="receipt-brand-sub">Vendor Settlement Statement</div>
           </div>
         </div>
-        <div className="receipt-meta">
-          <p className="receipt-meta-num">{settlement.settlementNumber}</p>
-          <p className="receipt-meta-date">{new Date(settlement.date).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}</p>
+        <div className="receipt-band-right">
+          <div className="receipt-band-ref">{settlement.settlementNumber}</div>
+          <div className="receipt-band-date">{dateFormatted}</div>
         </div>
       </div>
 
-      <div className="receipt-divider" />
+      {/* Paid stamp */}
+      {isPaid && <div className="receipt-paid-stamp">PAID</div>}
 
+      {/* Parties */}
       <div className="receipt-parties">
         <div className="receipt-party">
-          <p className="receipt-party-label">From</p>
-          <p className="receipt-party-name">Electromall Platform</p>
-          <p className="receipt-party-detail">Iraq</p>
-          <p className="receipt-party-detail">support@electromall.com</p>
+          <div className="receipt-party-label">Issued by</div>
+          <div className="receipt-party-name">Electromall Platform</div>
+          <div className="receipt-party-detail">Baghdad, Iraq</div>
+          <div className="receipt-party-detail">support@electromall.com</div>
+          <div className="receipt-party-detail">electromall.com</div>
         </div>
         <div className="receipt-party receipt-party-right">
-          <p className="receipt-party-label">To</p>
-          <p className="receipt-party-name">{vendor?.name ?? "—"}</p>
-          <p className="receipt-party-detail">{vendor?.reference ?? "—"}</p>
-          <p className="receipt-party-detail">{vendor?.phone ?? "—"}</p>
-          <p className="receipt-party-detail">{vendor?.companyLocation ?? "—"}</p>
+          <div className="receipt-party-label">Issued to</div>
+          <div className="receipt-party-name">{vendor?.name ?? "—"}</div>
+          <div className="receipt-party-detail">Ref: {vendor?.reference ?? "—"}</div>
+          <div className="receipt-party-detail">{vendor?.phone ?? "—"}</div>
+          <div className="receipt-party-detail">{vendor?.companyLocation ?? "—"}</div>
         </div>
       </div>
 
       <div className="receipt-divider" />
 
+      {/* Details table */}
       <table className="receipt-table">
         <thead>
-          <tr>
-            <th>Description</th>
-            <th>Details</th>
-          </tr>
+          <tr><th>Field</th><th>Value</th></tr>
         </thead>
         <tbody>
-          <tr>
-            <td>Settlement Reference</td>
-            <td>{settlement.settlementNumber}</td>
-          </tr>
-          <tr>
-            <td>Settlement Date</td>
-            <td>{new Date(settlement.date).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}</td>
-          </tr>
-          <tr>
-            <td>Payment Method</td>
-            <td>{settlement.paymentMethod}</td>
-          </tr>
-          <tr>
-            <td>Number of Items</td>
-            <td>{settlement.itemIds.length > 0 ? settlement.itemIds.length : "—"}</td>
-          </tr>
+          <tr><td>Settlement Number</td><td><strong>{settlement.settlementNumber}</strong></td></tr>
+          <tr><td>Settlement Date</td><td>{dateFormatted}</td></tr>
+          <tr><td>Payment Method</td><td>{settlement.paymentMethod}</td></tr>
+          <tr><td>Number of Orders</td><td>{settlement.itemIds.length > 0 ? `${settlement.itemIds.length} orders` : "—"}</td></tr>
+          <tr><td>Account Manager</td><td>{vendor?.accountManager || "Electromall Support"}</td></tr>
           <tr>
             <td>Status</td>
             <td>
-              <span className={`receipt-status ${settlement.status === "paid" ? "receipt-status-paid" : "receipt-status-pending"}`}>
-                {settlement.status === "paid" ? "Paid" : "Remaining / Pending"}
+              <span className={`receipt-status ${isPaid ? "receipt-status-paid" : "receipt-status-pending"}`}>
+                {isPaid ? "✓ Paid & Settled" : "⏳ Pending Payment"}
               </span>
             </td>
           </tr>
         </tbody>
       </table>
 
+      {/* Total */}
       <div className="receipt-total-box">
-        <span className="receipt-total-label">Total Settlement Amount</span>
-        <span className="receipt-total-amount">{formatIqd(settlement.amount)}</span>
+        <div>
+          <div className="receipt-total-label">Total Net Settlement Amount</div>
+          <div className="receipt-total-sub">After platform commission deduction</div>
+        </div>
+        <div className="receipt-total-amount">{formatIqd(settlement.amount)}</div>
       </div>
 
       <div className="receipt-divider" />
 
-      <div className="receipt-footer">
-        <p>This is an official settlement statement issued by Electromall.</p>
-        <p>For queries contact your account manager: <strong>{vendor?.accountManager || "Electromall Support"}</strong></p>
-        <p className="receipt-printed-at">Printed: {printedAt}</p>
+      {/* Signatures */}
+      <div className="receipt-signatures">
+        <div className="receipt-sig-block">
+          <div className="receipt-sig-line" />
+          <div className="receipt-sig-label">Authorized Signatory — Electromall</div>
+        </div>
+        <div className="receipt-sig-block">
+          <div className="receipt-sig-line" />
+          <div className="receipt-sig-label">Vendor Acknowledgement — {vendor?.name ?? "Vendor"}</div>
+        </div>
       </div>
+
+      {/* Footer */}
+      <div className="receipt-footer">
+        <p>This document is an official settlement statement issued by Electromall Iraq. Please retain for your records.</p>
+        <p>Questions? Contact your account manager: <strong>{vendor?.accountManager || "Electromall Support"}</strong></p>
+        <p className="receipt-printed-at">Generated: {printedAt}</p>
+      </div>
+
     </div>
   );
 }
