@@ -251,7 +251,7 @@ export function ProductListContent() {
                       </td>
                       <td className="product-name-cell">
                         <strong>{lang === "ar" ? product.nameAr : product.nameEn}</strong>
-                        <span>{lang === "ar" ? product.nameEn : product.nameAr}</span>
+                        {lang === "ar" && <span>{product.nameEn}</span>}
                       </td>
                       <td>{formatIqd(product.sellingPrice)}</td>
                       <td>{formatIqd(product.costPrice)}</td>
