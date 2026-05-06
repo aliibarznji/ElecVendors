@@ -10,7 +10,15 @@
       "PowerShell(Get-Process *)",
       "Bash(/c/Program Files/PostgreSQL/17/bin/pg_ctl.exe start *)",
       "Bash(PGPASSWORD=postgres /c/Program Files/PostgreSQL/17/bin/psql.exe *)",
-      "WebSearch"
+      "WebSearch",
+      "WebFetch(domain:mcenter-iraq.com)",
+      "WebFetch(domain:www.mobile57.com)",
+      "WebFetch(domain:www.elryan.com)",
+      "WebFetch(domain:www.icenter-iraq.com)",
+      "Bash(npx tsx *)",
+      "Bash(docker-compose exec *)",
+      "WebFetch(domain:www.apple.com)",
+      "Bash(docker cp *)"
     ]
   }
 }
