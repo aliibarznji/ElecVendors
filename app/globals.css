@@ -13882,3 +13882,51 @@ body { background: var(--bg); }
   .receipt-table thead tr { background: #f8fafc !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   .receipt-footer { background: #f8fafc !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 }
+
+/* ── New Orders Section ───────────────────────────────────────────────── */
+.new-orders-section { margin-top: 32px; }
+.new-orders-header { display: flex; align-items: center; gap: 12px; margin-bottom: 18px; }
+.new-orders-title-wrap { display: flex; align-items: center; gap: 10px; flex: 1; }
+.new-orders-title-wrap h2 { font-size: 17px; font-weight: 700; color: var(--text); margin: 0; }
+.new-orders-count-badge { background: #3b5fe2; color: #fff; border-radius: 999px; font-size: 12px; font-weight: 700; padding: 2px 10px; min-width: 26px; text-align: center; }
+.new-orders-empty { text-align: center; padding: 48px 0; color: var(--muted); font-size: 14px; }
+.new-orders-list { display: flex; flex-direction: column; gap: 12px; }
+
+.new-order-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; transition: box-shadow 0.15s; }
+.new-order-card:hover { box-shadow: var(--shadow); }
+
+.new-order-card-top { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 16px; padding: 16px 20px; }
+.new-order-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; }
+.new-order-num { font-size: 14px; font-weight: 700; color: var(--text); font-family: monospace; }
+.new-order-date { font-size: 12px; color: var(--muted); }
+.new-order-customer { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.new-order-customer span { display: flex; align-items: center; gap: 5px; font-size: 13px; color: var(--text); }
+.new-order-sep { width: 1px; height: 32px; background: var(--border); margin: 0 4px; }
+.new-order-summary { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+.new-order-items-badge { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 3px 10px; font-size: 12px; color: var(--muted); white-space: nowrap; }
+.new-order-total { font-size: 14px; font-weight: 700; color: #1e3a8a; white-space: nowrap; }
+.new-order-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+
+.new-order-details-btn { display: flex; align-items: center; gap: 5px; padding: 6px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg); color: var(--text); font-size: 12px; font-weight: 600; cursor: pointer; transition: background 0.15s; white-space: nowrap; }
+.new-order-details-btn:hover { background: var(--border); }
+
+.new-order-accept-btn { display: flex; align-items: center; gap: 5px; padding: 6px 14px; border: none; border-radius: 8px; background: #16a34a; color: #fff; font-size: 12px; font-weight: 700; cursor: pointer; transition: background 0.15s; white-space: nowrap; }
+.new-order-accept-btn:hover { background: #15803d; }
+
+.new-order-reject-btn { display: flex; align-items: center; gap: 5px; padding: 6px 14px; border: none; border-radius: 8px; background: #dc2626; color: #fff; font-size: 12px; font-weight: 700; cursor: pointer; transition: background 0.15s; white-space: nowrap; }
+.new-order-reject-btn:hover { background: #b91c1c; }
+
+.new-order-detail-panel { border-top: 1px solid var(--border); padding: 18px 20px; background: #f8fafc; }
+.new-order-detail-info { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--muted); margin-bottom: 14px; }
+
+.new-order-items-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.new-order-items-table thead tr { background: #f1f5f9; }
+.new-order-items-table th { padding: 8px 12px; text-align: left; font-size: 11.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); white-space: nowrap; }
+.new-order-items-table td { padding: 10px 12px; border-bottom: 1px solid var(--border); color: var(--text); vertical-align: middle; }
+.new-order-items-table tbody tr:last-child td { border-bottom: none; }
+.new-order-items-table tbody tr:nth-child(even) { background: #fafbfc; }
+
+.new-order-detail-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border); }
+.new-order-total-row { font-size: 15px; font-weight: 800; color: #1e3a8a; }
+.new-order-print-btn { display: flex; align-items: center; gap: 6px; padding: 8px 18px; border: none; border-radius: 8px; background: #1e3a8a; color: #fff; font-size: 13px; font-weight: 700; cursor: pointer; transition: background 0.15s; }
+.new-order-print-btn:hover { background: #1e40af; }
