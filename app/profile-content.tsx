@@ -48,6 +48,14 @@ import type { Translations } from "./translations";
 const mapSrc =
   "https://www.google.com/maps?q=52R4%2B8H2%2C%20Erbil%2C%20Erbil%20Governorate%2C%20Iraq&output=embed";
 
+function getStoredExtras(): Record<string, unknown> | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = window.localStorage.getItem("vp_extras");
+    return raw ? (JSON.parse(raw) as Record<string, unknown>) : null;
+  } catch { return null; }
+}
+
 type WhDraft = Omit<ApiWarehouse, "id" | "vendorId">;
 
 // ── Sub-components ────────────────────────────────────────────────────────────
@@ -387,14 +395,27 @@ export function ProfileContent() {
   const [banner, setBanner] = useState<{ msg: string; type: "success" | "error" } | null>(null);
   const { t } = useLang();
 
-  const [accountType, setAccountType] = useState("Company");
+  const [accountType, setAccountType] = useState(() => String(getStoredExtras()?.accountType || "Company"));
   const [currency, setCurrency] = useState("Iraqi Dinar");
-  const [whatsappEnabled, setWhatsappEnabled] = useState(false);
+  const [whatsappEnabled, setWhatsappEnabled] = useState(() => !!getStoredExtras()?.whatsappEnabled);
   const [avatarSrc, setAvatarSrc] = useState("");
 
   const [editing, setEditing] = useState(false);
-  const [draft, setDraft] = useState({ name: "", phone: "", companyLocation: "", webAddress: "", category: "", comments: "" });
+  const [draft, setDraft] = useState(() => {
+    const e = getStoredExtras();
+    return {
+      name: "",
+      phone: "",
+      companyLocation: "",
+      webAddress: String(e?.webAddress || ""),
+      category: String(e?.category || ""),
+      comments: String(e?.comments || ""),
+    };
+  });
   const [saving, setSaving] = useState(false);
+  const preDraftRef = useRef<typeof draft | null>(null);
+  const preAccountTypeRef = useRef("Company");
+  const preWhatsappRef = useRef(false);
 
   const [addingWh, setAddingWh] = useState(false);
   const [newWh, setNewWh] = useState<WhDraft>(emptyWh);
@@ -438,8 +459,20 @@ export function ProfileContent() {
 
   function startEdit() {
     if (!vendor) return;
-    setDraft({ name: vendor.name, phone: vendor.phone, companyLocation: vendor.companyLocation, webAddress: draft.webAddress, category: draft.category, comments: draft.comments });
+    preDraftRef.current = { ...draft };
+    preAccountTypeRef.current = accountType;
+    preWhatsappRef.current = whatsappEnabled;
+    setDraft((prev) => ({ ...prev, name: vendor.name, phone: vendor.phone, companyLocation: vendor.companyLocation }));
     setEditing(true);
+  }
+
+  function handleCancel() {
+    if (preDraftRef.current) {
+      setDraft(preDraftRef.current);
+      setAccountType(preAccountTypeRef.current);
+      setWhatsappEnabled(preWhatsappRef.current);
+    }
+    setEditing(false);
   }
 
   async function handleSaveProfile() {
@@ -448,6 +481,15 @@ export function ProfileContent() {
       const updated = await api.profile.update({ name: draft.name, phone: draft.phone, companyLocation: draft.companyLocation });
       setVendor(updated);
       setEditing(false);
+      try {
+        localStorage.setItem("vp_extras", JSON.stringify({
+          webAddress: draft.webAddress,
+          category: draft.category,
+          comments: draft.comments,
+          accountType,
+          whatsappEnabled,
+        }));
+      } catch {}
       flash(t("profileSaved"));
     } catch {
       flash("Error saving profile.", "error");
@@ -545,8 +587,27 @@ export function ProfileContent() {
 
       {/* Page title */}
       <div className="profile-page-header">
-        <h1>{t("vendorProfile")}</h1>
-        <p className="dashboard-sub">Manage your business information, documents, and settings</p>
+        <div className="profile-page-title">
+          <h1>{t("vendorProfile")}</h1>
+          <p className="dashboard-sub">Manage your business information, documents, and settings</p>
+        </div>
+        {!editing ? (
+          <button className="warehouse-button" type="button" onClick={startEdit} disabled={!vendor}>
+            <Pencil size={14} strokeWidth={2.3} />
+            <span>{t("editProfile")}</span>
+          </button>
+        ) : (
+          <div className="profile-section-actions">
+            <button className="submit-all-button" type="button" onClick={handleSaveProfile} disabled={saving}>
+              {saving ? <Loader2 size={14} className="spin" /> : <Save size={14} strokeWidth={2.3} />}
+              <span>{saving ? "Saving…" : t("saveChanges")}</span>
+            </button>
+            <button className="warehouse-button" type="button" onClick={handleCancel}>
+              <X size={14} strokeWidth={2.3} />
+              <span>{t("cancelEdit")}</span>
+            </button>
+          </div>
+        )}
       </div>
 
       {/* ── Hero Card ── */}
@@ -588,69 +649,59 @@ export function ProfileContent() {
       </div>
 
       {/* ── Primary Information ── */}
-      <section className="profile-section-card">
+      <section className={`profile-section-card${editing ? " profile-section-card--editing" : ""}`}>
         <div className="profile-card-header">
           <SectionHeading icon={Info} title="Primary Information" />
         </div>
         <div className="profile-card-body">
           <div className="profile-grid">
-            <ChoiceGroup label="Account Type:" options={["Individual", "Company"]} selected={accountType} onChange={setAccountType} />
-            <Field icon={Building2} label="Web Address / Facebook Page:" value={draft.webAddress || undefined} placeholder="Not set" />
+            <ChoiceGroup label="Account Type:" options={["Individual", "Company"]} selected={accountType} onChange={editing ? setAccountType : undefined} />
+            {editing ? (
+              <EditInput label="Web Address / Facebook Page:" value={draft.webAddress} onChange={(v) => setDraft((p) => ({ ...p, webAddress: v }))} placeholder="https://..." />
+            ) : (
+              <Field icon={Building2} label="Web Address / Facebook Page:" value={draft.webAddress || undefined} placeholder="Not set" />
+            )}
             <Field
               icon={CalendarDays}
               label="Date of Joining Electro Mall:"
               value={vendor ? new Date(vendor.joinedAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }) : undefined}
             />
-            <Field
-              icon={Users}
-              label="Vendor / Company Name:"
-              value={vendor?.name}
-            />
-            <Field icon={Tags} label="Category of Products:" value={draft.category || undefined} placeholder="Not set" />
-            <Field icon={MessageSquareText} label="Comments:" value={draft.comments || undefined} placeholder="No comments" />
+            {editing ? (
+              <EditInput label="Vendor / Company Name:" value={draft.name} onChange={(v) => setDraft((p) => ({ ...p, name: v }))} />
+            ) : (
+              <Field icon={Users} label="Vendor / Company Name:" value={vendor?.name} />
+            )}
+            {editing ? (
+              <EditInput label="Category of Products:" value={draft.category} onChange={(v) => setDraft((p) => ({ ...p, category: v }))} placeholder="e.g. Electronics" />
+            ) : (
+              <Field icon={Tags} label="Category of Products:" value={draft.category || undefined} placeholder="Not set" />
+            )}
+            {editing ? (
+              <EditTextarea label="Comments:" value={draft.comments} onChange={(v) => setDraft((p) => ({ ...p, comments: v }))} placeholder="Any additional notes" />
+            ) : (
+              <Field icon={MessageSquareText} label="Comments:" value={draft.comments || undefined} placeholder="No comments" />
+            )}
           </div>
         </div>
       </section>
 
       {/* ── Contact Details ── */}
-      <section className="profile-section-card">
+      <section className={`profile-section-card${editing ? " profile-section-card--editing" : ""}`}>
         <div className="profile-card-header">
           <SectionHeading icon={User} title="Contact Details" />
-          {!editing ? (
-            <button className="warehouse-button" type="button" onClick={startEdit}>
-              <Pencil size={14} strokeWidth={2.3} />
-              <span>{t("editProfile")}</span>
-            </button>
-          ) : (
-            <div className="profile-section-actions">
-              <button className="submit-all-button" type="button" onClick={handleSaveProfile} disabled={saving}>
-                {saving ? <Loader2 size={14} className="spin" /> : <Save size={14} strokeWidth={2.3} />}
-                <span>{saving ? "Saving…" : t("saveChanges")}</span>
-              </button>
-              <button className="warehouse-button" type="button" onClick={() => setEditing(false)}>
-                <X size={14} strokeWidth={2.3} />
-                <span>{t("cancelEdit")}</span>
-              </button>
-            </div>
-          )}
         </div>
         <div className="profile-card-body">
           <div className="profile-grid profile-contact-grid">
             <div className="profile-column">
               {editing ? (
                 <>
-                  <EditInput label="Vendor / Company Name:" value={draft.name} onChange={(v) => setDraft((p) => ({ ...p, name: v }))} />
-                  <EditInput label="Web Address / Facebook Page:" value={draft.webAddress} onChange={(v) => setDraft((p) => ({ ...p, webAddress: v }))} placeholder="https://..." />
-                  <EditInput label="Category of Products:" value={draft.category} onChange={(v) => setDraft((p) => ({ ...p, category: v }))} placeholder="e.g. Electronics" />
                   <Field icon={User} label="Account Manager:" value={vendor?.accountManager} helper="Set by Electro Mall — contact support to change" />
                   <Field icon={Mail} label="Email Address:" value={vendor?.email} helper="Contact support to change email" />
                   <EditInput label="Mobile Number:" value={draft.phone} onChange={(v) => setDraft((p) => ({ ...p, phone: v }))} placeholder="07xxxxxxxxx" />
                   <ToggleLine label="WhatsApp notification:" enabled={whatsappEnabled} onChange={() => setWhatsappEnabled((v) => !v)} />
-                  <EditTextarea label="Comments:" value={draft.comments} onChange={(v) => setDraft((p) => ({ ...p, comments: v }))} placeholder="Any additional notes" />
                 </>
               ) : (
                 <>
-                  <Field icon={User} label="Vendor / Company Name:" value={vendor?.name} />
                   <Field icon={User} label="Account Manager:" value={vendor?.accountManager} helper="Person responsible for account follow-up" />
                   <Field icon={Mail} label="Email Address:" value={vendor?.email} />
                   <Field helper="eg : +9647912345678" icon={Phone} label="Mobile Number:" value={vendor ? <PhoneValue number={vendor.phone} /> : undefined} />
@@ -790,7 +841,7 @@ export function ProfileContent() {
 
             <div className="uploaded-documents">
               <h3>Uploaded Documents</h3>
-              <article className="document-card">
+              <article className="document-card document-card--saved">
                 <div className="document-card-top">
                   <span className="document-number">1</span>
                   <span className="image-badge">
@@ -809,7 +860,7 @@ export function ProfileContent() {
               </article>
 
               {uploadedFiles.map((file, idx) => (
-                <article className="document-card" key={`${file.name}-${idx}`}>
+                <article className="document-card document-card--upload" key={`${file.name}-${idx}`}>
                   <div className="document-card-top">
                     <span className="document-number">{idx + 2}</span>
                     <span className="image-badge">
