@@ -16,12 +16,13 @@ import { useLang } from "./lang-context";
 import { api } from "./lib/api";
 import { formatIqd, totalProductQty, type ApiProduct } from "./lib/utils";
 
-type ProductStatus = "published" | "unpublished" | "review";
+type ProductStatus = "published" | "unpublished" | "review" | "rejected";
 
 const statusClass: Record<ProductStatus, string> = {
   published: "is-active",
   unpublished: "is-completed",
   review: "is-pending",
+  rejected: "is-rejected",
 };
 
 function ProductThumb({ product }: { product: ApiProduct }) {
@@ -122,6 +123,7 @@ export function ProductListContent() {
     published: t("published"),
     unpublished: t("unpublished"),
     review: t("awaitingReview"),
+    rejected: t("rejected"),
   };
 
   const statusTabs = [
