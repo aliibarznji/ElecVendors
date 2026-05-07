@@ -1,10 +1,26 @@
 "use client";
 
-import { CalendarDays, Plus, Save, Search, X } from "lucide-react";
-import { Fragment, useEffect, useMemo, useState } from "react";
+import {
+  CalendarDays,
+  ChevronDown,
+  Download,
+  FileText,
+  Package,
+  Plus,
+  Save,
+  Search,
+  Tag,
+  X,
+} from "lucide-react";
+import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import { useLang } from "./lang-context";
 import { api } from "./lib/api";
-import { formatIqd, getDiscountStatus, type ApiDiscountPlan } from "./lib/utils";
+import {
+  formatIqd,
+  getDiscountStatus,
+  type ApiDiscountPlan,
+  type ApiProduct,
+} from "./lib/utils";
 
 type DiscountStatus = "active" | "scheduled" | "inactive";
 
@@ -21,6 +37,19 @@ const statusClass: Record<DiscountStatus, string> = {
   inactive: "is-completed",
 };
 
+function downloadCsv(filename: string, headers: string[], rows: (string | number)[][]) {
+  const csv = [headers, ...rows]
+    .map((row) => row.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(","))
+    .join("\n");
+  const blob = new Blob([csv], { type: "text/csv" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
 function CreatePlanForm({
   onCancel,
   onSave,
@@ -29,8 +58,16 @@ function CreatePlanForm({
   onSave: (plan: ApiDiscountPlan) => void;
 }) {
   const [name, setName] = useState("");
-  const [startDate, setStartDate] = useState(() => { const d = new Date(); d.setDate(d.getDate() + 10); return d.toISOString().slice(0, 10); });
-  const [endDate, setEndDate] = useState(() => { const d = new Date(); d.setDate(d.getDate() + 20); return d.toISOString().slice(0, 10); });
+  const [startDate, setStartDate] = useState(() => {
+    const d = new Date();
+    d.setDate(d.getDate() + 10);
+    return d.toISOString().slice(0, 10);
+  });
+  const [endDate, setEndDate] = useState(() => {
+    const d = new Date();
+    d.setDate(d.getDate() + 20);
+    return d.toISOString().slice(0, 10);
+  });
   const [saving, setSaving] = useState(false);
 
   const handleSave = () => {
@@ -38,9 +75,7 @@ function CreatePlanForm({
     setSaving(true);
     api.discountPlans
       .create({ name, startDate, endDate, productIds: [] })
-      .then((plan) => {
-        onSave(plan);
-      })
+      .then((plan) => onSave(plan))
       .catch(() => setSaving(false));
   };
 
@@ -60,7 +95,7 @@ function CreatePlanForm({
             <input
               value={name}
               placeholder="Weekend Discount"
-              onChange={(event) => setName(event.target.value)}
+              onChange={(e) => setName(e.target.value)}
             />
           </div>
         </label>
@@ -70,18 +105,14 @@ function CreatePlanForm({
             <input
               type="date"
               value={startDate}
-              onChange={(event) => setStartDate(event.target.value)}
+              onChange={(e) => setStartDate(e.target.value)}
             />
           </div>
         </label>
         <label className="warranty-field">
           <span>End Date</span>
           <div className="warranty-field-box">
-            <input
-              type="date"
-              value={endDate}
-              onChange={(event) => setEndDate(event.target.value)}
-            />
+            <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
           </div>
         </label>
       </div>
@@ -105,21 +136,44 @@ function CreatePlanForm({
 
 export function DiscountPlansContent() {
   const [plans, setPlans] = useState<ApiDiscountPlan[]>([]);
+  const [products, setProducts] = useState<ApiProduct[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<DiscountStatus | "all">("all");
   const [query, setQuery] = useState("");
   const [creating, setCreating] = useState(false);
   const [openPlan, setOpenPlan] = useState<string | null>(null);
-  const { t } = useLang();
+  const [exportOpen, setExportOpen] = useState(false);
+  const exportRef = useRef<HTMLDivElement>(null);
+  const { t, lang } = useLang();
 
   useEffect(() => {
     setLoading(true);
-    api.discountPlans
-      .list()
-      .then((data) => setPlans(data))
+    Promise.all([
+      api.discountPlans.list(),
+      api.products.list({ limit: 200 }).then((r) => r.items),
+    ])
+      .then(([planData, productData]) => {
+        setPlans(planData);
+        setProducts(productData);
+      })
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
+
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (exportRef.current && !exportRef.current.contains(e.target as Node)) {
+        setExportOpen(false);
+      }
+    }
+    if (exportOpen) document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, [exportOpen]);
+
+  const productMap = useMemo(
+    () => Object.fromEntries(products.map((p) => [p.id, p])),
+    [products],
+  );
 
   const visible = useMemo(() => {
     const normalized = query.trim().toLowerCase();
@@ -131,15 +185,85 @@ export function DiscountPlansContent() {
     });
   }, [filter, plans, query]);
 
-  const active = plans.filter((plan) => getDiscountStatus(plan.startDate, plan.endDate) === "active").length;
-  const scheduled = plans.filter((plan) => getDiscountStatus(plan.startDate, plan.endDate) === "scheduled").length;
-  const inactive = plans.filter((plan) => getDiscountStatus(plan.startDate, plan.endDate) === "inactive").length;
-  const sales = plans.reduce((sum, plan) => sum + plan.sales, 0);
+  const active = plans.filter(
+    (p) => getDiscountStatus(p.startDate, p.endDate) === "active",
+  ).length;
+  const scheduled = plans.filter(
+    (p) => getDiscountStatus(p.startDate, p.endDate) === "scheduled",
+  ).length;
+  const inactive = plans.filter(
+    (p) => getDiscountStatus(p.startDate, p.endDate) === "inactive",
+  ).length;
+  const totalSales = plans.reduce((sum, p) => sum + p.sales, 0);
 
   const handleDelete = (id: string) => {
     api.discountPlans.delete(id).catch(() => {});
-    setPlans((current) => current.filter((plan) => plan.id !== id));
+    setPlans((current) => current.filter((p) => p.id !== id));
   };
+
+  function exportByItem() {
+    const headers = [
+      "Plan Name",
+      "Plan Status",
+      "Product Name",
+      "SKU",
+      "Brand",
+      "Quantity Sold",
+      "Unit Price (IQD)",
+      "Total Price (IQD)",
+    ];
+    const rows: (string | number)[] [] = [];
+    for (const plan of plans) {
+      const status = getDiscountStatus(plan.startDate, plan.endDate);
+      for (const productId of plan.productIds) {
+        const product = productMap[productId];
+        const qty = plan.itemsSold[productId] ?? 0;
+        const unitPrice = product?.sellingPrice ?? 0;
+        rows.push([
+          plan.name,
+          status,
+          product ? (lang === "ar" ? product.nameAr : product.nameEn) : productId,
+          product?.sku ?? "-",
+          product?.brand ?? "-",
+          qty,
+          Math.round(unitPrice),
+          Math.round(unitPrice * qty),
+        ]);
+      }
+    }
+    downloadCsv("discount-sales-by-item.csv", headers, rows);
+    setExportOpen(false);
+  }
+
+  function exportByBrand() {
+    const brandMap: Record<
+      string,
+      { brand: string; totalQty: number; totalPrice: number; totalItems: number }
+    > = {};
+    for (const plan of plans) {
+      for (const productId of plan.productIds) {
+        const product = productMap[productId];
+        const brand = product?.brand ?? "Unknown";
+        const qty = plan.itemsSold[productId] ?? 0;
+        const unitPrice = product?.sellingPrice ?? 0;
+        if (!brandMap[brand]) {
+          brandMap[brand] = { brand, totalQty: 0, totalPrice: 0, totalItems: 0 };
+        }
+        brandMap[brand].totalQty += qty;
+        brandMap[brand].totalPrice += unitPrice * qty;
+        brandMap[brand].totalItems += 1;
+      }
+    }
+    const rows = Object.values(brandMap)
+      .sort((a, b) => b.totalPrice - a.totalPrice)
+      .map((r) => [r.brand, r.totalItems, r.totalQty, Math.round(r.totalPrice)]);
+    downloadCsv(
+      "discount-sales-by-brand.csv",
+      ["Brand", "Total Items (Products)", "Total Quantity Sold", "Total Price (IQD)"],
+      rows,
+    );
+    setExportOpen(false);
+  }
 
   return (
     <div className="discount-plans-content dashboard-content">
@@ -148,14 +272,94 @@ export function DiscountPlansContent() {
           <h1>{t("discountPlans")}</h1>
           <p className="dashboard-sub">{t("discountPlansSub")}</p>
         </div>
-        <button
-          className="discount-create-button"
-          type="button"
-          onClick={() => setCreating(true)}
-        >
-          <Plus aria-hidden="true" size={16} strokeWidth={2.4} />
-          <span>{t("createDiscount")}</span>
-        </button>
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          {/* Export dropdown */}
+          <div className="export-dropdown-wrap" ref={exportRef}>
+            <button
+              className={`export-button${exportOpen ? " is-active" : ""}`}
+              type="button"
+              onClick={() => setExportOpen((v) => !v)}
+            >
+              <Download aria-hidden="true" size={16} strokeWidth={2.3} />
+              <span>Export Data</span>
+              <ChevronDown
+                aria-hidden="true"
+                size={13}
+                strokeWidth={2.3}
+                style={{
+                  marginLeft: 2,
+                  transition: "transform .2s",
+                  transform: exportOpen ? "rotate(180deg)" : "none",
+                }}
+              />
+            </button>
+
+            {exportOpen && (
+              <div className="export-dropdown-panel">
+                <div className="export-dropdown-header">
+                  <span>What would you like to download?</span>
+                  <button
+                    className="export-dropdown-close"
+                    type="button"
+                    aria-label="Close"
+                    onClick={() => setExportOpen(false)}
+                  >
+                    <X size={14} strokeWidth={2.3} aria-hidden="true" />
+                  </button>
+                </div>
+                <div className="export-options-list">
+                  <button
+                    className="export-option-btn"
+                    type="button"
+                    onClick={exportByItem}
+                  >
+                    <span className="export-option-icon">
+                      <Package size={16} strokeWidth={2.2} aria-hidden="true" />
+                    </span>
+                    <span className="export-option-text">
+                      <strong>Sales by Item</strong>
+                      <span>Name · Quantity · Unit Price · Total Price</span>
+                    </span>
+                    <FileText
+                      size={13}
+                      strokeWidth={2}
+                      aria-hidden="true"
+                      className="export-option-dl"
+                    />
+                  </button>
+                  <button
+                    className="export-option-btn"
+                    type="button"
+                    onClick={exportByBrand}
+                  >
+                    <span className="export-option-icon">
+                      <Tag size={16} strokeWidth={2.2} aria-hidden="true" />
+                    </span>
+                    <span className="export-option-text">
+                      <strong>Sales by Brand</strong>
+                      <span>Brand · Total Items · Total Qty · Total Price</span>
+                    </span>
+                    <FileText
+                      size={13}
+                      strokeWidth={2}
+                      aria-hidden="true"
+                      className="export-option-dl"
+                    />
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+
+          <button
+            className="discount-create-button"
+            type="button"
+            onClick={() => setCreating(true)}
+          >
+            <Plus aria-hidden="true" size={16} strokeWidth={2.4} />
+            <span>{t("createDiscount")}</span>
+          </button>
+        </div>
       </header>
 
       {creating ? (
@@ -183,7 +387,7 @@ export function DiscountPlansContent() {
             </article>
             <article className="kpi-card kpi-cyan">
               <p>Discounted Items Sales</p>
-              <strong>{formatIqd(sales)}</strong>
+              <strong>{formatIqd(totalSales)}</strong>
             </article>
           </section>
 
@@ -194,7 +398,7 @@ export function DiscountPlansContent() {
                 <input
                   placeholder="Search by plan name"
                   value={query}
-                  onChange={(event) => setQuery(event.target.value)}
+                  onChange={(e) => setQuery(e.target.value)}
                 />
               </label>
               <div className="discount-filter-chips">
@@ -240,8 +444,14 @@ export function DiscountPlansContent() {
                     </tr>
                   ) : (
                     visible.map((plan) => {
-                      const status = getDiscountStatus(plan.startDate, plan.endDate) as DiscountStatus;
-                      const sold = Object.values(plan.itemsSold).reduce((sum, value) => sum + value, 0);
+                      const status = getDiscountStatus(
+                        plan.startDate,
+                        plan.endDate,
+                      ) as DiscountStatus;
+                      const sold = Object.values(plan.itemsSold).reduce(
+                        (sum, v) => sum + v,
+                        0,
+                      );
                       return (
                         <Fragment key={plan.id}>
                           <tr className="product-list-data-row">
@@ -252,7 +462,9 @@ export function DiscountPlansContent() {
                             <td>{formatIqd(plan.sales)}</td>
                             <td>{sold}</td>
                             <td>
-                              <span className={`approved-status-badge ${statusClass[status]}`}>
+                              <span
+                                className={`approved-status-badge ${statusClass[status]}`}
+                              >
                                 {statusLabel[status]}
                               </span>
                             </td>
@@ -262,12 +474,16 @@ export function DiscountPlansContent() {
                                   className="row-action-btn"
                                   type="button"
                                   onClick={() =>
-                                    setOpenPlan((current) =>
-                                      current === plan.id ? null : plan.id,
+                                    setOpenPlan((cur) =>
+                                      cur === plan.id ? null : plan.id,
                                     )
                                   }
                                 >
-                                  <CalendarDays aria-hidden="true" size={14} strokeWidth={2.4} />
+                                  <CalendarDays
+                                    aria-hidden="true"
+                                    size={14}
+                                    strokeWidth={2.4}
+                                  />
                                   Details
                                 </button>
                                 <button
@@ -280,27 +496,57 @@ export function DiscountPlansContent() {
                               </div>
                             </td>
                           </tr>
-                          {openPlan === plan.id ? (
+
+                          {openPlan === plan.id && (
                             <tr key={`${plan.id}-detail`} className="row-details-row">
                               <td colSpan={8}>
                                 <div className="discount-plan-detail">
                                   {plan.productIds.length === 0 ? (
                                     <p className="dashboard-sub">No products in this plan.</p>
                                   ) : (
-                                    plan.productIds.map((productId) => (
-                                      <article className="best-seller-row" key={productId}>
-                                        <span className="seller-rank">%</span>
-                                        <div>
-                                          <strong>{productId}</strong>
-                                        </div>
-                                        <b>{plan.itemsSold[productId] ?? 0} pcs</b>
-                                      </article>
-                                    ))
+                                    <table className="purchase-order-table discount-detail-table">
+                                      <thead>
+                                        <tr>
+                                          <th>Product Name</th>
+                                          <th>SKU</th>
+                                          <th>Brand</th>
+                                          <th>Quantity Sold</th>
+                                          <th>Unit Price</th>
+                                          <th>Total Price</th>
+                                        </tr>
+                                      </thead>
+                                      <tbody>
+                                        {plan.productIds.map((productId) => {
+                                          const product = productMap[productId];
+                                          const qty = plan.itemsSold[productId] ?? 0;
+                                          const unitPrice = product?.sellingPrice ?? 0;
+                                          return (
+                                            <tr
+                                              className="product-list-data-row"
+                                              key={productId}
+                                            >
+                                              <td>
+                                                {product
+                                                  ? lang === "ar"
+                                                    ? product.nameAr
+                                                    : product.nameEn
+                                                  : productId}
+                                              </td>
+                                              <td>{product?.sku ?? "-"}</td>
+                                              <td>{product?.brand ?? "-"}</td>
+                                              <td>{qty}</td>
+                                              <td>{formatIqd(unitPrice)}</td>
+                                              <td>{formatIqd(unitPrice * qty)}</td>
+                                            </tr>
+                                          );
+                                        })}
+                                      </tbody>
+                                    </table>
                                   )}
                                 </div>
                               </td>
                             </tr>
-                          ) : null}
+                          )}
                         </Fragment>
                       );
                     })
