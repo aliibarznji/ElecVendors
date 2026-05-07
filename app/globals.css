@@ -13744,6 +13744,23 @@ body { background: var(--bg); }
 .profile-card-body { padding: 20px 22px 22px; display: grid; gap: 16px; }
 .profile-card-body--warehouses { gap: 0; padding: 0; }
 
+/* Fulfillment times section */
+.fulfillment-times-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.fulfillment-time-card { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 20px 16px; border-radius: 12px; border: 1px solid var(--border); background: #f8faff; text-align: center; }
+.fulfillment-total-card { background: var(--brand-tint); border-color: var(--brand-soft); }
+.fulfillment-time-icon { display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 10px; }
+.fulfillment-prep-icon { background: #fff3e0; color: #f59e0b; }
+.fulfillment-delivery-icon { background: #e8f5e9; color: #22c55e; }
+.fulfillment-total-icon { background: var(--brand-soft); color: var(--brand); }
+.fulfillment-time-label { font-size: 13px; font-weight: 600; color: var(--text); }
+.fulfillment-time-sub { font-size: 11px; color: #94a3b8; }
+.fulfillment-time-input-wrap { display: flex; align-items: center; gap: 6px; margin-top: 4px; }
+.fulfillment-time-input { width: 64px; padding: 6px 8px; border-radius: 7px; border: 1px solid var(--border); font-size: 18px; font-weight: 700; color: var(--brand); text-align: center; background: #fff; }
+.fulfillment-time-input:focus { outline: 2px solid var(--brand); border-color: var(--brand); }
+.fulfillment-time-input-wrap span { font-size: 12px; color: #64748b; }
+.fulfillment-total-value { font-size: 24px; font-weight: 800; color: var(--brand); margin-top: 4px; }
+@media (max-width: 640px) { .fulfillment-times-grid { grid-template-columns: 1fr; } }
+
 /* Field value base */
 .profile-field-value { font-size: 13.5px; line-height: 1.4; }
 

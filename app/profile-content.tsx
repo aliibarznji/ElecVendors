@@ -426,6 +426,17 @@ export function ProfileContent() {
   const [deliveryLocal, setDeliveryLocal] = useState("");
   const [savingDelivery, setSavingDelivery] = useState(false);
 
+  const [preparationDays, setPreparationDays] = useState(() => {
+    const stored = getStoredExtras()?.preparationDays;
+    return stored != null ? Number(stored) : 1;
+  });
+  const [deliveryDays, setDeliveryDays] = useState(() => {
+    const stored = getStoredExtras()?.deliveryDays;
+    return stored != null ? Number(stored) : 3;
+  });
+  const [origFulfillment, setOrigFulfillment] = useState({ prep: 1, delivery: 3 });
+  const [savingFulfillment, setSavingFulfillment] = useState(false);
+
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
   const docInputRef = useRef<HTMLInputElement>(null);
   const maxDocs = 10;
@@ -444,7 +455,15 @@ export function ProfileContent() {
   }, []);
 
   useEffect(() => {
-    if (vendor && !deliveryLocal) setDeliveryLocal(vendor.deliveryMechanism);
+    if (vendor && !deliveryLocal) {
+      setDeliveryLocal(vendor.deliveryMechanism);
+      const e = getStoredExtras();
+      const prep = e?.preparationDays != null ? Number(e.preparationDays) : Math.max(1, Math.round((vendor.processingSpeedHours ?? 24) / 24));
+      const del = e?.deliveryDays != null ? Number(e.deliveryDays) : 3;
+      setPreparationDays(prep);
+      setDeliveryDays(del);
+      setOrigFulfillment({ prep, delivery: del });
+    }
   }, [vendor, deliveryLocal]);
 
   useEffect(() => {
@@ -556,6 +575,18 @@ export function ProfileContent() {
     }
   }
 
+  function handleSaveFulfillment() {
+    setSavingFulfillment(true);
+    try {
+      const e = getStoredExtras() ?? {};
+      localStorage.setItem("vp_extras", JSON.stringify({ ...e, preparationDays, deliveryDays }));
+      setOrigFulfillment({ prep: preparationDays, delivery: deliveryDays });
+      flash("Fulfillment times saved.");
+    } finally {
+      setSavingFulfillment(false);
+    }
+  }
+
   function handleDocFiles(files: FileList | null) {
     if (!files) return;
     setUploadedFiles((prev) => [...prev, ...Array.from(files).slice(0, slotsLeft)]);
@@ -563,6 +594,7 @@ export function ProfileContent() {
 
   const pointsAvailable = (vendor?.pointsEarned ?? 0) - (vendor?.pointsRedeemed ?? 0);
   const deliveryChanged = vendor && deliveryLocal !== vendor.deliveryMechanism;
+  const fulfillmentChanged = preparationDays !== origFulfillment.prep || deliveryDays !== origFulfillment.delivery;
 
   if (loading) {
     return (
@@ -932,6 +964,83 @@ export function ProfileContent() {
               </div>
             )}
           </div>
+        </div>
+      </section>
+
+      {/* ── Order Fulfillment Times ── */}
+      <section className="profile-section-card">
+        <div className="profile-card-header">
+          <SectionHeading icon={Timer} title="Order Fulfillment Times" />
+        </div>
+        <div className="profile-card-body">
+          <div className="fulfillment-times-grid">
+            <article className="fulfillment-time-card">
+              <div className="fulfillment-time-icon fulfillment-prep-icon">
+                <Timer size={20} strokeWidth={2.2} aria-hidden="true" />
+              </div>
+              <p className="fulfillment-time-label">Item Preparation Time</p>
+              <p className="fulfillment-time-sub">Days to pack &amp; prepare order</p>
+              <div className="fulfillment-time-input-wrap">
+                <input
+                  className="fulfillment-time-input"
+                  type="number"
+                  min={0}
+                  max={30}
+                  value={preparationDays}
+                  onChange={(e) => setPreparationDays(Math.max(0, Number(e.target.value)))}
+                />
+                <span>days</span>
+              </div>
+            </article>
+
+            <article className="fulfillment-time-card">
+              <div className="fulfillment-time-icon fulfillment-delivery-icon">
+                <Truck size={20} strokeWidth={2.2} aria-hidden="true" />
+              </div>
+              <p className="fulfillment-time-label">Delivery Lead Time</p>
+              <p className="fulfillment-time-sub">Days from dispatch to customer</p>
+              <div className="fulfillment-time-input-wrap">
+                <input
+                  className="fulfillment-time-input"
+                  type="number"
+                  min={0}
+                  max={60}
+                  value={deliveryDays}
+                  onChange={(e) => setDeliveryDays(Math.max(0, Number(e.target.value)))}
+                />
+                <span>days</span>
+              </div>
+            </article>
+
+            <article className="fulfillment-time-card fulfillment-total-card">
+              <div className="fulfillment-time-icon fulfillment-total-icon">
+                <CalendarDays size={20} strokeWidth={2.2} aria-hidden="true" />
+              </div>
+              <p className="fulfillment-time-label">Total Estimated Window</p>
+              <p className="fulfillment-time-sub">Preparation + delivery combined</p>
+              <strong className="fulfillment-total-value">
+                {preparationDays + deliveryDays} days
+              </strong>
+            </article>
+          </div>
+
+          {fulfillmentChanged && (
+            <div className="submit-row">
+              <button
+                className="submit-all-button"
+                type="button"
+                onClick={handleSaveFulfillment}
+                disabled={savingFulfillment}
+              >
+                {savingFulfillment ? (
+                  <Loader2 size={14} className="spin" />
+                ) : (
+                  <Save size={14} strokeWidth={2.3} />
+                )}
+                <span>{savingFulfillment ? "Saving…" : t("saveChanges")}</span>
+              </button>
+            </div>
+          )}
         </div>
       </section>
 
