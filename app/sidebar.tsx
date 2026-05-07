@@ -13,7 +13,6 @@ import {
   List,
   Megaphone,
   Package,
-  PackageCheck,
   PlusSquare,
   Receipt,
   ShieldCheck,
@@ -69,7 +68,6 @@ const sidebarSections: SidebarSection[] = [
     titleKey: "sectionMarketing",
     links: [
       { labelKey: "navNewCampaign", href: "/marketing/new", icon: Megaphone },
-      { labelKey: "navActiveCampaigns", href: "/marketing/campaigns", icon: PackageCheck },
     ],
   },
   {

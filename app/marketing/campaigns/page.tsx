@@ -1,10 +1,5 @@
-import { DashboardShell } from "../../dashboard-shell";
-import { ExistingMarketingCampaignsContent } from "../../existing-marketing-campaigns-content";
+import { redirect } from "next/navigation";
 
 export default function ExistingMarketingCampaignsPage() {
-  return (
-    <DashboardShell>
-      <ExistingMarketingCampaignsContent />
-    </DashboardShell>
-  );
+  redirect("/marketing/new");
 }
