@@ -27,7 +27,7 @@ export function InventoryContent() {
   const [products, setProducts] = useState<ApiProduct[]>([]);
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState("");
-  const [stockFilter, setStockFilter] = useState<"all" | "available" | "out">("all");
+  const [stockFilter, setStockFilter] = useState<"all" | "available" | "out" | "review" | "rejected" | "approved">("all");
   const [quantities, setQuantities] = useState<Record<string, number>>({});
   const [message, setMessage] = useState("");
   const { t, lang } = useLang();
@@ -60,6 +60,9 @@ export function InventoryContent() {
       const quantity = quantities[product.id] ?? 0;
       if (stockFilter === "available" && quantity <= 0) return false;
       if (stockFilter === "out" && quantity > 0) return false;
+      if (stockFilter === "review" && product.status !== "review") return false;
+      if (stockFilter === "rejected" && product.status !== "rejected") return false;
+      if (stockFilter === "approved" && product.status !== "published") return false;
       if (!normalized) return true;
       return [product.nameAr, product.nameEn, product.sku, product.vendorCode, product.brand]
         .join(" ")
@@ -158,6 +161,9 @@ export function InventoryContent() {
               <option value="all">{t("allProducts")}</option>
               <option value="available">{t("inStock")}</option>
               <option value="out">{t("outOfStock")}</option>
+              <option value="review">{t("underReview")}</option>
+              <option value="rejected">{t("rejected")}</option>
+              <option value="approved">{t("approved")}</option>
             </select>
           </label>
           <button

@@ -82,7 +82,7 @@ export type ApiProduct = {
   lockedCommission: boolean;
   discountPlanStatus: string;
   largeProduct: boolean;
-  status: "published" | "unpublished" | "review";
+  status: "published" | "unpublished" | "review" | "rejected";
   imageTone: string;
   createdAt: string;
   updatedAt: string;
