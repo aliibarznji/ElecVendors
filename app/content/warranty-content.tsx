@@ -44,43 +44,53 @@ function WarrantyForm({
     !draft.location.trim();
 
   return (
-    <section className="warranty-form-card" aria-label="Warranty Form">
-      <div className="warranty-form-header">
-        <h2>Warranty Details</h2>
-        <button className="warranty-cancel-outline" type="button" onClick={onCancel}>
+    <section
+      className="rounded-[14px] border border-border bg-white shadow-sm p-[22px_24px] grid gap-4"
+      aria-label="Warranty Form"
+    >
+      <div className="flex items-center justify-between">
+        <h2 className="text-[15px] font-bold text-[#0f172a] m-0">Warranty Details</h2>
+        <button
+          className="inline-flex items-center gap-1.5 px-3 min-h-[32px] rounded-lg border border-border bg-white text-[13px] font-medium text-muted cursor-pointer transition-colors hover:bg-surface-soft hover:border-[#c8d0e0] hover:text-text"
+          type="button"
+          onClick={onCancel}
+        >
           <X aria-hidden="true" size={16} strokeWidth={2.4} />
           <span>Cancel</span>
         </button>
       </div>
       {submitted && hasError ? (
-        <div className="warning-banner">
+        <div className="flex items-center gap-[9px] px-[14px] py-[11px] rounded-[10px] border border-[#fed7aa] bg-[#fff7ed] text-[#9a3412] text-[13px]">
           Warranty duration, maintenance number, hotline, and maintenance
           center location are required.
         </div>
       ) : null}
-      <div className="warranty-main-grid">
-        <label className="warranty-field">
-          <span>Warranty Title</span>
-          <div className="warranty-field-box">
+      <div className="grid grid-cols-2 gap-[14px]">
+        <label className="grid gap-[5px]">
+          <span className="text-[12px] font-semibold text-[#475569]">Warranty Title</span>
+          <div className="flex items-center min-h-[36px] px-[10px] rounded-[9px] border border-border bg-[#f8f9fc] transition-colors focus-within:border-[rgba(215,25,32,0.4)] focus-within:shadow-[0_0_0_3px_rgba(215,25,32,0.09)] focus-within:bg-white">
             <input
+              className="border-0 outline-none bg-transparent text-[13px] text-text w-full"
               value={draft.title}
               onChange={(event) => setDraft({ ...draft, title: event.target.value })}
             />
           </div>
         </label>
-        <label className="warranty-field">
-          <span>Warranty Duration</span>
-          <div className="warranty-field-box">
+        <label className="grid gap-[5px]">
+          <span className="text-[12px] font-semibold text-[#475569]">Warranty Duration</span>
+          <div className="flex items-center min-h-[36px] px-[10px] rounded-[9px] border border-border bg-[#f8f9fc] transition-colors focus-within:border-[rgba(215,25,32,0.4)] focus-within:shadow-[0_0_0_3px_rgba(215,25,32,0.09)] focus-within:bg-white">
             <input
+              className="border-0 outline-none bg-transparent text-[13px] text-text w-full"
               value={draft.duration}
               onChange={(event) => setDraft({ ...draft, duration: event.target.value })}
             />
           </div>
         </label>
-        <label className="warranty-field">
-          <span>Maintenance Number</span>
-          <div className="warranty-field-box">
+        <label className="grid gap-[5px]">
+          <span className="text-[12px] font-semibold text-[#475569]">Maintenance Number</span>
+          <div className="flex items-center min-h-[36px] px-[10px] rounded-[9px] border border-border bg-[#f8f9fc] transition-colors focus-within:border-[rgba(215,25,32,0.4)] focus-within:shadow-[0_0_0_3px_rgba(215,25,32,0.09)] focus-within:bg-white">
             <input
+              className="border-0 outline-none bg-transparent text-[13px] text-text w-full"
               value={draft.maintenanceNumber}
               onChange={(event) =>
                 setDraft({ ...draft, maintenanceNumber: event.target.value })
@@ -89,10 +99,11 @@ function WarrantyForm({
             />
           </div>
         </label>
-        <label className="warranty-field">
-          <span>Maintenance Hotline</span>
-          <div className="warranty-field-box">
+        <label className="grid gap-[5px]">
+          <span className="text-[12px] font-semibold text-[#475569]">Maintenance Hotline</span>
+          <div className="flex items-center min-h-[36px] px-[10px] rounded-[9px] border border-border bg-[#f8f9fc] transition-colors focus-within:border-[rgba(215,25,32,0.4)] focus-within:shadow-[0_0_0_3px_rgba(215,25,32,0.09)] focus-within:bg-white">
             <input
+              className="border-0 outline-none bg-transparent text-[13px] text-text w-full"
               value={draft.maintenancePhone}
               onChange={(event) =>
                 setDraft({ ...draft, maintenancePhone: event.target.value })
@@ -100,20 +111,22 @@ function WarrantyForm({
             />
           </div>
         </label>
-        <label className="warranty-field">
-          <span>Maintenance Center Location</span>
-          <div className="warranty-field-box">
+        <label className="grid gap-[5px]">
+          <span className="text-[12px] font-semibold text-[#475569]">Maintenance Center Location</span>
+          <div className="flex items-center min-h-[36px] px-[10px] rounded-[9px] border border-border bg-[#f8f9fc] transition-colors focus-within:border-[rgba(215,25,32,0.4)] focus-within:shadow-[0_0_0_3px_rgba(215,25,32,0.09)] focus-within:bg-white">
             <input
+              className="border-0 outline-none bg-transparent text-[13px] text-text w-full"
               value={draft.location}
               onChange={(event) => setDraft({ ...draft, location: event.target.value })}
             />
           </div>
         </label>
       </div>
-      <label className="warranty-field">
-        <span>Terms and Conditions</span>
-        <div className="warranty-field-box warranty-textarea-box">
+      <label className="grid gap-[5px]">
+        <span className="text-[12px] font-semibold text-[#475569]">Terms and Conditions</span>
+        <div className="flex items-start min-h-[80px] px-[10px] py-[8px] rounded-[9px] border border-border bg-[#f8f9fc] transition-colors focus-within:border-[rgba(215,25,32,0.4)] focus-within:shadow-[0_0_0_3px_rgba(215,25,32,0.09)] focus-within:bg-white">
           <textarea
+            className="border-0 outline-none bg-transparent text-[13px] text-text w-full resize-y"
             value={draft.terms}
             onChange={(event) => setDraft({ ...draft, terms: event.target.value })}
           />
@@ -128,8 +141,12 @@ function WarrantyForm({
         <span className={`toggle-switch${draft.active ? " is-enabled" : ""}`} />
         <strong>{draft.active ? "Active Warranty" : "Inactive Warranty"}</strong>
       </button>
-      <div className="warranty-actions">
-        <button className="warranty-cancel-button" type="button" onClick={onCancel}>
+      <div className="flex items-center justify-end gap-2 pt-1">
+        <button
+          className="inline-flex items-center justify-center gap-2 px-[14px] min-h-[34px] rounded-lg border border-border bg-white text-[13px] font-medium text-muted cursor-pointer transition-colors hover:bg-[#f0f4ff] hover:border-[rgba(61,95,182,0.25)]"
+          type="button"
+          onClick={onCancel}
+        >
           Cancel
         </button>
         <button
@@ -162,12 +179,16 @@ export function WarrantyContent() {
   }, [savedMsg]);
 
   return (
-    <div className="warranty-content">
-      {savedMsg ? <div className="success-banner">{savedMsg}</div> : null}
-      <header className="page-title-row">
+    <div className="grid gap-[18px] p-[22px_24px_48px]">
+      {savedMsg ? (
+        <div className="flex items-center gap-[9px] px-[14px] py-[11px] rounded-[10px] border border-[#bbf7d0] bg-[#f0fdf4] text-[#166534] text-[13px]">
+          {savedMsg}
+        </div>
+      ) : null}
+      <header className="flex items-start justify-between gap-[18px]">
         <div>
-          <h1>{t("warrantyTitle")}</h1>
-          <p className="dashboard-sub">{t("warrantySub")}</p>
+          <h1 className="m-0">{t("warrantyTitle")}</h1>
+          <p className="mt-[7px] text-muted text-[13px] leading-[1.5]">{t("warrantySub")}</p>
         </div>
         {!editing ? (
           <button
@@ -203,13 +224,13 @@ export function WarrantyContent() {
           }}
         />
       ) : (
-        <section className="warranty-card warranty-info-card">
+        <section className="dashboard-panel grid gap-4 p-[22px_24px]">
           {warranty ? (
             <>
-              <div className="warranty-card-heading">
+              <div className="flex items-center gap-3">
                 <ShieldCheck aria-hidden="true" size={28} strokeWidth={2.3} />
                 <div>
-                  <h2>{warranty.title}</h2>
+                  <h2 className="text-[16px] font-bold text-[#0f172a] m-0">{warranty.title}</h2>
                   <span
                     className={`approved-status-badge ${
                       warranty.active ? "is-active" : "is-completed"
@@ -219,34 +240,34 @@ export function WarrantyContent() {
                   </span>
                 </div>
               </div>
-              <div className="warranty-detail-grid">
-                <article>
-                  <span>Warranty Duration</span>
-                  <strong>{warranty.duration}</strong>
+              <div className="grid grid-cols-3 gap-3">
+                <article className="grid gap-[3px] p-[12px_14px] rounded-[10px] border border-border bg-[#fafbfe]">
+                  <span className="text-[11px] font-semibold text-[#94a3b8] uppercase tracking-[0.4px]">Warranty Duration</span>
+                  <strong className="text-[14px] font-bold text-[#0f172a]">{warranty.duration}</strong>
                 </article>
-                <article>
-                  <span>Maintenance Number</span>
-                  <strong>{warranty.maintenanceNumber}</strong>
+                <article className="grid gap-[3px] p-[12px_14px] rounded-[10px] border border-border bg-[#fafbfe]">
+                  <span className="text-[11px] font-semibold text-[#94a3b8] uppercase tracking-[0.4px]">Maintenance Number</span>
+                  <strong className="text-[14px] font-bold text-[#0f172a]">{warranty.maintenanceNumber}</strong>
                 </article>
-                <article>
-                  <span>Maintenance Hotline</span>
-                  <strong>{warranty.maintenancePhone}</strong>
+                <article className="grid gap-[3px] p-[12px_14px] rounded-[10px] border border-border bg-[#fafbfe]">
+                  <span className="text-[11px] font-semibold text-[#94a3b8] uppercase tracking-[0.4px]">Maintenance Hotline</span>
+                  <strong className="text-[14px] font-bold text-[#0f172a]">{warranty.maintenancePhone}</strong>
                 </article>
-                <article>
-                  <span>Maintenance Center</span>
-                  <strong>{warranty.location}</strong>
+                <article className="grid gap-[3px] p-[12px_14px] rounded-[10px] border border-border bg-[#fafbfe]">
+                  <span className="text-[11px] font-semibold text-[#94a3b8] uppercase tracking-[0.4px]">Maintenance Center</span>
+                  <strong className="text-[14px] font-bold text-[#0f172a]">{warranty.location}</strong>
                 </article>
               </div>
-              <div className="warranty-terms-box">
-                <strong>Terms</strong>
-                <p>{warranty.terms}</p>
-                <div className="discount-chip-row">
-                  <span className="discount-chip">Manufacturing Defects</span>
-                  <span className="discount-chip">Authorized Service</span>
-                  <span className="discount-chip">Visible to Customer</span>
+              <div className="p-[14px_16px] rounded-[10px] border border-border bg-[#fafbfe] grid gap-2">
+                <strong className="text-[12px] font-bold text-[#475569] uppercase tracking-[0.4px]">Terms</strong>
+                <p className="text-[13px] text-[#334155] m-0 leading-[1.6]">{warranty.terms}</p>
+                <div className="flex gap-[6px] flex-wrap mt-2">
+                  <span className="inline-flex items-center px-[9px] py-[3px] rounded-full border border-border bg-[#f8f9fc] text-[11.5px] text-[#475569]">Manufacturing Defects</span>
+                  <span className="inline-flex items-center px-[9px] py-[3px] rounded-full border border-border bg-[#f8f9fc] text-[11.5px] text-[#475569]">Authorized Service</span>
+                  <span className="inline-flex items-center px-[9px] py-[3px] rounded-full border border-border bg-[#f8f9fc] text-[11.5px] text-[#475569]">Visible to Customer</span>
                 </div>
               </div>
-              <div className="row-actions warranty-card-actions">
+              <div className="flex items-center gap-[6px] flex-wrap rtl:flex-row-reverse">
                 <button className="row-action-btn" type="button" onClick={() => setPreview(true)}>
                   <Eye aria-hidden="true" size={14} strokeWidth={2.4} />
                   Preview
@@ -255,34 +276,42 @@ export function WarrantyContent() {
                   <Pencil aria-hidden="true" size={14} strokeWidth={2.4} />
                   Edit
                 </button>
-                <button className="row-action-btn reject-btn" type="button" onClick={() => setWarranty(null)}>
+                <button className="row-action-btn border-[#fecaca] text-[#b91c1c]" type="button" onClick={() => setWarranty(null)}>
                   <Trash2 aria-hidden="true" size={14} strokeWidth={2.4} />
                   Delete
                 </button>
               </div>
             </>
           ) : (
-            <div className="warranty-empty-state">
-              <h2>No warranty data found</h2>
-              <p>Add warranty duration, maintenance number, hotline, and center location to display to the customer.</p>
+            <div className="flex flex-col items-center justify-center p-[48px_24px] gap-2">
+              <h2 className="text-[16px] font-bold text-[#0f172a] m-0">No warranty data found</h2>
+              <p className="text-[13px] text-[#64748b] m-0 text-center">Add warranty duration, maintenance number, hotline, and center location to display to the customer.</p>
             </div>
           )}
         </section>
       )}
 
       {preview && warranty ? (
-        <div className="modal-backdrop" role="dialog" aria-modal="true">
-          <div className="modal-card">
-            <header className="modal-header">
-              <div>
-                <h3>Preview What Customer Sees</h3>
-                <p className="modal-sub">{warranty.title}</p>
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-[rgba(15,23,42,0.35)] backdrop-blur-[4px]"
+          role="dialog"
+          aria-modal="true"
+        >
+          <div className="w-full max-w-[480px] rounded-[16px] border border-border bg-white shadow-lg overflow-hidden">
+            <header className="flex items-start justify-between gap-3 p-[18px_20px] border-b border-border rtl:flex-row-reverse">
+              <div className="rtl:text-right">
+                <h3 className="text-[15px] font-bold text-[#0f172a] m-0">Preview What Customer Sees</h3>
+                <p className="text-[12px] text-[#64748b] mt-[3px] mb-0">{warranty.title}</p>
               </div>
-              <button className="modal-close" type="button" onClick={() => setPreview(false)}>
+              <button
+                className="inline-grid place-items-center w-7 h-7 rounded-[7px] border border-border bg-[#f8f9fc] text-muted cursor-pointer shrink-0 transition-colors hover:bg-[#fee2e2] hover:border-[#fca5a5] hover:text-brand"
+                type="button"
+                onClick={() => setPreview(false)}
+              >
                 ×
               </button>
             </header>
-            <div className="modal-body">
+            <div className="p-[18px_20px] grid gap-[14px]">
               <p>Warranty Duration: {warranty.duration}</p>
               <p>Maintenance Number: {warranty.maintenanceNumber}</p>
               <p>Maintenance Hotline: {warranty.maintenancePhone}</p>

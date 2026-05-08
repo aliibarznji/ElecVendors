@@ -26,6 +26,14 @@ const kindMeta: Record<NotificationKind, { labelKey: keyof Translations; icon: L
   system: { labelKey: "kindSystem", icon: Settings, tone: "gray" },
 };
 
+const toneClasses: Record<string, string> = {
+  blue:  "bg-[#eef2fd] text-[#2a4a9f]",
+  green: "bg-[#e7f4ea] text-[#1d6b3a]",
+  cyan:  "bg-[#e0f2fe] text-[#075985]",
+  amber: "bg-[#fef3c7] text-[#92400e]",
+  gray:  "bg-[#f1f5f9] text-[#475569]",
+};
+
 export function NotificationsContent() {
   const [notifications, setNotifications] = useState<ApiNotification[]>([]);
   const [unread, setUnread] = useState(0);
@@ -69,8 +77,8 @@ export function NotificationsContent() {
           <h1>{t("notifications")}</h1>
           <p className="dashboard-sub">{t("notificationsSub")}</p>
         </div>
-        <div className="notifications-summary">
-          <span className="notifications-summary-pill">
+        <div className="inline-flex items-center gap-[14px] text-muted text-[13px]">
+          <span className="inline-flex items-center gap-[6px] px-[10px] py-[5px] rounded-full bg-brand-soft text-brand-dark font-semibold text-[12.5px]">
             <Bell aria-hidden="true" size={16} strokeWidth={2.2} />
             {unread} {t("unread")}
           </span>
@@ -86,7 +94,7 @@ export function NotificationsContent() {
       {loading ? (
         <div className="empty-cell">Loading…</div>
       ) : (
-        <section className="notifications-list" aria-label="Notifications feed">
+        <section className="grid gap-[10px] mt-[6px]" aria-label="Notifications feed">
           {sorted.map((notification) => {
             const meta = kindMeta[notification.kind];
             const Icon = meta.icon;
@@ -100,19 +108,19 @@ export function NotificationsContent() {
                   if (!notification.read) handleRead(notification.id);
                 }}
               >
-                <span className={`notification-icon notification-${meta.tone}`}>
+                <span className={`w-9 h-9 rounded-[10px] inline-grid place-items-center self-start ${toneClasses[meta.tone]}`}>
                   <Icon aria-hidden="true" size={18} strokeWidth={2.2} />
                 </span>
-                <div className="notification-body">
-                  <div className="notification-row-top">
-                    <strong>{notification.title}</strong>
-                    <span className="notification-kind">{t(meta.labelKey)}</span>
+                <div className="grid gap-1">
+                  <div className="flex items-center gap-[10px] flex-wrap">
+                    <strong className="text-[14px] text-text">{notification.title}</strong>
+                    <span className="text-[11px] font-semibold uppercase tracking-[0.04em] text-muted">{t(meta.labelKey)}</span>
                   </div>
-                  <p>{notification.body}</p>
-                  <small>{notification.createdAt.slice(0, 16).replace("T", " ")}</small>
+                  <p className="m-0 text-[13px] text-muted leading-relaxed">{notification.body}</p>
+                  <small className="text-subtle text-[12px]">{notification.createdAt.slice(0, 16).replace("T", " ")}</small>
                 </div>
                 {notification.read ? null : (
-                  <span className="notification-dot" aria-label="Unread" />
+                  <span className="w-[9px] h-[9px] rounded-full bg-brand self-start" aria-label="Unread" />
                 )}
               </Wrapper>
             );

@@ -40,13 +40,13 @@ function DetailRow({
   icon: LucideIcon;
 }) {
   return (
-    <div className="order-detail-row">
-      <span className="order-detail-icon">
+    <div className="grid grid-cols-[32px_1fr] gap-[10px] items-center rtl:flex rtl:flex-row-reverse">
+      <span className="w-[30px] h-[30px] rounded-lg inline-grid place-items-center bg-brand-soft text-brand-dark shrink-0">
         <Icon aria-hidden="true" size={17} strokeWidth={2.2} />
       </span>
-      <div>
-        <span className="order-detail-label">{label}</span>
-        <strong className="order-detail-value">{value}</strong>
+      <div className="rtl:text-right">
+        <span className="block text-[12px] text-muted">{label}</span>
+        <strong className="text-[13.5px] text-text font-semibold">{value}</strong>
       </div>
     </div>
   );
@@ -81,17 +81,20 @@ export function OrderDetailContent({ order: initial }: { order: ApiOrder }) {
   }
 
   return (
-    <div className="dashboard-content order-detail-content">
-      <header className="page-title-row">
+    <div className="grid gap-[20px] p-[22px_24px_48px] animate-[dashboard-fade-in_300ms_cubic-bezier(0.16,1,0.3,1)_both]">
+      <header className="flex items-start justify-between gap-[18px]">
         <div>
-          <Link href="/orders" className="order-detail-back">
+          <Link
+            href="/orders"
+            className="inline-flex items-center gap-1 text-[12.5px] text-muted no-underline mb-[6px] hover:text-brand-dark rtl:flex-row-reverse"
+          >
             <ArrowLeft aria-hidden="true" size={15} strokeWidth={2.2} />
             <span>{t("backToOrders")}</span>
           </Link>
-          <h1>Order {order.orderNumber}</h1>
-          <p className="dashboard-sub">{t("orderDetailSub")}</p>
+          <h1 className="m-0">Order {order.orderNumber}</h1>
+          <p className="mt-[7px] text-muted text-[13px] leading-[1.5]">{t("orderDetailSub")}</p>
         </div>
-        <div className="order-detail-actions">
+        <div className="flex items-center gap-3 rtl:flex-row-reverse">
           <StatusPill status={order.status} />
           {nextAction ? (
             <button className="discount-create-button" type="button" onClick={advance}>
@@ -101,9 +104,12 @@ export function OrderDetailContent({ order: initial }: { order: ApiOrder }) {
         </div>
       </header>
 
-      <section className="order-detail-grid" aria-label="Order details">
-        <article className="dashboard-panel order-detail-card">
-          <h2>{t("customerCard")}</h2>
+      <section
+        className="grid grid-cols-[repeat(2,minmax(0,1fr))] gap-4 max-[880px]:grid-cols-1 rtl:[direction:rtl]"
+        aria-label="Order details"
+      >
+        <article className="dashboard-panel p-[20px_22px] grid gap-3 rtl:text-right">
+          <h2 className="text-[14px] font-bold m-0 mb-[6px] text-text">{t("customerCard")}</h2>
           <DetailRow label={t("customerName")} value={order.customerName} icon={User} />
           <DetailRow label={t("phone")} value={order.customerPhone} icon={Phone} />
           <DetailRow label={t("address")} value={order.customerAddress} icon={MapPin} />
@@ -114,8 +120,8 @@ export function OrderDetailContent({ order: initial }: { order: ApiOrder }) {
           />
         </article>
 
-        <article className="dashboard-panel order-detail-card">
-          <h2>{t("orderCard")}</h2>
+        <article className="dashboard-panel p-[20px_22px] grid gap-3 rtl:text-right">
+          <h2 className="text-[14px] font-bold m-0 mb-[6px] text-text">{t("orderCard")}</h2>
           <DetailRow label={t("orderNumberFull")} value={order.orderNumber} icon={Hash} />
           <DetailRow label={t("orderTimeFull")} value={order.dateTime.replace("T", " ").slice(0, 16)} icon={CalendarDays} />
           <DetailRow label={t("paymentMethod")} value={order.paymentMethod} icon={CreditCard} />
@@ -123,8 +129,8 @@ export function OrderDetailContent({ order: initial }: { order: ApiOrder }) {
           <DetailRow label={t("deliveryAgent")} value={order.deliveryAgent} icon={ClipboardList} />
         </article>
 
-        <article className="dashboard-panel order-detail-card">
-          <h2>{t("productCard")}</h2>
+        <article className="dashboard-panel p-[20px_22px] grid gap-3 rtl:text-right">
+          <h2 className="text-[14px] font-bold m-0 mb-[6px] text-text">{t("productCard")}</h2>
           <DetailRow label={t("product")} value={product?.nameEn ?? order.productId} icon={Package} />
           <DetailRow label={t("sku")} value={product?.sku ?? "-"} icon={Hash} />
           <DetailRow label={t("vendorCode")} value={product?.vendorCode ?? "-"} icon={Hash} />
@@ -133,8 +139,8 @@ export function OrderDetailContent({ order: initial }: { order: ApiOrder }) {
           <DetailRow label={t("quantity")} value={String(order.quantity)} icon={Package} />
         </article>
 
-        <article className="dashboard-panel order-detail-card order-detail-pricing">
-          <h2>{t("pricingCard")}</h2>
+        <article className="dashboard-panel p-[20px_22px] grid gap-3 rtl:text-right">
+          <h2 className="text-[14px] font-bold m-0 mb-[6px] text-text">{t("pricingCard")}</h2>
           <DetailRow
             label={t("priceExclFull")}
             value={formatIqd(order.priceWithoutCommission)}
@@ -146,18 +152,18 @@ export function OrderDetailContent({ order: initial }: { order: ApiOrder }) {
             icon={CreditCard}
           />
           <DetailRow label={t("quantity")} value={String(order.quantity)} icon={Package} />
-          <div className="order-detail-totals">
-            <div>
+          <div className="mt-2 border-t border-border pt-3 grid gap-2">
+            <div className="flex items-center justify-between text-[13px] text-muted rtl:flex-row-reverse">
               <span>{t("netTotal")}</span>
-              <strong>{formatIqd(netTotal)}</strong>
+              <strong className="text-text font-semibold">{formatIqd(netTotal)}</strong>
             </div>
-            <div>
+            <div className="flex items-center justify-between text-[13px] text-muted rtl:flex-row-reverse">
               <span>{t("platformCommission")}</span>
-              <strong>{formatIqd(commission)}</strong>
+              <strong className="text-text font-semibold">{formatIqd(commission)}</strong>
             </div>
-            <div className="order-detail-grand">
-              <span>{t("orderTotal")}</span>
-              <strong>{formatIqd(lineTotal)}</strong>
+            <div className="flex items-center justify-between text-[13px] text-muted border-t border-dashed border-border pt-2 font-bold rtl:flex-row-reverse">
+              <span className="text-[14.5px] text-text">{t("orderTotal")}</span>
+              <strong className="text-[14.5px] text-text">{formatIqd(lineTotal)}</strong>
             </div>
           </div>
         </article>

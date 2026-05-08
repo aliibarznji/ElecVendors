@@ -114,11 +114,11 @@ export function PricingContent() {
   };
 
   return (
-    <div className="pricing-content dashboard-content">
-      <header className="page-title-row">
+    <div className="grid gap-[18px] p-[22px_24px_48px]">
+      <header className="flex items-start justify-between gap-[18px]">
         <div>
-          <h1>{t("instantPricing")}</h1>
-          <p className="dashboard-sub">{t("instantPricingSub")}</p>
+          <h1 className="m-0">{t("instantPricing")}</h1>
+          <p className="mt-[7px] text-muted text-[13px] leading-[1.5]">{t("instantPricingSub")}</p>
         </div>
         <button
           className="discount-create-button"
@@ -130,21 +130,33 @@ export function PricingContent() {
         </button>
       </header>
 
-      {saved ? <div className="success-banner">{saved}</div> : null}
+      {saved ? (
+        <div className="flex items-center gap-[9px] px-[14px] py-[11px] rounded-[10px] border border-[#bbf7d0] bg-[#f0fdf4] text-[#166534] text-[13px]">
+          {saved}
+        </div>
+      ) : null}
 
-      <section className="product-list-card pricing-card" aria-label="Pricing Table">
-        <div className="order-items-filters">
-          <label className="order-items-search">
+      <section
+        className="grid align-start gap-6 min-h-[597px] p-[20px_18px_24px] rounded-[4px] bg-white shadow-[0_1px_0_rgba(19,28,54,0.04)]"
+        aria-label="Pricing Table"
+      >
+        <div className="flex items-center gap-2 p-[14px_16px] flex-wrap rtl:flex-row-reverse">
+          <label className="flex items-center gap-2 px-3 min-h-[36px] rounded-[9px] border border-border bg-white shadow-sm transition-colors focus-within:border-[rgba(215,25,32,0.35)] focus-within:shadow-[0_0_0_3px_rgba(215,25,32,0.09)] rtl:flex-row-reverse">
             <Search aria-hidden="true" size={16} strokeWidth={2.2} />
             <input
+              className="border-0 outline-none bg-transparent text-[13px] text-text w-full"
               placeholder={t("searchPricing")}
               value={query}
               onChange={(event) => setQuery(event.target.value)}
             />
           </label>
-          <label className="order-items-date">
-            <span>{t("discountPlan")}</span>
-            <select value={status} onChange={(event) => setStatus(event.target.value)}>
+          <label className="flex items-center gap-[6px] px-[10px] min-h-[36px] rounded-[9px] border border-border bg-white text-[13px] text-muted">
+            <span className="text-[12px] font-medium text-muted whitespace-nowrap">{t("discountPlan")}</span>
+            <select
+              className="border-0 outline-none bg-transparent text-[13px] text-text"
+              value={status}
+              onChange={(event) => setStatus(event.target.value)}
+            >
               <option value="all">{t("allProducts")}</option>
               <option value="none">No Discount</option>
               <option value="active">{t("activeStatus")}</option>
@@ -152,7 +164,7 @@ export function PricingContent() {
             </select>
           </label>
           <button
-            className="purchase-order-reset"
+            className="inline-flex w-[78px] h-[26px] items-center justify-center mb-px border border-[#ff2f56] rounded-[3px] bg-white text-[#ff2f56] cursor-pointer text-[12px] leading-[1] whitespace-nowrap font-inherit hover:bg-[#f0f4ff] hover:border-[rgba(61,95,182,0.25)] transition-colors"
             type="button"
             onClick={() => {
               setQuery("");
@@ -165,8 +177,8 @@ export function PricingContent() {
           </button>
         </div>
 
-        <div className="purchase-order-table-wrap">
-          <table className="purchase-order-table pricing-table">
+        <div className="w-full overflow-x-auto">
+          <table className="w-full min-w-[900px] border-collapse table-fixed purchase-order-table">
             <thead>
               <tr>
                 <th>{t("product")}</th>
@@ -182,7 +194,7 @@ export function PricingContent() {
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan={8} className="empty-cell">
+                  <td colSpan={8} className="text-[#94a3b8] text-[13px] p-[28px_14px] text-center">
                     Loading…
                   </td>
                 </tr>
@@ -194,11 +206,11 @@ export function PricingContent() {
                   return (
                     <tr className="product-list-data-row" key={product.id}>
                       <td>
-                        <div className="product-inline-summary">
+                        <div className="flex items-center gap-[10px] min-w-[240px] rtl:flex-row-reverse rtl:text-right">
                           <ProductThumb product={product} />
-                          <div>
-                            <strong>{lang === "ar" ? product.nameAr : product.nameEn}</strong>
-                            <span>{lang === "ar" ? product.nameEn : product.nameAr}</span>
+                          <div className="grid gap-[3px] min-w-0">
+                            <strong className="text-[13px] text-[#0f172a]">{lang === "ar" ? product.nameAr : product.nameEn}</strong>
+                            <span className="text-[11px] text-[#94a3b8]">{lang === "ar" ? product.nameEn : product.nameAr}</span>
                           </div>
                         </div>
                       </td>
@@ -214,7 +226,7 @@ export function PricingContent() {
                       </td>
                       <td>
                         <input
-                          className="edit-table-input"
+                          className="w-full min-w-[80px] min-h-[32px] px-2 rounded-[7px] border border-border bg-[#f8f9fc] text-[13px] text-text transition-colors focus:outline-none focus:border-[rgba(215,25,32,0.4)] focus:shadow-[0_0_0_3px_rgba(215,25,32,0.09)] focus:bg-white"
                           type="number"
                           value={draft.costPrice}
                           onChange={(event) =>
@@ -224,7 +236,7 @@ export function PricingContent() {
                       </td>
                       <td>
                         <input
-                          className="edit-table-input"
+                          className="w-full min-w-[80px] min-h-[32px] px-2 rounded-[7px] border border-border bg-[#f8f9fc] text-[13px] text-text transition-colors focus:outline-none focus:border-[rgba(215,25,32,0.4)] focus:shadow-[0_0_0_3px_rgba(215,25,32,0.09)] focus:bg-white"
                           type="number"
                           value={draft.sellingPrice}
                           onChange={(event) =>
@@ -234,7 +246,7 @@ export function PricingContent() {
                       </td>
                       <td>
                         <input
-                          className="edit-table-input"
+                          className="w-full min-w-[80px] min-h-[32px] px-2 rounded-[7px] border border-border bg-[#f8f9fc] text-[13px] text-text transition-colors focus:outline-none focus:border-[rgba(215,25,32,0.4)] focus:shadow-[0_0_0_3px_rgba(215,25,32,0.09)] focus:bg-white"
                           type="number"
                           value={draft.commissionPct}
                           onChange={(event) =>
@@ -244,21 +256,21 @@ export function PricingContent() {
                       </td>
                       <td>{product.discountPlanStatus === "none" ? "None" : product.discountPlanStatus}</td>
                       <td>
-                        <div className="validation-stack">
+                        <div className="grid gap-1">
                           {result.errors.map((error) => (
-                            <span className="validation-error" key={error}>
+                            <span className="flex items-center gap-[5px] text-[11.5px] text-[#b91c1c]" key={error}>
                               <AlertTriangle aria-hidden="true" size={13} />
                               {error}
                             </span>
                           ))}
                           {result.warnings.map((warning) => (
-                            <span className="validation-warning" key={warning}>
+                            <span className="flex items-center gap-[5px] text-[11.5px] text-[#a16207]" key={warning}>
                               <Lock aria-hidden="true" size={13} />
                               {warning}
                             </span>
                           ))}
                           {result.valid ? (
-                            <span className="validation-ok">
+                            <span className="text-[11.5px] text-[#15803d] font-semibold">
                               Valid - Profit Margin {formatIqd(draft.sellingPrice - draft.costPrice)}
                             </span>
                           ) : null}

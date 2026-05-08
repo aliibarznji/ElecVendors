@@ -19,7 +19,11 @@
       "Bash(docker-compose exec *)",
       "WebFetch(domain:www.apple.com)",
       "Bash(docker cp *)",
-      "Bash(dir \"C:\\\\Users\\\\aliib\\\\Desktop\\\\New folder \\(3\\)\" /b)"
+      "Bash(dir \"C:\\\\Users\\\\aliib\\\\Desktop\\\\New folder \\(3\\)\" /b)",
+      "Bash(Get-ChildItem \"C:\\\\Users\\\\aliib\\\\Desktop\\\\New folder \\(3\\)\" -Depth 1)",
+      "Bash(Select-Object Name, PSIsContainer)",
+      "Bash(Format-Table -AutoSize)",
+      "Bash(npm run *)"
     ]
   }
 }

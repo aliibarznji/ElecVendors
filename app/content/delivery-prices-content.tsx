@@ -38,7 +38,7 @@ export function DeliveryPricesContent() {
   const hasInvalid = rows.some((row) => row.small < 0 || row.large < 0 || row.large < row.small);
 
   return (
-    <div className="delivery-prices-content dashboard-content">
+    <div className="dashboard-content">
       <header className="page-title-row">
         <div>
           <h1>{t("deliveryPrices")}</h1>
@@ -55,14 +55,18 @@ export function DeliveryPricesContent() {
         </button>
       </header>
 
-      {message ? <div className="success-banner">{message}</div> : null}
+      {message ? (
+        <div className="flex items-center gap-[9px] px-[14px] py-[11px] rounded-[10px] border border-[#bbf7d0] bg-[#f0fdf4] text-[#166534] text-[13px]">
+          {message}
+        </div>
+      ) : null}
       {hasInvalid ? (
-        <div className="warning-banner">
+        <div className="flex items-center gap-[9px] px-[14px] py-[11px] rounded-[10px] border border-[#fed7aa] bg-[#fff7ed] text-[#9a3412] text-[13px]">
           Ensure prices are not negative and the large product price is not lower than the small product price.
         </div>
       ) : null}
 
-      <section className="delivery-prices-card product-list-card">
+      <section className="product-list-card">
         <div className="order-items-filters">
           <label className="order-items-search">
             <Search aria-hidden="true" size={16} strokeWidth={2.2} />
@@ -143,7 +147,7 @@ export function DeliveryPricesContent() {
                       </td>
                       <td>
                         <input
-                          className="edit-table-input delivery-rule-input"
+                          className="edit-table-input min-w-[240px]"
                           value={row.freeRule}
                           disabled={!isEditing}
                           placeholder="e.g., Free over 150,000 IQD"

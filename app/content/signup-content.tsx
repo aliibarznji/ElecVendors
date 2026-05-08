@@ -44,25 +44,32 @@ export function SignupContent() {
   }
 
   return (
-    <div className="login-page">
-      <form className="login-card" onSubmit={handleSubmit}>
-        <div className="login-card-header">
-          <div className="login-brand">
-            <strong>ElecMall</strong>
-            <span>Vendors</span>
+    <div className="min-h-screen flex items-center justify-center bg-background">
+      <form
+        className="bg-surface border border-border rounded-xl shadow p-10 w-full max-w-[400px] flex flex-col gap-[1.1rem]"
+        onSubmit={handleSubmit}
+      >
+        <div className="flex items-center justify-between">
+          <div className="flex items-baseline gap-[0.35rem]">
+            <strong className="text-brand text-[1.35rem]">ElecMall</strong>
+            <span className="text-[0.85rem] text-[#6b7280]">Vendors</span>
           </div>
           <button
             type="button"
-            className="login-lang"
+            className="bg-transparent border border-border rounded px-[0.65rem] py-[0.3rem] text-[0.78rem] font-medium cursor-pointer hover:border-brand hover:text-brand"
             onClick={() => setLang(lang === "en" ? "ar" : "en")}
           >
             {t("changeLanguage")}
           </button>
         </div>
-        <h1>{t("signupTitle")}</h1>
-        {error ? <div className="warning-banner">{error}</div> : null}
+        <h1 className="text-[1.1rem] font-semibold text-text m-0">{t("signupTitle")}</h1>
+        {error ? (
+          <div className="flex items-center gap-[9px] px-[14px] py-[11px] rounded-[10px] border border-[#fed7aa] bg-[#fff7ed] text-[#9a3412] text-[13px]">
+            {error}
+          </div>
+        ) : null}
 
-        <label className="login-field">
+        <label className="flex flex-col gap-[0.4rem] text-[0.85rem] font-medium text-text">
           <span>{t("signupNameLabel")}</span>
           <input
             type="text"
@@ -71,10 +78,11 @@ export function SignupContent() {
             required
             autoComplete="name"
             placeholder="Acme Trading Co."
+            className="border border-border rounded px-[0.75rem] py-[0.55rem] text-[0.9rem] outline-none bg-surface-soft focus:border-brand transition-colors duration-150"
           />
         </label>
 
-        <label className="login-field">
+        <label className="flex flex-col gap-[0.4rem] text-[0.85rem] font-medium text-text">
           <span>{t("loginEmailLabel")}</span>
           <input
             type="email"
@@ -83,10 +91,11 @@ export function SignupContent() {
             required
             autoComplete="email"
             placeholder="you@example.com"
+            className="border border-border rounded px-[0.75rem] py-[0.55rem] text-[0.9rem] outline-none bg-surface-soft focus:border-brand transition-colors duration-150"
           />
         </label>
 
-        <label className="login-field">
+        <label className="flex flex-col gap-[0.4rem] text-[0.85rem] font-medium text-text">
           <span>{t("signupPhoneLabel")}</span>
           <input
             type="tel"
@@ -95,10 +104,11 @@ export function SignupContent() {
             required
             autoComplete="tel"
             placeholder="+964 7XX XXX XXXX"
+            className="border border-border rounded px-[0.75rem] py-[0.55rem] text-[0.9rem] outline-none bg-surface-soft focus:border-brand transition-colors duration-150"
           />
         </label>
 
-        <label className="login-field">
+        <label className="flex flex-col gap-[0.4rem] text-[0.85rem] font-medium text-text">
           <span>{t("signupLocationLabel")}</span>
           <input
             type="text"
@@ -107,10 +117,11 @@ export function SignupContent() {
             required
             autoComplete="address-level2"
             placeholder="Baghdad, Karrada"
+            className="border border-border rounded px-[0.75rem] py-[0.55rem] text-[0.9rem] outline-none bg-surface-soft focus:border-brand transition-colors duration-150"
           />
         </label>
 
-        <label className="login-field">
+        <label className="flex flex-col gap-[0.4rem] text-[0.85rem] font-medium text-text">
           <span>{t("loginPasswordLabel")}</span>
           <input
             type="password"
@@ -120,10 +131,11 @@ export function SignupContent() {
             minLength={8}
             autoComplete="new-password"
             placeholder="••••••••"
+            className="border border-border rounded px-[0.75rem] py-[0.55rem] text-[0.9rem] outline-none bg-surface-soft focus:border-brand transition-colors duration-150"
           />
         </label>
 
-        <label className="login-field">
+        <label className="flex flex-col gap-[0.4rem] text-[0.85rem] font-medium text-text">
           <span>{t("signupConfirmLabel")}</span>
           <input
             type="password"
@@ -133,14 +145,19 @@ export function SignupContent() {
             minLength={8}
             autoComplete="new-password"
             placeholder="••••••••"
+            className="border border-border rounded px-[0.75rem] py-[0.55rem] text-[0.9rem] outline-none bg-surface-soft focus:border-brand transition-colors duration-150"
           />
         </label>
 
-        <button className="login-submit" type="submit" disabled={loading}>
+        <button
+          className="mt-1 bg-brand text-white border-0 rounded px-4 py-[0.65rem] text-[0.92rem] font-semibold cursor-pointer transition-opacity duration-150 disabled:opacity-60 disabled:cursor-not-allowed"
+          type="submit"
+          disabled={loading}
+        >
           {loading ? t("signupSubmitting") : t("signupSubmitBtn")}
         </button>
 
-        <div className="login-alt">
+        <div className="text-center text-[0.85rem] text-[#6b7280] mt-1">
           {t("signupHasAccount")} <Link href="/login">{t("signupSignInLink")}</Link>
         </div>
       </form>

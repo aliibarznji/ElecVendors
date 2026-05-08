@@ -91,11 +91,11 @@ export function InventoryContent() {
   };
 
   return (
-    <div className="inventory-content dashboard-content">
-      <header className="page-title-row">
+    <div className="grid gap-[18px] p-[22px_24px_48px]">
+      <header className="flex items-start justify-between gap-[18px]">
         <div>
-          <h1>{t("inventoryManagement")}</h1>
-          <p className="dashboard-sub">{t("inventoryManagementSub")}</p>
+          <h1 className="m-0">{t("inventoryManagement")}</h1>
+          <p className="mt-[7px] text-muted text-[13px] leading-[1.5]">{t("inventoryManagementSub")}</p>
         </div>
         <button
           className="discount-create-button"
@@ -107,54 +107,66 @@ export function InventoryContent() {
         </button>
       </header>
 
-      {message ? <div className="success-banner">{message}</div> : null}
+      {message ? (
+        <div className="flex items-center gap-[9px] px-[14px] py-[11px] rounded-[10px] border border-[#bbf7d0] bg-[#f0fdf4] text-[#166534] text-[13px]">
+          {message}
+        </div>
+      ) : null}
 
-      <section className="inventory-summary-strip" aria-label="Inventory Summary">
-        <article className="inventory-summary-item inventory-blue">
-          <span className="inventory-summary-icon">
+      <section
+        className="grid grid-cols-[repeat(4,minmax(0,1fr))] gap-[14px] rtl:[direction:rtl]"
+        aria-label="Inventory Summary"
+      >
+        <article className="flex items-center gap-3 p-[14px_16px] rounded-[12px] border border-border bg-white shadow-sm rtl:flex-row-reverse">
+          <span className="w-8 h-8 rounded-lg inline-grid place-items-center shrink-0 bg-[#eff6ff] text-[#3b82f6]">
             <PackageCheck aria-hidden="true" size={18} strokeWidth={2.3} />
           </span>
-          <div>
-            <p>{t("totalProducts")}</p>
-            <strong>{products.length}</strong>
-            <small>{t("totalProductsSub")}</small>
+          <div className="rtl:text-right">
+            <p className="m-0 text-[12px] text-muted">{t("totalProducts")}</p>
+            <strong className="text-[20px] font-bold text-text">{products.length}</strong>
+            <small className="block text-[11px] text-subtle">{t("totalProductsSub")}</small>
           </div>
         </article>
-        <article className="inventory-summary-item inventory-green">
-          <span className="inventory-summary-icon">
+        <article className="flex items-center gap-3 p-[14px_16px] rounded-[12px] border border-border bg-white shadow-sm rtl:flex-row-reverse">
+          <span className="w-8 h-8 rounded-lg inline-grid place-items-center shrink-0 bg-[#f0fdf4] text-[#22c55e]">
             <PackageCheck aria-hidden="true" size={18} strokeWidth={2.3} />
           </span>
-          <div>
-            <p>{t("inStock")}</p>
-            <strong>{availableCount}</strong>
-            <small>{t("publishedSub")}</small>
+          <div className="rtl:text-right">
+            <p className="m-0 text-[12px] text-muted">{t("inStock")}</p>
+            <strong className="text-[20px] font-bold text-text">{availableCount}</strong>
+            <small className="block text-[11px] text-subtle">{t("publishedSub")}</small>
           </div>
         </article>
-        <article className="inventory-summary-item inventory-orange">
-          <span className="inventory-summary-icon">
+        <article className="flex items-center gap-3 p-[14px_16px] rounded-[12px] border border-border bg-white shadow-sm rtl:flex-row-reverse">
+          <span className="w-8 h-8 rounded-lg inline-grid place-items-center shrink-0 bg-[#fff7ed] text-[#f97316]">
             <AlertTriangle aria-hidden="true" size={18} strokeWidth={2.3} />
           </span>
-          <div>
-            <p>{t("outOfStock")}</p>
-            <strong>{products.length - availableCount}</strong>
-            <small>{t("outOfStockSub")}</small>
+          <div className="rtl:text-right">
+            <p className="m-0 text-[12px] text-muted">{t("outOfStock")}</p>
+            <strong className="text-[20px] font-bold text-text">{products.length - availableCount}</strong>
+            <small className="block text-[11px] text-subtle">{t("outOfStockSub")}</small>
           </div>
         </article>
       </section>
 
-      <section className="product-list-card inventory-card" aria-label="Update Inventory">
-        <div className="order-items-filters">
-          <label className="order-items-search">
+      <section
+        className="grid align-start gap-6 min-h-[597px] p-[20px_18px_24px] rounded-[4px] bg-white shadow-[0_1px_0_rgba(19,28,54,0.04)]"
+        aria-label="Update Inventory"
+      >
+        <div className="flex items-center gap-2 p-[14px_16px] flex-wrap rtl:flex-row-reverse">
+          <label className="flex items-center gap-2 px-3 min-h-[36px] rounded-[9px] border border-border bg-white shadow-sm transition-colors focus-within:border-[rgba(215,25,32,0.35)] focus-within:shadow-[0_0_0_3px_rgba(215,25,32,0.09)] rtl:flex-row-reverse">
             <Search aria-hidden="true" size={16} strokeWidth={2.2} />
             <input
+              className="border-0 outline-none bg-transparent text-[13px] text-text w-full"
               placeholder={t("searchInventory")}
               value={query}
               onChange={(event) => setQuery(event.target.value)}
             />
           </label>
-          <label className="order-items-date">
-            <span>{t("status")}</span>
+          <label className="flex items-center gap-[6px] px-[10px] min-h-[36px] rounded-[9px] border border-border bg-white text-[13px] text-muted">
+            <span className="text-[12px] font-medium text-muted whitespace-nowrap">{t("status")}</span>
             <select
+              className="border-0 outline-none bg-transparent text-[13px] text-text"
               value={stockFilter}
               onChange={(event) => setStockFilter(event.target.value as typeof stockFilter)}
             >
@@ -167,7 +179,7 @@ export function InventoryContent() {
             </select>
           </label>
           <button
-            className="purchase-order-reset"
+            className="inline-flex w-[78px] h-[26px] items-center justify-center mb-px border border-[#ff2f56] rounded-[3px] bg-white text-[#ff2f56] cursor-pointer text-[12px] leading-[1] whitespace-nowrap font-inherit hover:bg-[#f0f4ff] hover:border-[rgba(61,95,182,0.25)] transition-colors"
             type="button"
             onClick={() => {
               setQuery("");
@@ -180,32 +192,35 @@ export function InventoryContent() {
           </button>
         </div>
 
-        <div className="inventory-product-grid">
+        <div className="grid grid-cols-[repeat(auto-fill,minmax(220px,1fr))] gap-[14px] p-4">
           {loading ? (
-            <div className="empty-state-panel">Loading…</div>
+            <div className="flex flex-col items-center justify-center p-[48px_24px] text-[#94a3b8] text-[13px] gap-2">Loading…</div>
           ) : visible.length === 0 ? (
-            <div className="empty-state-panel">{t("noInventoryMatch")}</div>
+            <div className="flex flex-col items-center justify-center p-[48px_24px] text-[#94a3b8] text-[13px] gap-2">{t("noInventoryMatch")}</div>
           ) : (
             visible.map((product) => {
               const quantity = quantities[product.id] ?? 0;
               const firstColor = product.colors[0];
               return (
-                <article className="inventory-product-card" key={product.id}>
-                  <div className="product-inline-summary">
+                <article
+                  className="rounded-[12px] border border-border bg-[#fafbfe] p-[14px] grid gap-[10px] transition-[box-shadow,border-color] hover:shadow-sm hover:border-[#c8d0e0] hover:bg-white rtl:text-right"
+                  key={product.id}
+                >
+                  <div className="flex items-center gap-[10px] rtl:flex-row-reverse rtl:text-right">
                     <ProductThumb product={product} />
-                    <div>
-                      <strong>{lang === "ar" ? product.nameAr : product.nameEn}</strong>
-                      <span>{product.sku}</span>
+                    <div className="grid gap-[3px] min-w-0">
+                      <strong className="text-[13px] text-[#0f172a]">{lang === "ar" ? product.nameAr : product.nameEn}</strong>
+                      <span className="text-[11px] text-[#94a3b8]">{product.sku}</span>
                       {firstColor ? (
-                        <span>
+                        <span className="text-[11px] text-[#94a3b8]">
                           {lang === "ar" ? firstColor.nameAr : firstColor.nameEn} / {firstColor.code}
                         </span>
                       ) : null}
                     </div>
                   </div>
-                  <div className="inventory-context">
-                    <span>Selling Price: {formatIqd(product.sellingPrice)}</span>
-                    <span>Cost Price: {formatIqd(product.costPrice)}</span>
+                  <div className="grid gap-1">
+                    <span className="text-[11.5px] text-[#64748b]">Selling Price: {formatIqd(product.sellingPrice)}</span>
+                    <span className="text-[11.5px] text-[#64748b]">Cost Price: {formatIqd(product.costPrice)}</span>
                   </div>
                   <span
                     className={`approved-status-badge ${
@@ -214,9 +229,10 @@ export function InventoryContent() {
                   >
                     {quantity > 0 ? t("inStock") : t("outOfStock")}
                   </span>
-                  <label className="modal-field">
-                    <span>{t("quantityColumn")}</span>
+                  <label className="grid gap-[5px]">
+                    <span className="text-[12px] font-semibold text-[#475569]">{t("quantityColumn")}</span>
                     <input
+                      className="min-h-[32px] px-2 rounded-[7px] border border-border bg-[#f8f9fc] text-[13px] text-text transition-colors focus:outline-none focus:border-[rgba(215,25,32,0.4)] focus:shadow-[0_0_0_3px_rgba(215,25,32,0.09)] focus:bg-white"
                       type="number"
                       value={quantity}
                       onChange={(event) =>
@@ -228,8 +244,8 @@ export function InventoryContent() {
                     />
                   </label>
                   {quantity < 0 ? (
-                    <div className="validation-stack">
-                      <span className="validation-error">Quantity cannot be negative</span>
+                    <div className="grid gap-1">
+                      <span className="flex items-center gap-[5px] text-[11.5px] text-[#b91c1c]">Quantity cannot be negative</span>
                     </div>
                   ) : null}
                 </article>

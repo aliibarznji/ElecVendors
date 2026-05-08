@@ -288,7 +288,7 @@ function NewOrdersSection() {
                   </div>
 
                   <div className="new-order-customer">
-                    <span className="new-order-customer-icon">
+                    <span className="inline-flex items-center justify-center">
                       <User size={13} strokeWidth={2.3} aria-hidden="true" />
                     </span>
                     <span>{group.customerName}</span>

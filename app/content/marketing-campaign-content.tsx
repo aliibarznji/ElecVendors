@@ -160,45 +160,46 @@ export function MarketingCampaignContent() {
   );
 
   return (
-    <div className="marketing-campaign-content dashboard-content">
-      <header className="page-title-row">
+    <div className="grid gap-[18px] p-[22px_24px_48px]">
+      <header className="flex items-start justify-between gap-4">
         <div>
-          <h1>{t("newCampaign")}</h1>
-          <p className="dashboard-sub">
+          <h1 className="text-[21px] font-bold tracking-[-0.4px] text-text m-0">{t("newCampaign")}</h1>
+          <p className="text-[13px] text-muted mt-[3px] leading-[1.5]">
             Select a marketing package below to start promoting your products across platform channels.
           </p>
         </div>
       </header>
 
-      <div className="campaign-flow-card">
-        <p className="campaign-flow-title">How It Works</p>
-        <div className="campaign-flow-steps">
+      {/* How It Works flow card */}
+      <div className="border border-border rounded-[12px] bg-surface shadow-sm p-[16px_22px_20px] grid gap-[14px]">
+        <p className="m-0 text-[12px] font-bold tracking-[0.5px] uppercase text-[#94a3b8]">How It Works</p>
+        <div className="campaign-flow-steps grid grid-cols-4 gap-2 relative">
           {FLOW_STEPS.map(({ Icon, label, sub }, i) => (
-            <div className="campaign-flow-step" key={label}>
-              <div className="campaign-flow-step-icon">
+            <div className="flex flex-col items-center gap-[5px] text-center relative z-[1]" key={label}>
+              <div className="inline-grid place-items-center w-9 h-9 rounded-full bg-[#eff2fb] text-[#3d60ae] border-2 border-white shadow-[0_0_0_2px_#c7d2fe]">
                 <Icon size={16} strokeWidth={2.2} aria-hidden="true" />
               </div>
-              <span className="campaign-flow-step-num">{i + 1}</span>
-              <span className="campaign-flow-step-label">{label}</span>
-              <span className="campaign-flow-step-sub">{sub}</span>
+              <span className="text-[10px] font-bold text-[#94a3b8] tracking-[0.3px]">{i + 1}</span>
+              <span className="text-[12px] font-bold text-[#1e2a45] leading-[1.3]">{label}</span>
+              <span className="text-[11px] text-[#94a3b8] leading-[1.3]">{sub}</span>
             </div>
           ))}
         </div>
       </div>
 
       {purchased ? (
-        <section className="marketing-confirmation-panel">
-          <div className="confirmation-icon">
+        <section className="rounded-[14px] border border-[#bbf7d0] bg-[#f0fdf4] p-[20px_22px] grid gap-[10px]">
+          <div className="inline-grid place-items-center w-10 h-10 rounded-full bg-[#dcfce7] text-[#15803d]">
             <Megaphone aria-hidden="true" size={22} strokeWidth={2.4} />
           </div>
-          <h2>Campaign Request Submitted</h2>
-          <p className="confirmation-package">{purchased.package?.name ?? purchased.packageId}</p>
-          <div className="campaign-code-reveal">
+          <h2 className="text-[18px] font-bold text-text m-0">Campaign Request Submitted</h2>
+          <p className="text-[14px] font-bold text-text m-0">{purchased.package?.name ?? purchased.packageId}</p>
+          <div className="inline-flex items-center gap-[10px] bg-[#f1f5f9] border border-[#cbd5e1] rounded-[8px] px-[14px] py-2 text-[13px] text-[#64748b]">
             <span>Campaign Code</span>
-            <code>{purchased.code}</code>
+            <code className="font-mono text-[15px] font-bold text-[#0f172a] tracking-[1.5px]">{purchased.code}</code>
           </div>
           <span className="approved-status-badge is-pending">Pending Approval</span>
-          <p className="confirmation-helper">
+          <p className="text-[13px] text-muted leading-[1.5] m-0">
             Your request is now with the account manager for review. Once approved, the campaign code
             will be sent to both you and your account manager, and the campaign will go live.
           </p>
@@ -211,30 +212,36 @@ export function MarketingCampaignContent() {
           </button>
         </section>
       ) : loading ? (
-        <div className="empty-cell">Loading packages…</div>
+        <div className="text-subtle text-[13px] py-7 text-center">Loading packages…</div>
       ) : (
-        <section className="marketing-package-section" aria-label="Marketing Packages">
-          <div className="marketing-package-grid">
+        <section className="grid gap-[14px]" aria-label="Marketing Packages">
+          <div className="grid gap-[14px]" style={{ gridTemplateColumns: "repeat(auto-fill,minmax(220px,1fr))" }}>
             {packages.map((pkg) => (
-              <article className="marketing-package-card" key={pkg.id}>
-                <div className="marketing-package-heading">
-                  <div>
-                    <h2>{pkg.name}</h2>
-                    <strong>${pkg.price.toLocaleString("en-US")}</strong>
-                    <span>{pkg.durationDays} days</span>
+              <article
+                className="rounded-[14px] border border-border bg-surface shadow-sm p-5 grid gap-3 transition-[box-shadow,transform,border-color] hover:shadow hover:-translate-y-0.5 hover:border-[rgba(215,25,32,0.2)]"
+                key={pkg.id}
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div className="grid gap-1">
+                    <h2 className="text-[15px] font-bold text-text m-0">{pkg.name}</h2>
+                    <strong className="text-[22px] font-bold text-text">${pkg.price.toLocaleString("en-US")}</strong>
+                    <span className="text-[12px] text-muted">{pkg.durationDays} days</span>
                   </div>
                   <Megaphone aria-hidden="true" size={29} strokeWidth={2.1} />
                 </div>
 
-                <div className="marketing-package-channels">
+                <div className="flex flex-wrap gap-[5px] px-5 pt-2.5">
                   {pkg.channels.map((ch) => (
-                    <span className="marketing-channel-tag" key={ch}>{ch}</span>
+                    <span
+                      className="inline-flex items-center px-2 py-0.5 rounded-full bg-[#eff2fb] text-[#3d60ae] text-[11px] font-semibold whitespace-nowrap"
+                      key={ch}
+                    >{ch}</span>
                   ))}
                 </div>
 
-                <ul>
+                <ul className="grid gap-2 list-none m-0 p-0">
                   {pkg.details.map((detail) => (
-                    <li key={detail}>
+                    <li key={detail} className="flex items-center gap-2 text-[13px] text-text">
                       <Check aria-hidden="true" size={14} strokeWidth={2.4} />
                       <span>{detail}</span>
                     </li>
@@ -256,38 +263,38 @@ export function MarketingCampaignContent() {
         </section>
       )}
 
-      <header className="page-title-row" style={{ marginTop: "2rem" }}>
+      <header className="flex items-start justify-between gap-4" style={{ marginTop: "2rem" }}>
         <div>
-          <h1>{t("activeCampaigns")}</h1>
-          <p className="dashboard-sub">
+          <h1 className="text-[21px] font-bold tracking-[-0.4px] text-text m-0">{t("activeCampaigns")}</h1>
+          <p className="text-[13px] text-muted mt-[3px] leading-[1.5]">
             Track campaign status, countdown, and performance reports after completion.
           </p>
         </div>
       </header>
 
       {!campaignsLoading && campaigns.length > 0 && (
-        <div className="campaigns-summary-strip">
-          <div className="campaigns-summary-stat">
-            <span className="stat-value">{counts.total}</span>
-            <span className="stat-label">Total Campaigns</span>
+        <div className="grid grid-cols-4 gap-3">
+          <div className="border border-border rounded-[10px] bg-surface shadow-sm px-[18px] py-[14px] flex flex-col gap-[3px]">
+            <span className="text-[24px] font-bold text-[#0f172a] leading-none">{counts.total}</span>
+            <span className="text-[11.5px] text-[#64748b]">Total Campaigns</span>
           </div>
-          <div className="campaigns-summary-stat campaigns-summary-active">
-            <span className="stat-value">{counts.active}</span>
-            <span className="stat-label">Active</span>
+          <div className="border border-border border-t-[3px] border-t-[#25a66a] rounded-[10px] bg-surface shadow-sm px-[18px] py-[14px] flex flex-col gap-[3px]">
+            <span className="text-[24px] font-bold text-[#0f172a] leading-none">{counts.active}</span>
+            <span className="text-[11.5px] text-[#64748b]">Active</span>
           </div>
-          <div className="campaigns-summary-stat campaigns-summary-pending">
-            <span className="stat-value">{counts.pending}</span>
-            <span className="stat-label">Pending Approval</span>
+          <div className="border border-border border-t-[3px] border-t-[#f2a51a] rounded-[10px] bg-surface shadow-sm px-[18px] py-[14px] flex flex-col gap-[3px]">
+            <span className="text-[24px] font-bold text-[#0f172a] leading-none">{counts.pending}</span>
+            <span className="text-[11.5px] text-[#64748b]">Pending Approval</span>
           </div>
-          <div className="campaigns-summary-stat campaigns-summary-completed">
-            <span className="stat-value">{counts.completed}</span>
-            <span className="stat-label">Completed</span>
+          <div className="border border-border border-t-[3px] border-t-[#94a3b8] rounded-[10px] bg-surface shadow-sm px-[18px] py-[14px] flex flex-col gap-[3px]">
+            <span className="text-[24px] font-bold text-[#0f172a] leading-none">{counts.completed}</span>
+            <span className="text-[11.5px] text-[#64748b]">Completed</span>
           </div>
         </div>
       )}
 
       <section className="campaigns-list-card product-list-card">
-        <div className="campaign-status-tabs">
+        <div className="flex gap-0 border-b border-border px-1">
           {TABS.map((tab) => (
             <button
               key={tab.key}
@@ -327,9 +334,9 @@ export function MarketingCampaignContent() {
               ) : filtered.length === 0 ? (
                 <tr>
                   <td colSpan={8}>
-                    <div className="campaigns-empty-state">
+                    <div className="flex flex-col items-center gap-[10px] py-9 px-5 text-[#94a3b8]">
                       <Megaphone size={34} strokeWidth={1.4} aria-hidden="true" />
-                      <p>
+                      <p className="m-0 text-[14px] text-[#64748b]">
                         {campaigns.length === 0
                           ? "No campaigns yet."
                           : "No campaigns match this filter."}
@@ -353,7 +360,7 @@ export function MarketingCampaignContent() {
                           {pkg ? `$${pkg.price.toLocaleString("en-US")} / ${pkg.durationDays}d` : "-"}
                         </td>
                         <td>
-                          <span className="campaign-code">
+                          <span className="inline-flex items-center gap-1 font-mono text-[12px] bg-[#f1f3f9] px-[7px] py-[2px] rounded-[5px] text-[#334155]">
                             <code>{campaign.code}</code>
                             <button
                               className="row-action-btn"
@@ -376,7 +383,7 @@ export function MarketingCampaignContent() {
                         </td>
                         <td>
                           {campaign.status === "active" && remaining ? (
-                            <span className="countdown-badge">
+                            <span className="inline-flex items-center gap-[5px] bg-[#eff6ff] text-[#1d4ed8] rounded-[6px] px-[9px] py-[3px] text-[12px] font-semibold whitespace-nowrap">
                               <Clock size={12} strokeWidth={2.3} aria-hidden="true" />
                               {remaining.days}d {remaining.hours}h left
                             </span>
@@ -407,16 +414,16 @@ export function MarketingCampaignContent() {
                       {open === campaign.id && (
                         <tr key={`${campaign.id}-report`} className="row-details-row">
                           <td colSpan={8}>
-                            <div className="campaign-report">
-                              <div className="campaign-report-header">
-                                <h4>
+                            <div className="p-[14px_16px] bg-[#fafbfe] border-t border-border grid gap-3">
+                              <div className="flex items-baseline gap-3 flex-wrap">
+                                <h4 className="m-0 text-[14px] font-bold text-[#0f172a]">
                                   {campaign.status === "completed"
                                     ? "Campaign Report"
                                     : "Live Stats"}{" "}
                                   — {campaign.code}
                                 </h4>
                                 {campaign.startsAt && campaign.endsAt && (
-                                  <span className="campaign-report-dates">
+                                  <span className="text-[12px] text-[#94a3b8] font-medium">
                                     {campaign.startsAt.slice(0, 10)} →{" "}
                                     {campaign.endsAt.slice(0, 10)}
                                   </span>

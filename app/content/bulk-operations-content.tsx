@@ -93,20 +93,20 @@ export function BulkOperationsContent({ initialMode = "prices" }: { initialMode?
   const hasErrors = validation.some((result) => !result.valid);
 
   return (
-    <div className="bulk-content">
-      <header className="page-title-row">
+    <div className="grid gap-[18px] p-[22px_24px_48px]">
+      <header className="flex items-start justify-between gap-[18px]">
         <div>
-          <h1>{t("bulkUpdates")}</h1>
-          <p className="dashboard-sub">
+          <h1 className="m-0">{t("bulkUpdates")}</h1>
+          <p className="mt-[7px] text-muted text-[13px] leading-[1.5]">
             CSV/XLSX gateway to update prices or inventory only without creating new products.
           </p>
         </div>
       </header>
 
-      <section className="bulk-card csv-portal-card">
-        <div className="bulk-tabs">
+      <section className="dashboard-panel p-[22px_24px] grid gap-4">
+        <div className="flex gap-1 p-[14px_16px_0]">
           <button
-            className={`bulk-tab${mode === "prices" ? " is-active" : ""}`}
+            className={`px-[14px] py-[6px] rounded-lg text-[13px] font-medium border border-transparent bg-transparent text-muted cursor-pointer transition-colors hover:bg-[#f1f3f9] hover:text-text${mode === "prices" ? " !bg-brand !text-white !border-brand shadow-[0_2px_8px_rgba(215,25,32,0.2)]" : ""}`}
             type="button"
             onClick={() => {
               setMode("prices");
@@ -117,7 +117,7 @@ export function BulkOperationsContent({ initialMode = "prices" }: { initialMode?
             Update Prices
           </button>
           <button
-            className={`bulk-tab${mode === "stock" ? " is-active" : ""}`}
+            className={`px-[14px] py-[6px] rounded-lg text-[13px] font-medium border border-transparent bg-transparent text-muted cursor-pointer transition-colors hover:bg-[#f1f3f9] hover:text-text${mode === "stock" ? " !bg-brand !text-white !border-brand shadow-[0_2px_8px_rgba(215,25,32,0.2)]" : ""}`}
             type="button"
             onClick={() => {
               setMode("stock");
@@ -129,19 +129,19 @@ export function BulkOperationsContent({ initialMode = "prices" }: { initialMode?
           </button>
         </div>
 
-        <div className="bulk-tab-body">
-          <div className="warning-banner">
+        <div className="p-[20px_22px] grid gap-4">
+          <div className="flex items-center gap-[9px] px-[14px] py-[11px] rounded-[10px] border border-[#fed7aa] bg-[#fff7ed] text-[#9a3412] text-[13px]">
             Do not upload new products from this page, and do not change protected columns such as product name,
             SKU, barcode, or product code. This portal is for updates only.
           </div>
 
-          <ol className="bulk-steps csv-steps">
+          <ol className="grid gap-[10px]">
             {steps.map((step, index) => (
               <li key={step}>
-                <span>{step}</span>
+                <span className="text-[#2d3a52] font-medium">{step}</span>
                 {index === 0 ? (
                   <button
-                    className="bulk-export-button"
+                    className="inline-flex items-center justify-center min-w-[128px] min-h-[38px] gap-[6px] border-0 rounded-lg bg-gradient-to-br from-[#4d6fcd] to-[#3558b4] text-white cursor-pointer font-inherit text-[13px] font-semibold tracking-[0.1px] shadow-[0_2px_6px_rgba(53,88,180,0.35),0_1px_2px_rgba(53,88,180,0.2)] transition-[transform,box-shadow,background] hover:bg-gradient-to-br hover:from-[#3d60be] hover:to-[#2a4da6] hover:-translate-y-px"
                     type="button"
                     onClick={() => downloadTemplate(products, mode)}
                   >
@@ -151,7 +151,7 @@ export function BulkOperationsContent({ initialMode = "prices" }: { initialMode?
                 ) : null}
                 {index === 1 ? (
                   <button
-                    className="bulk-dropzone csv-upload-zone"
+                    className="border-2 border-dashed border-border rounded-[12px] bg-[#fafbfe] p-8 text-center cursor-pointer text-[#94a3b8] text-[13px] transition-colors hover:border-[rgba(215,25,32,0.35)] hover:bg-[#fff0f0] hover:text-brand w-full"
                     type="button"
                     onClick={() => setUploaded(true)}
                   >
@@ -160,8 +160,8 @@ export function BulkOperationsContent({ initialMode = "prices" }: { initialMode?
                   </button>
                 ) : null}
                 {index === 2 && uploaded ? (
-                  <div className="validation-review">
-                    <table className="purchase-order-table">
+                  <div className="rounded-[10px] border border-border overflow-hidden">
+                    <table className="w-full min-w-[900px] border-collapse table-fixed purchase-order-table">
                       <thead>
                         <tr>
                           <th>SKU</th>
@@ -183,7 +183,7 @@ export function BulkOperationsContent({ initialMode = "prices" }: { initialMode?
                               </span>
                             </td>
                             <td>
-                              <div className="validation-stack">
+                              <div className="grid gap-1">
                                 {[
                                   ...validation[rowIndex].errors,
                                   ...validation[rowIndex].warnings,
@@ -214,7 +214,7 @@ export function BulkOperationsContent({ initialMode = "prices" }: { initialMode?
           </ol>
 
           {applied ? (
-            <div className="success-banner">
+            <div className="flex items-center gap-[9px] px-[14px] py-[11px] rounded-[10px] border border-[#bbf7d0] bg-[#f0fdf4] text-[#166534] text-[13px]">
               <CheckCircle2 aria-hidden="true" size={18} strokeWidth={2.4} />
               Valid updates have been applied to product data.
             </div>
