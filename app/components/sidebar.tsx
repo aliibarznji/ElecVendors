@@ -5,9 +5,7 @@ import {
   Bell,
   ChevronLeft,
   ChevronRight,
-  ClipboardCheck,
   CreditCard,
-  History,
   Home,
   Layers,
   List,
@@ -20,7 +18,6 @@ import {
   Tag,
   Truck,
   User,
-  Users,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -75,14 +72,6 @@ const sidebarSections: SidebarSection[] = [
     links: [
       { labelKey: "navVendorProfile", href: "/profile", icon: User },
       { labelKey: "navWarranty", href: "/warranty", icon: ShieldCheck },
-    ],
-  },
-  {
-    titleKey: "sectionAccountManager",
-    links: [
-      { labelKey: "navVendorOrders", href: "/account-manager/orders", icon: Users },
-      { labelKey: "navPendingProducts", href: "/account-manager/pending-products", icon: ClipboardCheck },
-      { labelKey: "navOperationsLog", href: "/account-manager/log", icon: History },
     ],
   },
 ];

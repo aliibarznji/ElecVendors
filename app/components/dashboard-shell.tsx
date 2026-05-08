@@ -4,11 +4,11 @@ import { TopNav } from "./top-nav";
 
 export function DashboardShell({ children }: { children: ReactNode }) {
   return (
-    <main className="min-h-screen bg-[var(--background)]">
+    <main className="dashboard-shell">
       <TopNav />
-      <div className="flex min-h-[calc(100vh-68px)]">
+      <div className="dashboard-body">
         <Sidebar />
-        <section className="flex-1 min-w-0 min-h-[calc(100vh-68px)]" aria-label="Dashboard content">
+        <section className="dashboard-stage" aria-label="Dashboard content">
           {children}
         </section>
       </div>
