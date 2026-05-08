@@ -1,5 +1,5 @@
-import { DashboardShell } from "../dashboard-shell";
-import { DeliveryPricesContent } from "../delivery-prices-content";
+import { DashboardShell } from "../components/dashboard-shell";
+import { DeliveryPricesContent } from "../content/delivery-prices-content";
 
 export default function DeliveryPricesPage() {
   return (

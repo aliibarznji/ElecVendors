@@ -18,10 +18,10 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { useLang } from "./lang-context";
-import { StatusPill } from "./status-pill";
-import { api, type OrdersParams } from "./lib/api";
-import { formatIqd, type ApiOrder, type ApiProduct } from "./lib/utils";
+import { useLang } from "../lib/lang-context";
+import { StatusPill } from "../components/status-pill";
+import { api, type OrdersParams } from "../lib/api";
+import { formatIqd, type ApiOrder, type ApiProduct } from "../lib/utils";
 
 function ProductThumb({ product }: { product?: ApiProduct }) {
   const { lang } = useLang();

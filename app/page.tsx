@@ -1,5 +1,5 @@
-import { DashboardContent } from "./dashboard-content";
-import { DashboardShell } from "./dashboard-shell";
+import { DashboardContent } from "./content/dashboard-content";
+import { DashboardShell } from "./components/dashboard-shell";
 
 export default function Home() {
   return (

@@ -2,9 +2,9 @@
 
 import { CheckCircle2, Download, FileSpreadsheet, UploadCloud } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import { useLang } from "./lang-context";
-import { api } from "./lib/api";
-import { totalProductQty, type ApiProduct } from "./lib/utils";
+import { useLang } from "../lib/lang-context";
+import { api } from "../lib/api";
+import { totalProductQty, type ApiProduct } from "../lib/utils";
 
 type Mode = "prices" | "stock";
 

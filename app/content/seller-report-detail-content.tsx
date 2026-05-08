@@ -3,9 +3,9 @@
 import { ArrowLeft, Download } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import { useLang } from "./lang-context";
-import { api } from "./lib/api";
-import { bestSellingProducts, formatIqd, salesByProvince, type ApiOrder } from "./lib/utils";
+import { useLang } from "../lib/lang-context";
+import { api } from "../lib/api";
+import { bestSellingProducts, formatIqd, salesByProvince, type ApiOrder } from "../lib/utils";
 
 type Preset = "today" | "yesterday" | "last7" | "last30" | "thisMonth" | "lastMonth" | "custom";
 

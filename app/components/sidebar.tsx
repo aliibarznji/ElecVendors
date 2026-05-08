@@ -25,8 +25,8 @@ import {
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { useLang } from "./lang-context";
-import type { Translations } from "./translations";
+import { useLang } from "../lib/lang-context";
+import type { Translations } from "../lib/translations";
 
 type SidebarLink = { labelKey: keyof Translations; href: string; icon: React.ComponentType<{ "aria-hidden"?: boolean | "true"; size?: number; strokeWidth?: number }> };
 type SidebarSection = { titleKey: keyof Translations; links: SidebarLink[] };

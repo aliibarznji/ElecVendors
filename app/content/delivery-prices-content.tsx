@@ -2,9 +2,9 @@
 
 import { Pencil, RotateCcw, Save, Search } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import { useLang } from "./lang-context";
-import { api } from "./lib/api";
-import type { ApiDeliveryPrice } from "./lib/utils";
+import { useLang } from "../lib/lang-context";
+import { api } from "../lib/api";
+import type { ApiDeliveryPrice } from "../lib/utils";
 
 export function DeliveryPricesContent() {
   const [rows, setRows] = useState<ApiDeliveryPrice[]>([]);

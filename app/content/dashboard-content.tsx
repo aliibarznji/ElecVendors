@@ -15,15 +15,15 @@ import {
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { useLang } from "./lang-context";
-import { StatusPill } from "./status-pill";
-import { api } from "./lib/api";
+import { useLang } from "../lib/lang-context";
+import { StatusPill } from "../components/status-pill";
+import { api } from "../lib/api";
 import {
   bestSellingProducts,
   formatIqd,
   salesByProvince,
   type ApiOrder,
-} from "./lib/utils";
+} from "../lib/utils";
 
 const TODAY = new Date().toISOString().slice(0, 10);
 const THIS_MONTH_START = `${TODAY.slice(0, 7)}-01`;

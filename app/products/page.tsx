@@ -1,5 +1,5 @@
-import { DashboardShell } from "../dashboard-shell";
-import { ProductListContent } from "../product-list-content";
+import { DashboardShell } from "../components/dashboard-shell";
+import { ProductListContent } from "../content/product-list-content";
 
 export default function ProductListPage() {
   return (

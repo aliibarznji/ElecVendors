@@ -4,8 +4,8 @@ import { Bell, Globe2, LogOut } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useLang } from "./lang-context";
-import { api } from "./lib/api";
+import { useLang } from "../lib/lang-context";
+import { api } from "../lib/api";
 
 export function TopNav() {
   const [unread, setUnread] = useState(0);

@@ -1,5 +1,5 @@
-import { DashboardShell } from "../../dashboard-shell";
-import { SellerReportDetailContent } from "../../seller-report-detail-content";
+import { DashboardShell } from "../../components/dashboard-shell";
+import { SellerReportDetailContent } from "../../content/seller-report-detail-content";
 
 type Props = { params: Promise<{ section: string }> };
 

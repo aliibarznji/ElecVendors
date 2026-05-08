@@ -2,9 +2,9 @@
 
 import { AlertCircle, Check, Clock, Loader2, Package, X } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useLang } from "./lang-context";
-import { api } from "./lib/api";
-import type { AmProduct } from "./lib/utils";
+import { useLang } from "../lib/lang-context";
+import { api } from "../lib/api";
+import type { AmProduct } from "../lib/utils";
 
 function daysAgo(dateStr: string) {
   return Math.floor((Date.now() - new Date(dateStr).getTime()) / 86_400_000);

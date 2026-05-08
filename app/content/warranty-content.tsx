@@ -2,7 +2,7 @@
 
 import { Eye, Pencil, Plus, Save, ShieldCheck, Trash2, X } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useLang } from "./lang-context";
+import { useLang } from "../lib/lang-context";
 
 type Warranty = {
   id: string;

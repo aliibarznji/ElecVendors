@@ -1,5 +1,5 @@
-import { AddProductContent } from "../../add-product-content";
-import { DashboardShell } from "../../dashboard-shell";
+import { AddProductContent } from "../../content/add-product-content";
+import { DashboardShell } from "../../components/dashboard-shell";
 
 type Props = { searchParams: Promise<{ id?: string }> };
 

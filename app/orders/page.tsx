@@ -1,5 +1,5 @@
-import { DashboardShell } from "../dashboard-shell";
-import { OrderItemsContent } from "../order-items-content";
+import { DashboardShell } from "../components/dashboard-shell";
+import { OrderItemsContent } from "../content/order-items-content";
 
 export default function OrdersPage() {
   return (

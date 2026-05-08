@@ -2,9 +2,9 @@
 
 import { Eye, Printer, RotateCcw } from "lucide-react";
 import { Fragment, useEffect, useMemo, useRef, useState } from "react";
-import { useLang } from "./lang-context";
-import { api } from "./lib/api";
-import { formatIqd, type ApiSettlement, type ApiVendor } from "./lib/utils";
+import { useLang } from "../lib/lang-context";
+import { api } from "../lib/api";
+import { formatIqd, type ApiSettlement, type ApiVendor } from "../lib/utils";
 
 function SettlementReceipt({
   settlement,

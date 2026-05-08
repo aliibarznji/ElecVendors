@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { LangProvider } from "./lang-context";
+import { LangProvider } from "./lib/lang-context";
 
 export const metadata: Metadata = {
   title: "Electromall Vendors Dashboard",

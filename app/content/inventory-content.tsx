@@ -2,9 +2,9 @@
 
 import { AlertTriangle, PackageCheck, RotateCcw, Save, Search } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import { useLang } from "./lang-context";
-import { api } from "./lib/api";
-import { formatIqd, totalProductQty, type ApiProduct } from "./lib/utils";
+import { useLang } from "../lib/lang-context";
+import { api } from "../lib/api";
+import { formatIqd, totalProductQty, type ApiProduct } from "../lib/utils";
 
 function ProductThumb({ product }: { product: ApiProduct }) {
   const { lang } = useLang();

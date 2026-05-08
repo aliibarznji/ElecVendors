@@ -14,9 +14,9 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { Fragment, useCallback, useEffect, useMemo, useState } from "react";
-import { useLang } from "./lang-context";
-import { api } from "./lib/api";
-import type { ApiMarketingCampaign, ApiMarketingPackage } from "./lib/utils";
+import { useLang } from "../lib/lang-context";
+import { api } from "../lib/api";
+import type { ApiMarketingCampaign, ApiMarketingPackage } from "../lib/utils";
 
 const FLOW_STEPS = [
   { Icon: ShoppingCart, label: "Select Package", sub: "Browse & purchase" },

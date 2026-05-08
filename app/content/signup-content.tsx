@@ -3,8 +3,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { api } from "./lib/api";
-import { useLang } from "./lang-context";
+import { api } from "../lib/api";
+import { useLang } from "../lib/lang-context";
 
 export function SignupContent() {
   const { t, lang, setLang } = useLang();

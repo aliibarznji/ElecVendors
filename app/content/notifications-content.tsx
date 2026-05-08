@@ -11,10 +11,10 @@ import {
 import type { LucideIcon } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { useLang } from "./lang-context";
-import type { Translations } from "./translations";
-import { api } from "./lib/api";
-import type { ApiNotification } from "./lib/utils";
+import { useLang } from "../lib/lang-context";
+import type { Translations } from "../lib/translations";
+import { api } from "../lib/api";
+import type { ApiNotification } from "../lib/utils";
 
 type NotificationKind = ApiNotification["kind"];
 

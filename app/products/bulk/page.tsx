@@ -1,5 +1,5 @@
-import { DashboardShell } from "../../dashboard-shell";
-import { BulkOperationsContent } from "../../bulk-operations-content";
+import { DashboardShell } from "../../components/dashboard-shell";
+import { BulkOperationsContent } from "../../content/bulk-operations-content";
 
 type Props = { searchParams: Promise<{ mode?: string }> };
 

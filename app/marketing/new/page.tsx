@@ -1,5 +1,5 @@
-import { DashboardShell } from "../../dashboard-shell";
-import { MarketingCampaignContent } from "../../marketing-campaign-content";
+import { DashboardShell } from "../../components/dashboard-shell";
+import { MarketingCampaignContent } from "../../content/marketing-campaign-content";
 
 export default function NewMarketingCampaignPage() {
   return (

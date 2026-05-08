@@ -1,5 +1,5 @@
-import { DashboardShell } from "../dashboard-shell";
-import { SellerReportContent } from "../seller-report-content";
+import { DashboardShell } from "../components/dashboard-shell";
+import { SellerReportContent } from "../content/seller-report-content";
 
 export default function SellerReportPage() {
   return (

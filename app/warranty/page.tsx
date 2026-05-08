@@ -1,5 +1,5 @@
-import { DashboardShell } from "../dashboard-shell";
-import { WarrantyContent } from "../warranty-content";
+import { DashboardShell } from "../components/dashboard-shell";
+import { WarrantyContent } from "../content/warranty-content";
 
 export default function WarrantyPage() {
   return (

@@ -15,10 +15,10 @@ import {
 import type { LucideIcon } from "lucide-react";
 import Link from "next/link";
 import { useState, type ReactNode } from "react";
-import { useLang } from "./lang-context";
-import { StatusPill } from "./status-pill";
-import { api } from "./lib/api";
-import { formatIqd, type ApiOrder } from "./lib/utils";
+import { useLang } from "../lib/lang-context";
+import { StatusPill } from "../components/status-pill";
+import { api } from "../lib/api";
+import { formatIqd, type ApiOrder } from "../lib/utils";
 
 type OrderStatus = ApiOrder["status"];
 

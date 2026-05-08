@@ -13,14 +13,14 @@ import {
   X,
 } from "lucide-react";
 import { Fragment, useEffect, useMemo, useRef, useState } from "react";
-import { useLang } from "./lang-context";
-import { api } from "./lib/api";
+import { useLang } from "../lib/lang-context";
+import { api } from "../lib/api";
 import {
   formatIqd,
   getDiscountStatus,
   type ApiDiscountPlan,
   type ApiProduct,
-} from "./lib/utils";
+} from "../lib/utils";
 
 type DiscountStatus = "active" | "scheduled" | "inactive";
 

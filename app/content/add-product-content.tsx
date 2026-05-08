@@ -24,9 +24,9 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
-import { useLang } from "./lang-context";
-import { api } from "./lib/api";
-import { formatIqd, totalProductQty, type ApiProduct } from "./lib/utils";
+import { useLang } from "../lib/lang-context";
+import { api } from "../lib/api";
+import { formatIqd, totalProductQty, type ApiProduct } from "../lib/utils";
 
 type SizeRow = { id: string; size: string; quantity: number };
 type ColorRow = { id: string; code: string; name: string; sizes: SizeRow[] };

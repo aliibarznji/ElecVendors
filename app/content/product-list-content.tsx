@@ -12,9 +12,9 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import { useLang } from "./lang-context";
-import { api } from "./lib/api";
-import { formatIqd, totalProductQty, type ApiProduct } from "./lib/utils";
+import { useLang } from "../lib/lang-context";
+import { api } from "../lib/api";
+import { formatIqd, totalProductQty, type ApiProduct } from "../lib/utils";
 
 type ProductStatus = "published" | "unpublished" | "review" | "rejected";
 

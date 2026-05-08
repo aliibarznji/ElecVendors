@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { cookies } from "next/headers";
-import { DashboardShell } from "../../dashboard-shell";
-import { OrderDetailContent } from "../../order-detail-content";
+import { DashboardShell } from "../../components/dashboard-shell";
+import { OrderDetailContent } from "../../content/order-detail-content";
 
 type Props = { params: Promise<{ orderNumber: string }> };
 

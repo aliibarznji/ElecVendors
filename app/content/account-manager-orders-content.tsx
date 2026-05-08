@@ -10,10 +10,10 @@ import {
   X,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import { useLang } from "./lang-context";
-import { api } from "./lib/api";
-import type { AmCampaign, AmOrder } from "./lib/utils";
-import { formatIqd } from "./lib/utils";
+import { useLang } from "../lib/lang-context";
+import { api } from "../lib/api";
+import type { AmCampaign, AmOrder } from "../lib/utils";
+import { formatIqd } from "../lib/utils";
 
 const ORDER_STATUSES = ["all", "new", "ready", "shipped", "delivered", "cancelled"] as const;
 const STATUS_LABEL: Record<string, string> = {

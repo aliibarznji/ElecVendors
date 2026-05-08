@@ -31,15 +31,24 @@ export default function Page() {
 ```
 
 - `page.tsx` files are intentionally thin server components that only compose the shell and the feature content.
-- `<DashboardShell>` (`app/dashboard-shell.tsx`) provides `<TopNav>` + `<Sidebar>` + a `<section className="dashboard-stage">` slot for the page body.
-- The actual UI for each page lives in a sibling `*-content.tsx` file at the **`app/` root** (e.g. `app/product-list-content.tsx`), not under the route folder. New pages follow this layout.
-- No shared `components/`, `hooks/`, or `lib/` directories — all utilities live in `app/` root.
+- `<DashboardShell>` (`app/components/dashboard-shell.tsx`) provides `<TopNav>` + `<Sidebar>` + a `<section className="dashboard-stage">` slot for the page body.
+- The actual UI for each page lives in `app/content/*-content.tsx` (e.g. `app/content/product-list-content.tsx`). New pages follow this layout.
 
-**Navigation is centralized.** `app/sidebar.tsx` holds the full nav as a `sidebarSections` array (7 sections, 24 links). Adding a route means adding both a `page.tsx` and a link entry there — they are not auto-discovered.
+**Directory layout.**
+```
+app/
+├── layout.tsx / page.tsx / globals.css
+├── lib/          — api.ts, utils.ts, translations.ts, lang-context.tsx
+├── components/   — dashboard-shell.tsx, sidebar.tsx, top-nav.tsx, status-pill.tsx
+├── content/      — all *-content.tsx page-body components
+└── <route>/      — page.tsx route files (unchanged)
+```
+
+**Navigation is centralized.** `app/components/sidebar.tsx` holds the full nav as a `sidebarSections` array (7 sections, 24 links). Adding a route means adding both a `page.tsx` and a link entry there — they are not auto-discovered.
 
 **Bilingual (ar/en) + RTL/LTR.**
-- `app/lang-context.tsx` — `LangProvider` + `useLang()` hook. Language persisted in `localStorage`. `LangProvider` wraps the root layout.
-- `app/translations.ts` — full ar/en string dictionaries.
+- `app/lib/lang-context.tsx` — `LangProvider` + `useLang()` hook. Language persisted in `localStorage`. `LangProvider` wraps the root layout.
+- `app/lib/translations.ts` — full ar/en string dictionaries.
 - All content components consume `useLang()` to get `{ lang, t, dir }`. New UI strings must be added to both dictionaries.
 
 **Data layer.**
@@ -48,12 +57,19 @@ export default function Page() {
 - Types live in `app/lib/utils.ts`. Import from there, not redeclared per-file.
 
 **Shared components.**
-- `app/status-pill.tsx` — `<StatusPill>` renders order/product status badges. Use it for any status display.
+- `app/components/status-pill.tsx` — `<StatusPill>` renders order/product status badges. Use it for any status display.
 
 **Dynamic routes.**
 - `app/orders/[orderNumber]/page.tsx` — order detail page. Param: `orderNumber`.
 
-**Profile page patterns** (`app/profile-content.tsx`).
+**Import paths from `app/content/`.**
+- `../lib/api`, `../lib/utils`, `../lib/lang-context`, `../lib/translations`
+- `../components/status-pill`, `../components/dashboard-shell`
+
+**Import paths from `app/components/`.**
+- `../lib/lang-context`, `../lib/translations`, `../lib/api`
+
+**Profile page patterns** (`app/content/profile-content.tsx`).
 - Sub-components: `SectionHeading`, `Field`, `EditInput`, `EditTextarea`, `ChoiceGroup`, `ToggleLine`, `PhoneValue`, `LocationStatus`, `MapFrame`, `VendorAvatar`, `CopyButton`, `Sparkline`.
 - `ChoiceGroup` requires `onChange` to be interactive — omitting it makes it read-only display.
 - `ToggleLine` requires `onChange` to be interactive.
@@ -68,5 +84,5 @@ export default function Page() {
 - No extra error handling unless asked.
 - Minimal output: show only changed code.
 - Use existing component patterns; don't introduce new libraries (no Tailwind, no UI kits, no CSS-in-JS).
-- New pages must use the `DashboardShell` + `*-content.tsx` split and be registered in `app/sidebar.tsx`.
-- New UI strings must have both `ar` and `en` entries in `app/translations.ts`.
+- New pages must use the `DashboardShell` + `*-content.tsx` split and be registered in `app/components/sidebar.tsx`.
+- New UI strings must have both `ar` and `en` entries in `app/lib/translations.ts`.

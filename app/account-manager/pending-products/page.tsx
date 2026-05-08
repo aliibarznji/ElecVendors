@@ -1,5 +1,5 @@
-import { DashboardShell } from "../../dashboard-shell";
-import { AccountManagerPendingProductsContent } from "../../account-manager-pending-products-content";
+import { DashboardShell } from "../../components/dashboard-shell";
+import { AccountManagerPendingProductsContent } from "../../content/account-manager-pending-products-content";
 
 export default function AccountManagerPendingProductsPage() {
   return (

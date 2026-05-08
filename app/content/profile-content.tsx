@@ -40,10 +40,10 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { useLang } from "./lang-context";
-import { api } from "./lib/api";
-import type { ApiVendor, ApiWarehouse } from "./lib/utils";
-import type { Translations } from "./translations";
+import { useLang } from "../lib/lang-context";
+import { api } from "../lib/api";
+import type { ApiVendor, ApiWarehouse } from "../lib/utils";
+import type { Translations } from "../lib/translations";
 
 const mapSrc =
   "https://www.google.com/maps?q=52R4%2B8H2%2C%20Erbil%2C%20Erbil%20Governorate%2C%20Iraq&output=embed";

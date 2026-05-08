@@ -2,9 +2,9 @@
 
 import { AlertCircle, ClipboardList, Loader2, RefreshCw } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useLang } from "./lang-context";
-import { api } from "./lib/api";
-import type { AmLogEntry } from "./lib/utils";
+import { useLang } from "../lib/lang-context";
+import { api } from "../lib/api";
+import type { AmLogEntry } from "../lib/utils";
 
 const ACTION_TYPES = [
   "All",

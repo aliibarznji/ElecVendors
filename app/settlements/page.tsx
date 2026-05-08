@@ -1,5 +1,5 @@
-import { DashboardShell } from "../dashboard-shell";
-import { SettlementsContent } from "../settlements-content";
+import { DashboardShell } from "../components/dashboard-shell";
+import { SettlementsContent } from "../content/settlements-content";
 
 export default function SettlementsPage() {
   return (

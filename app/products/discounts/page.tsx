@@ -1,5 +1,5 @@
-import { DashboardShell } from "../../dashboard-shell";
-import { DiscountPlansContent } from "../../discount-plans-content";
+import { DashboardShell } from "../../components/dashboard-shell";
+import { DiscountPlansContent } from "../../content/discount-plans-content";
 
 export default function DiscountPlansPage() {
   return (

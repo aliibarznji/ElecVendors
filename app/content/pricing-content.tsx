@@ -2,9 +2,9 @@
 
 import { AlertTriangle, Lock, RotateCcw, Save, Search } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import { useLang } from "./lang-context";
-import { api } from "./lib/api";
-import { formatIqd, type ApiProduct } from "./lib/utils";
+import { useLang } from "../lib/lang-context";
+import { api } from "../lib/api";
+import { formatIqd, type ApiProduct } from "../lib/utils";
 
 type PricingDraft = {
   costPrice: number;

@@ -1,6 +1,6 @@
 "use client";
 
-import { useLang } from "./lang-context";
+import { useLang } from "../lib/lang-context";
 
 type OrderStatus = "new" | "ready" | "shipped" | "delivered" | "cancelled";
 
