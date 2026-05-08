@@ -404,13 +404,13 @@ export function DashboardContent() {
   ];
 
   return (
-    <div className="dashboard-content">
-      <header className="dashboard-header">
+    <div className="grid gap-5 px-7 pt-6 pb-12 [animation:dashboard-fade-in_400ms_var(--ease-out)_both]">
+      <header className="flex items-start justify-between gap-6">
         <div>
           <h1>{t("mainDashboard")}</h1>
-          <p className="dashboard-sub">{t("dashboardSub")}</p>
+          <p className="mt-[7px] text-muted text-[13px] leading-relaxed">{t("dashboardSub")}</p>
         </div>
-        <div className="dashboard-controls">
+        <div className="grid justify-items-end gap-[10px]">
           <div className="primary-controls">
             {/* Export dropdown */}
             <div className="export-dropdown-wrap" ref={exportRef}>
@@ -543,7 +543,7 @@ export function DashboardContent() {
         </div>
       </header>
 
-      <section className="dashboard-kpi-grid" aria-label="Monthly indicators">
+      <section className="grid grid-cols-4 gap-4" aria-label="Monthly indicators">
         {kpis.map((kpi) => (
           <KpiCard key={kpi.label} {...kpi} liveLabel={t("liveUpdate")} />
         ))}
@@ -647,10 +647,10 @@ export function DashboardContent() {
       </section>
 
       <section className="dashboard-panel table-panel table-panel-large">
-        <div className="panel-heading">
+        <div className="flex items-center justify-between gap-4 mb-[22px]">
           <h2>{t("recentOrders")}</h2>
         </div>
-        <div className="table-wrap">
+        <div className="w-full overflow-x-auto rounded-[10px] border border-border">
           <table className="dashboard-table">
             <thead>
               <tr>
