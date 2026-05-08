@@ -6,7 +6,7 @@ This file provides guidance to Codex (Codex.ai/code) when working with code in t
 
 ## Stack
 - Next.js (App Router) + React + TypeScript
-- Plain CSS (no Tailwind, no CSS-in-JS) — all styling in `app/globals.css`
+- Tailwind CSS v4 (no CSS-in-JS) - all styling entrypoints live in `app/globals.css`
 - `lucide-react` for icons (only third-party UI dep)
 
 ## Commands
@@ -73,16 +73,16 @@ app/
 - Sub-components: `SectionHeading`, `Field`, `EditInput`, `EditTextarea`, `ChoiceGroup`, `ToggleLine`, `PhoneValue`, `LocationStatus`, `MapFrame`, `VendorAvatar`, `CopyButton`, `Sparkline`.
 - `ChoiceGroup` requires `onChange` to be interactive — omitting it makes it read-only display.
 - `ToggleLine` requires `onChange` to be interactive.
-- CSS classes for profile (all in `globals.css`): `profile-avatar-section`, `profile-avatar`, `vendor-status-badge`, `copy-btn`, `profile-edit-textarea`, `performance-grid-4`, `performance-card-header`, `rate-good/warn/bad`, `perf-benchmark`, `sparkline`, `points-marketing-banner`, `points-marketing-link`.
+- Tailwind-backed profile classes (all in `globals.css`): `profile-avatar-section`, `profile-avatar`, `vendor-status-badge`, `copy-btn`, `profile-edit-textarea`, `performance-grid-4`, `performance-card-header`, `rate-good/warn/bad`, `perf-benchmark`, `sparkline`, `points-marketing-banner`, `points-marketing-link`.
 
 **Client vs server components.** Pages and content components are server components by default. Mark `"use client"` only when interactivity (state, event handlers, `usePathname`, etc.) is required — e.g. `sidebar.tsx` and forms.
 
-**Styling.** `app/globals.css` is the single source of truth: CSS custom properties at `:root` (`--brand`, `--surface`, `--radius`, `--shadow`, …) plus semantic class names. Reuse existing variables and class names.
+**Styling.** `app/globals.css` is the single source of truth: Tailwind v4 `@theme` tokens, CSS custom properties at `:root` (`--brand`, `--surface`, `--radius`, `--shadow`, ...), and semantic classes implemented with Tailwind `@apply`. Reuse existing variables and class names.
 
 ## Rules
 - No comments on unchanged code.
 - No extra error handling unless asked.
 - Minimal output: show only changed code.
-- Use existing component patterns; don't introduce new libraries (no Tailwind, no UI kits, no CSS-in-JS).
+- Use existing component patterns; don't introduce new libraries (no UI kits, no CSS-in-JS).
 - New pages must use the `DashboardShell` + `*-content.tsx` split and be registered in `app/components/sidebar.tsx`.
 - New UI strings must have both `ar` and `en` entries in `app/lib/translations.ts`.

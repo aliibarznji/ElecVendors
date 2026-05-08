@@ -10,7 +10,7 @@ Vendor management dashboard for ElecMall — bilingual (Arabic/English), RTL/LTR
 | Backend | Node.js + Express + TypeScript |
 | Database | PostgreSQL 16 + Prisma ORM |
 | Auth | JWT in httpOnly cookies |
-| Styling | Plain CSS (`app/globals.css`) — no Tailwind, no UI kit |
+| Styling | Tailwind CSS v4 (`app/globals.css`) - no UI kit |
 
 ---
 
