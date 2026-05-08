@@ -18,7 +18,8 @@
       "Bash(npx tsx *)",
       "Bash(docker-compose exec *)",
       "WebFetch(domain:www.apple.com)",
-      "Bash(docker cp *)"
+      "Bash(docker cp *)",
+      "Bash(dir \"C:\\\\Users\\\\aliib\\\\Desktop\\\\New folder \\(3\\)\" /b)"
     ]
   }
 }

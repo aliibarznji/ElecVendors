@@ -85,7 +85,6 @@ export const api = {
         body: JSON.stringify(data),
       }),
     logout: () => req<{ ok: boolean }>("/auth/logout", { method: "POST" }),
-    me: () => req<{ id: string; reference: string; name: string; email: string }>("/auth/me"),
   },
 
   orders: {
