@@ -45,9 +45,9 @@ Three containers start:
 docker compose exec api npm run db:seed
 ```
 
-Default login (change password after first login):
-- Email: `admin@electromall.com`
-- Password: `ChangeMe@123`
+Default login:
+- Email: `mcenter@mobile.iq`
+- Password: `mcenter17`
 
 Override via env vars:
 ```bash
