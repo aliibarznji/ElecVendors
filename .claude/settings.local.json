@@ -23,7 +23,10 @@
       "Bash(Get-ChildItem \"C:\\\\Users\\\\aliib\\\\Desktop\\\\New folder \\(3\\)\" -Depth 1)",
       "Bash(Select-Object Name, PSIsContainer)",
       "Bash(Format-Table -AutoSize)",
-      "Bash(npm run *)"
+      "Bash(npm run *)",
+      "Bash(Test-Path \"c:\\\\Users\\\\aliib\\\\Desktop\\\\New folder \\(3\\)\\\\ElecVendors\\\\.env\")",
+      "Bash(openssl rand *)",
+      "Bash(docker compose *)"
     ]
   }
 }

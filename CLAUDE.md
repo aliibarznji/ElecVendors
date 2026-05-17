@@ -5,15 +5,40 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 # Electromall Vendors Dashboard
 
 ## Stack
+
+**Frontend**
 - Next.js (App Router) + React + TypeScript
 - Tailwind CSS v4 (no CSS-in-JS) - all styling entrypoints live in `app/globals.css`
 - `lucide-react` for icons (only third-party UI dep)
 
+**Backend** (`backend/`)
+- Express + TypeScript + Prisma ORM
+- PostgreSQL (postgres:16-alpine in Docker)
+- Zod validation schemas in `backend/src/schemas/index.ts`
+- Routes in `backend/src/routes/`
+- Auth middleware: JWT via `backend/src/middleware/auth.ts`
+- Error handler: `backend/src/middleware/errorHandler.ts` — maps Prisma error codes to HTTP responses
+
 ## Commands
+
+**Frontend**
 - `npm run dev` — start dev server
 - `npm run build` — production build
 - `npm run lint` — ESLint (uses `eslint-config-next`)
 - `npm test` — Node native test runner
+
+**Docker (production)**
+- `docker compose up -d` — start all services (postgres + api + frontend)
+- `docker compose up --build -d` — rebuild images then start
+- `docker compose down` — stop all services
+- Requires `.env` at repo root with `POSTGRES_PASSWORD` and `JWT_SECRET`
+- On startup, API container auto-runs `prisma migrate deploy` via `entrypoint.sh`
+
+**Backend schema changes**
+- Edit `backend/prisma/schema.prisma`
+- Create migration: `backend/prisma/migrations/YYYYMMDDHHMMSS_<name>/migration.sql`
+- Migration runs automatically on next `docker compose up`
+- Never edit the init migration — always add a new migration file
 
 ## Architecture
 
@@ -36,13 +61,29 @@ export default function Page() {
 
 **Directory layout.**
 ```
-app/
+app/                          — Next.js frontend
 ├── layout.tsx / page.tsx / globals.css
 ├── lib/          — api.ts, utils.ts, translations.ts, lang-context.tsx
 ├── components/   — dashboard-shell.tsx, sidebar.tsx, top-nav.tsx, status-pill.tsx
 ├── content/      — all *-content.tsx page-body components
 └── <route>/      — page.tsx route files (unchanged)
+
+backend/                      — Express API
+├── src/
+│   ├── index.ts              — entry, registers routes
+│   ├── db.ts                 — Prisma client singleton
+│   ├── config.ts             — env vars
+│   ├── middleware/           — auth.ts, errorHandler.ts
+│   ├── routes/               — one file per resource
+│   └── schemas/index.ts      — Zod schemas for all request bodies
+├── prisma/
+│   ├── schema.prisma         — source of truth for DB models
+│   └── migrations/           — SQL migration files
+├── Dockerfile
+└── entrypoint.sh             — runs migrate deploy then starts server
 ```
+
+**Proxy.** Next.js rewrites `/api/backend/*` → `http://localhost:4000/api/*` (see `next.config.ts`). In Docker, frontend container targets `http://api:4000`.
 
 **Navigation is centralized.** `app/components/sidebar.tsx` holds the full nav as a `sidebarSections` array (7 sections, 24 links). Adding a route means adding both a `page.tsx` and a link entry there — they are not auto-discovered.
 
@@ -86,3 +127,4 @@ app/
 - Use existing component patterns; don't introduce new libraries (no UI kits, no CSS-in-JS).
 - New pages must use the `DashboardShell` + `*-content.tsx` split and be registered in `app/components/sidebar.tsx`.
 - New UI strings must have both `ar` and `en` entries in `app/lib/translations.ts`.
+- New backend fields in `schema.prisma` must have a corresponding migration SQL file — never rely on `prisma db push` in production.
