@@ -6,21 +6,23 @@ Vendor management dashboard for ElecMall — bilingual (Arabic/English), RTL/LTR
 
 | Layer | Tech |
 |---|---|
-| Frontend | Next.js 16 (App Router) + React + TypeScript |
+| Frontend | Next.js 15 (App Router) + React + TypeScript |
 | Backend | Node.js + Express + TypeScript |
 | Database | PostgreSQL 16 + Prisma ORM |
 | Auth | JWT in httpOnly cookies |
-| Styling | Tailwind CSS v4 (`app/globals.css`) - no UI kit |
+| Styling | Tailwind CSS v4 (`app/globals.css`) — no UI kit |
+| Icons | lucide-react |
 
 ---
 
 ## Deploy with Docker Compose (recommended)
 
-### 1. Create a `.env` file in the repo root
+### 1. Create `.env` in repo root
 
 ```bash
 POSTGRES_PASSWORD=<strong-random-password>
 JWT_SECRET=<output of: openssl rand -base64 48>
+JWT_EXPIRES_IN=7d
 ```
 
 ### 2. Build and start
@@ -29,10 +31,13 @@ JWT_SECRET=<output of: openssl rand -base64 48>
 docker compose up --build -d
 ```
 
-This starts three containers:
-- `electromall_postgres` — PostgreSQL 16 (port 5432, localhost only)
-- `electromall_api` — Express API (port 4000, localhost only; runs migrations on startup)
-- `electromall_frontend` — Next.js (port 3000, public)
+Three containers start:
+
+| Container | Port | Notes |
+|---|---|---|
+| `electromall_postgres` | 5432 (localhost only) | PostgreSQL 16 |
+| `electromall_api` | 4000 (localhost only) | Express API — runs migrations on startup |
+| `electromall_frontend` | 3000 (public) | Next.js |
 
 ### 3. Seed on first deploy
 
@@ -40,13 +45,23 @@ This starts three containers:
 docker compose exec api npm run db:seed
 ```
 
-Default admin login (change the password after first login):
+Default login (change password after first login):
 - Email: `admin@electromall.com`
 - Password: `ChangeMe@123`
 
-You can override these via env vars before seeding:
+Override via env vars:
 ```bash
 VENDOR_EMAIL=you@company.com VENDOR_PASSWORD=YourPassword123 VENDOR_NAME="Your Name" npm run db:seed
+```
+
+### Useful Docker commands
+
+```bash
+docker compose ps                        # status
+docker compose logs api --tail 50        # API logs
+docker compose restart api               # restart API only
+docker compose down                      # stop all
+docker compose down -v                   # stop + wipe DB volume
 ```
 
 ---
@@ -57,7 +72,7 @@ VENDOR_EMAIL=you@company.com VENDOR_PASSWORD=YourPassword123 VENDOR_NAME="Your N
 - Node.js 22+
 - Docker (for PostgreSQL) or a local PostgreSQL 16 instance
 
-### 1. Start the database
+### 1. Start database
 
 ```bash
 docker run -d --name pg-dev \
@@ -69,8 +84,9 @@ docker run -d --name pg-dev \
 
 ### 2. Configure backend
 
-```bash
-# backend/.env
+Create `backend/.env`:
+
+```env
 DATABASE_URL=postgresql://electromall:devpass@localhost:5432/electromall_vendors
 JWT_SECRET=$(openssl rand -base64 48)
 CORS_ORIGIN=http://localhost:3000
@@ -83,9 +99,9 @@ NODE_ENV=development
 ```bash
 cd backend
 npm install
-npx prisma migrate deploy
-npm run db:seed
-npm run dev     # http://localhost:4000
+npm run db:migrate   # prisma migrate deploy
+npm run db:seed      # seed initial vendor
+npm run dev          # http://localhost:4000
 ```
 
 ### 4. Run frontend
@@ -93,14 +109,28 @@ npm run dev     # http://localhost:4000
 ```bash
 # from repo root
 npm install
-npm run dev     # http://localhost:3000
+npm run dev          # http://localhost:3000
 ```
+
+---
+
+## Database migrations
+
+Migrations live in `backend/prisma/migrations/`. The API container runs `prisma migrate deploy` on every startup via `entrypoint.sh`.
+
+**Adding a new migration:**
+1. Edit `backend/prisma/schema.prisma`
+2. Create `backend/prisma/migrations/YYYYMMDDHHMMSS_<description>/migration.sql`
+3. Write the SQL (`ALTER TABLE`, `CREATE TABLE`, etc.)
+4. Restart or redeploy the API container — migration applies automatically
+
+> Never use `prisma db push` in production. Always create an explicit migration file.
 
 ---
 
 ## API endpoints
 
-All endpoints are prefixed `/api/`. The frontend proxies `/api/backend/*` → `http://api:4000/api/*` via Next.js rewrites.
+All endpoints are prefixed `/api/`. The frontend proxies `/api/backend/*` → `http://api:4000/api/*` via Next.js rewrites (`next.config.ts`).
 
 | Method | Path | Auth | Description |
 |---|---|---|---|
@@ -112,6 +142,7 @@ All endpoints are prefixed `/api/`. The frontend proxies `/api/backend/*` → `h
 | PATCH | `/profile` | ✓ | Update profile + warehouses |
 | GET | `/products` | ✓ | List products (search, filter, paginate) |
 | POST | `/products` | ✓ | Create product |
+| POST | `/products/upload` | ✓ | Upload product image (multipart) |
 | GET | `/products/:id` | ✓ | Get product |
 | PATCH | `/products/:id` | ✓ | Update product |
 | DELETE | `/products/:id` | ✓ | Delete product (blocked if has orders) |
@@ -181,31 +212,50 @@ All endpoints are prefixed `/api/`. The frontend proxies `/api/backend/*` → `h
 
 ## Architecture
 
+### Frontend pattern
+
 ```
 page.tsx  →  DashboardShell  →  *-content.tsx
 ```
 
-- `page.tsx` — thin server component
-- `DashboardShell` (`app/dashboard-shell.tsx`) — TopNav + Sidebar + stage slot
-- `*-content.tsx` — feature UI at `app/` root
+- `page.tsx` — thin server component, composes shell + feature
+- `app/components/dashboard-shell.tsx` — TopNav + Sidebar + stage slot
+- `app/content/*-content.tsx` — all feature UI lives here
 - `app/lib/api.ts` — typed fetch client (`credentials: "include"`)
 - `app/lib/utils.ts` — shared types + utility functions
-- `app/middleware.ts` — Next.js auth guard (JWT verification via `jose`)
-- Navigation in `app/sidebar.tsx`
+- `app/components/sidebar.tsx` — centralized nav (`sidebarSections` array)
+- `app/lib/lang-context.tsx` + `app/lib/translations.ts` — bilingual ar/en
 
-## Commands
+### Backend pattern
+
+```
+Express route  →  Zod validation  →  Prisma query  →  errorHandler
+```
+
+- `backend/src/routes/` — one file per resource
+- `backend/src/schemas/index.ts` — Zod schemas for all request bodies
+- `backend/src/middleware/auth.ts` — JWT auth guard (`requireAuth`)
+- `backend/src/middleware/errorHandler.ts` — maps Prisma/Zod errors to HTTP
+
+---
+
+## Backend commands
 
 ```bash
-# Frontend
-npm run dev        # dev server
-npm run build      # production build
-npm run lint       # ESLint
-
-# Backend
 cd backend
-npm run dev        # dev server (nodemon)
-npm run build      # tsc compile
-npx prisma studio  # DB GUI
-npm run db:seed    # seed initial data
-npm run db:migrate # run migrations
+npm run dev          # dev server with nodemon
+npm run build        # tsc compile to dist/
+npm run db:migrate   # prisma migrate deploy
+npm run db:seed      # seed initial data
+npm run db:studio    # Prisma Studio GUI
+npm run db:generate  # regenerate Prisma client after schema change
+```
+
+## Frontend commands
+
+```bash
+npm run dev          # dev server
+npm run build        # production build
+npm run lint         # ESLint
+npm test             # Node native test runner
 ```
