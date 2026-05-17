@@ -1,0 +1,16 @@
+-- Add extended product fields missing from initial migration
+ALTER TABLE "Product"
+  ADD COLUMN IF NOT EXISTS "nameKu"             TEXT NOT NULL DEFAULT '',
+  ADD COLUMN IF NOT EXISTS "descriptionAr"      TEXT NOT NULL DEFAULT '',
+  ADD COLUMN IF NOT EXISTS "descriptionKu"      TEXT NOT NULL DEFAULT '',
+  ADD COLUMN IF NOT EXISTS "warrantyEn"         TEXT NOT NULL DEFAULT '',
+  ADD COLUMN IF NOT EXISTS "warrantyAr"         TEXT NOT NULL DEFAULT '',
+  ADD COLUMN IF NOT EXISTS "warrantyKu"         TEXT NOT NULL DEFAULT '',
+  ADD COLUMN IF NOT EXISTS "giniCategory"       TEXT NOT NULL DEFAULT '',
+  ADD COLUMN IF NOT EXISTS "marketingCategory"  TEXT NOT NULL DEFAULT '',
+  ADD COLUMN IF NOT EXISTS "shippingCategory"   TEXT NOT NULL DEFAULT '',
+  ADD COLUMN IF NOT EXISTS "giftType"           TEXT NOT NULL DEFAULT '',
+  ADD COLUMN IF NOT EXISTS "purchaseLimitEnabled" BOOLEAN NOT NULL DEFAULT false,
+  ADD COLUMN IF NOT EXISTS "purchaseLimitQty"   INTEGER NOT NULL DEFAULT 0,
+  ADD COLUMN IF NOT EXISTS "mainImage"          TEXT NOT NULL DEFAULT '',
+  ADD COLUMN IF NOT EXISTS "galleryImages"      TEXT[] NOT NULL DEFAULT ARRAY[]::TEXT[];
