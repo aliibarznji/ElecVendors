@@ -179,9 +179,10 @@ model DiscountPlan {
   name       String
   startDate  DateTime
   endDate    DateTime
-  productIds String[]
-  sales      Float    @default(0)
-  itemsSold  Json     @default("{}")
+  productIds  String[]
+  discountPct Float    @default(0)
+  sales       Float    @default(0)
+  itemsSold   Json     @default("{}")
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 

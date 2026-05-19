@@ -36,6 +36,7 @@ router.post("/", requireAuth, async (req: AuthRequest, res, next) => {
         startDate: new Date(data.startDate),
         endDate: new Date(data.endDate),
         productIds: data.productIds,
+        discountPct: data.discountPct,
       },
     });
 

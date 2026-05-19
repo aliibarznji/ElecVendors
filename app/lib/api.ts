@@ -147,7 +147,7 @@ export const api = {
 
   discountPlans: {
     list: () => req<ApiDiscountPlan[]>("/discount-plans"),
-    create: (data: { name: string; startDate: string; endDate: string; productIds: string[] }) =>
+    create: (data: { name: string; startDate: string; endDate: string; productIds: string[]; discountPct: number }) =>
       req<ApiDiscountPlan>("/discount-plans", { method: "POST", body: JSON.stringify(data) }),
     delete: (id: string) => req<{ ok: boolean }>(`/discount-plans/${id}`, { method: "DELETE" }),
   },

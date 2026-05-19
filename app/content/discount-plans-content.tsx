@@ -51,32 +51,76 @@ function downloadCsv(filename: string, headers: string[], rows: (string | number
 }
 
 function CreatePlanForm({
+  products,
   onCancel,
   onSave,
 }: {
+  products: ApiProduct[];
   onCancel: () => void;
   onSave: (plan: ApiDiscountPlan) => void;
 }) {
+  const { lang } = useLang();
   const [name, setName] = useState("");
   const [startDate, setStartDate] = useState(() => {
     const d = new Date();
-    d.setDate(d.getDate() + 10);
+    d.setDate(d.getDate() + 1);
     return d.toISOString().slice(0, 10);
   });
   const [endDate, setEndDate] = useState(() => {
     const d = new Date();
-    d.setDate(d.getDate() + 20);
+    d.setDate(d.getDate() + 14);
     return d.toISOString().slice(0, 10);
   });
+  const [discountPct, setDiscountPct] = useState(10);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [productSearch, setProductSearch] = useState("");
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+
+  const filteredProducts = useMemo(() => {
+    const q = productSearch.trim().toLowerCase();
+    if (!q) return products;
+    return products.filter((p) =>
+      p.nameEn.toLowerCase().includes(q) ||
+      p.nameAr.includes(q) ||
+      p.sku.toLowerCase().includes(q) ||
+      p.brand.toLowerCase().includes(q),
+    );
+  }, [products, productSearch]);
+
+  const toggleProduct = (id: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const toggleAll = () => {
+    if (selectedIds.size === filteredProducts.length) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(filteredProducts.map((p) => p.id)));
+    }
+  };
 
   const handleSave = () => {
-    if (!name.trim()) return;
+    if (!name.trim()) { setError("Plan name is required."); return; }
+    if (selectedIds.size === 0) { setError("Select at least one product."); return; }
+    if (discountPct <= 0 || discountPct > 100) { setError("Discount must be 1–100%."); return; }
+    setError("");
     setSaving(true);
     api.discountPlans
-      .create({ name, startDate, endDate, productIds: [] })
+      .create({
+        name: name.trim(),
+        startDate,
+        endDate,
+        productIds: Array.from(selectedIds),
+        discountPct,
+      })
       .then((plan) => onSave(plan))
-      .catch(() => setSaving(false));
+      .catch(() => { setError("Failed to save plan. Try again."); setSaving(false); });
   };
 
   return (
@@ -88,15 +132,36 @@ function CreatePlanForm({
           <span>Cancel</span>
         </button>
       </div>
+
+      {error && (
+        <div style={{ background: "#fef2f2", border: "1px solid #fca5a5", borderRadius: 8, padding: "10px 14px", color: "#dc2626", fontSize: 13, marginBottom: 16 }}>
+          {error}
+        </div>
+      )}
+
       <div className="warranty-main-grid">
         <label className="warranty-field">
           <span>Plan Name</span>
           <div className="warranty-field-box">
             <input
               value={name}
-              placeholder="Weekend Discount"
+              placeholder="e.g. Weekend Sale"
               onChange={(e) => setName(e.target.value)}
             />
+          </div>
+        </label>
+        <label className="warranty-field">
+          <span>Discount Percentage</span>
+          <div className="warranty-field-box" style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <input
+              type="number"
+              min={1}
+              max={100}
+              value={discountPct}
+              onChange={(e) => setDiscountPct(Number(e.target.value))}
+              style={{ width: 80 }}
+            />
+            <span style={{ color: "var(--muted)", fontSize: 14 }}>%</span>
           </div>
         </label>
         <label className="warranty-field">
@@ -116,6 +181,94 @@ function CreatePlanForm({
           </div>
         </label>
       </div>
+
+      <div style={{ marginTop: 24 }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
+          <span style={{ fontWeight: 600, fontSize: 14 }}>
+            Select Products
+            {selectedIds.size > 0 && (
+              <span style={{ marginLeft: 8, background: "var(--brand)", color: "#fff", borderRadius: 20, padding: "1px 8px", fontSize: 12 }}>
+                {selectedIds.size} selected
+              </span>
+            )}
+          </span>
+          <button
+            type="button"
+            style={{ fontSize: 12, color: "var(--brand)", background: "none", border: "none", cursor: "pointer", fontWeight: 500 }}
+            onClick={toggleAll}
+          >
+            {selectedIds.size === filteredProducts.length && filteredProducts.length > 0 ? "Deselect All" : "Select All"}
+          </button>
+        </div>
+
+        <label className="order-items-search" style={{ marginBottom: 10 }}>
+          <Search aria-hidden="true" size={15} strokeWidth={2.2} />
+          <input
+            placeholder="Search products…"
+            value={productSearch}
+            onChange={(e) => setProductSearch(e.target.value)}
+          />
+        </label>
+
+        <div style={{ border: "1px solid var(--border)", borderRadius: 10, overflow: "hidden", maxHeight: 340, overflowY: "auto" }}>
+          <table className="purchase-order-table" style={{ margin: 0 }}>
+            <thead>
+              <tr>
+                <th style={{ width: 40 }}></th>
+                <th>Product</th>
+                <th>SKU</th>
+                <th>Brand</th>
+                <th>Price</th>
+                <th>Discounted Price</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredProducts.length === 0 ? (
+                <tr><td colSpan={6} className="empty-cell">No products found.</td></tr>
+              ) : (
+                filteredProducts.map((p) => {
+                  const checked = selectedIds.has(p.id);
+                  const discounted = Math.round(p.sellingPrice * (1 - discountPct / 100));
+                  return (
+                    <tr
+                      key={p.id}
+                      className="product-list-data-row"
+                      style={{ cursor: "pointer", background: checked ? "rgba(220,38,38,0.04)" : undefined }}
+                      onClick={() => toggleProduct(p.id)}
+                    >
+                      <td onClick={(e) => e.stopPropagation()}>
+                        <input
+                          type="checkbox"
+                          checked={checked}
+                          onChange={() => toggleProduct(p.id)}
+                          style={{ cursor: "pointer", accentColor: "var(--brand)" }}
+                        />
+                      </td>
+                      <td>
+                        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                          {p.mainImage && (
+                            <img src={p.mainImage} alt="" style={{ width: 36, height: 36, objectFit: "contain", borderRadius: 6, border: "1px solid var(--border)", background: "#f9f9f9" }} />
+                          )}
+                          <span style={{ fontWeight: 500, fontSize: 13 }}>
+                            {lang === "ar" ? p.nameAr : p.nameEn}
+                          </span>
+                        </div>
+                      </td>
+                      <td style={{ fontSize: 12, color: "var(--muted)" }}>{p.sku}</td>
+                      <td style={{ fontSize: 12 }}>{p.brand}</td>
+                      <td style={{ fontSize: 13 }}>{formatIqd(p.sellingPrice)}</td>
+                      <td style={{ fontSize: 13, color: "#16a34a", fontWeight: 600 }}>
+                        {discountPct > 0 ? formatIqd(discounted) : "—"}
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
       <div className="warranty-actions">
         <button className="warranty-cancel-button" type="button" onClick={onCancel}>
           Cancel
@@ -127,7 +280,7 @@ function CreatePlanForm({
           onClick={handleSave}
         >
           <Save aria-hidden="true" size={18} strokeWidth={2.4} />
-          <span>Save Plan</span>
+          <span>{saving ? "Saving…" : `Save Plan (${selectedIds.size} products)`}</span>
         </button>
       </div>
     </section>
@@ -364,6 +517,7 @@ export function DiscountPlansContent() {
 
       {creating ? (
         <CreatePlanForm
+          products={products}
           onCancel={() => setCreating(false)}
           onSave={(plan) => {
             setPlans((current) => [plan, ...current]);
@@ -420,9 +574,10 @@ export function DiscountPlansContent() {
                 <thead>
                   <tr>
                     <th>Plan Name</th>
+                    <th>Discount</th>
                     <th>Start</th>
                     <th>End</th>
-                    <th>Products Count</th>
+                    <th>Products</th>
                     <th>Sales</th>
                     <th>Items Sold</th>
                     <th>Status</th>
@@ -432,13 +587,13 @@ export function DiscountPlansContent() {
                 <tbody>
                   {loading ? (
                     <tr>
-                      <td colSpan={8} className="empty-cell">
+                      <td colSpan={9} className="empty-cell">
                         Loading…
                       </td>
                     </tr>
                   ) : visible.length === 0 ? (
                     <tr>
-                      <td colSpan={8} className="empty-cell">
+                      <td colSpan={9} className="empty-cell">
                         No plans match this filter.
                       </td>
                     </tr>
@@ -456,6 +611,11 @@ export function DiscountPlansContent() {
                         <Fragment key={plan.id}>
                           <tr className="product-list-data-row">
                             <td>{plan.name}</td>
+                            <td>
+                              <span style={{ fontWeight: 600, color: "#16a34a" }}>
+                                {plan.discountPct ?? 0}%
+                              </span>
+                            </td>
                             <td>{plan.startDate.slice(0, 10)}</td>
                             <td>{plan.endDate.slice(0, 10)}</td>
                             <td>{plan.productIds.length}</td>
@@ -499,7 +659,7 @@ export function DiscountPlansContent() {
 
                           {openPlan === plan.id && (
                             <tr key={`${plan.id}-detail`} className="row-details-row">
-                              <td colSpan={8}>
+                              <td colSpan={9}>
                                 <div className="discount-plan-detail">
                                   {plan.productIds.length === 0 ? (
                                     <p className="dashboard-sub">No products in this plan.</p>
@@ -510,9 +670,10 @@ export function DiscountPlansContent() {
                                           <th>Product Name</th>
                                           <th>SKU</th>
                                           <th>Brand</th>
-                                          <th>Quantity Sold</th>
-                                          <th>Unit Price</th>
-                                          <th>Total Price</th>
+                                          <th>Original Price</th>
+                                          <th>Discounted Price</th>
+                                          <th>Qty Sold</th>
+                                          <th>Total</th>
                                         </tr>
                                       </thead>
                                       <tbody>
@@ -520,6 +681,8 @@ export function DiscountPlansContent() {
                                           const product = productMap[productId];
                                           const qty = plan.itemsSold[productId] ?? 0;
                                           const unitPrice = product?.sellingPrice ?? 0;
+                                          const pct = plan.discountPct ?? 0;
+                                          const discounted = Math.round(unitPrice * (1 - pct / 100));
                                           return (
                                             <tr
                                               className="product-list-data-row"
@@ -534,9 +697,10 @@ export function DiscountPlansContent() {
                                               </td>
                                               <td>{product?.sku ?? "-"}</td>
                                               <td>{product?.brand ?? "-"}</td>
+                                              <td style={{ textDecoration: pct > 0 ? "line-through" : undefined, color: "var(--muted)" }}>{formatIqd(unitPrice)}</td>
+                                              <td style={{ color: "#16a34a", fontWeight: 600 }}>{pct > 0 ? formatIqd(discounted) : "—"}</td>
                                               <td>{qty}</td>
-                                              <td>{formatIqd(unitPrice)}</td>
-                                              <td>{formatIqd(unitPrice * qty)}</td>
+                                              <td>{formatIqd(discounted * qty)}</td>
                                             </tr>
                                           );
                                         })}

@@ -72,7 +72,8 @@ export const discountPlanCreateSchema = z.object({
   name: z.string().min(1),
   startDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
   endDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
-  productIds: z.array(z.string()).min(1),
+  productIds: z.array(z.string()).default([]),
+  discountPct: z.number().min(0).max(100).default(0),
 });
 
 export const campaignCreateSchema = z.object({

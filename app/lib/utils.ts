@@ -141,6 +141,7 @@ export type ApiDiscountPlan = {
   startDate: string;
   endDate: string;
   productIds: string[];
+  discountPct: number;
   sales: number;
   itemsSold: Record<string, number>;
   createdAt: string;

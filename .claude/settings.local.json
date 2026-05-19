@@ -26,7 +26,11 @@
       "Bash(npm run *)",
       "Bash(Test-Path \"c:\\\\Users\\\\aliib\\\\Desktop\\\\New folder \\(3\\)\\\\ElecVendors\\\\.env\")",
       "Bash(openssl rand *)",
-      "Bash(docker compose *)"
+      "Bash(docker compose *)",
+      "Bash(Get-Content .env)",
+      "Bash(Select-Object -First 10)",
+      "PowerShell(docker exec electromall_api ls /app 2>&1)",
+      "PowerShell(docker exec electromall_api ls /app/dist/prisma 2>&1)"
     ]
   }
 }
